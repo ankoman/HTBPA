@@ -32,7 +32,9 @@ package PARAMS_BN254_16_16;
         M_tilda = 272'h0x7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff,
         N = 17,
         M = 17,
-        HALF_S = (M+D+1)/2; // must be even
+        HALF_S = (M+D+1)/2, // must be even
+        S_1_3 = (M+D+1)/3;  // 1/3
+
     
     typedef logic[M:0][47:0] qpmm_S_t;
     typedef logic[M-2:0][L-1:0] poly_Mpp_t;
@@ -40,6 +42,7 @@ package PARAMS_BN254_16_16;
     typedef logic[M-1:0][L-1:0] poly_a_t;
     typedef logic[N-1:0][K-1:0] poly_b_t;
     typedef logic[(HALF_S-1)*L+48-1:0] qpmm_S_half;
+    typedef logic[(S_1_3-1)*L+48-1:0] qpmm_S_1_3;
 
     typedef union packed {
         uint_fp_t uint;

@@ -21,6 +21,7 @@
 
 import PARAMS_BN254_16_16::*;
 localparam latency = 3;
+localparam latency_FA = 3;
 
 module QPMM_d0_16_16(
     input clk, rstn,
@@ -39,7 +40,6 @@ module QPMM_d0_16_16(
     logic[N+D:0][K-1:0] wire_q;
     qpmm_S_t[N+D+1:0] reg_S;
     qpmm_S_t buf_S;
-    qpmm_S_half Z_L, Z_H;
 
     ///////////////////////////////////////////////
     // Initilization
@@ -50,16 +50,33 @@ module QPMM_d0_16_16(
     assign wire_q[0] = '0;
 
     ///////////////////////////////////////////////
+    // Final Addition
+    //////////////////////////////////////////////
+    if (latency_FA == 2) begin
+        qpmm_S_half Z_L, Z_H;
+        always @(posedge clk) begin
+            buf_S <= reg_S[N+D+1];
+            Z_L <= poly2int_half(buf_S[HALF_S-1:1]) + buf_S[0][47:K];
+            Z_H <= poly2int_half(buf_S[M+D:HALF_S]);
+            Z <=  (Z_H << (HALF_S-1)*L) + Z_L;
+        end
+    end
+    else if (latency_FA == 3) begin
+        qpmm_S_1_3 Z_L, Z_M, Z_H, Z_H2;
+        logic [(S_1_3*2-1)*L+48-1:0] Z_ML;
+        always @(posedge clk) begin
+            buf_S <= reg_S[N+D+1];
+            Z_L <= poly2int_1_3(buf_S[S_1_3-1:1]) + buf_S[0][47:K];
+            Z_M <= poly2int_1_3(buf_S[(2*S_1_3)-1:S_1_3]);
+            Z_H <= poly2int_half(buf_S[M+D:(2*S_1_3)]);
+            Z_ML <= (Z_M << (S_1_3-1)*L) + Z_L;
+            Z_H2 <= Z_H;
+            Z <= (Z_H2 << (2*S_1_3-1)*L) + Z_ML;
+        end
+    end
+    ///////////////////////////////////////////////
     // Body
     //////////////////////////////////////////////
-    always @(posedge clk) begin
-        buf_S <= reg_S[N+D+1];
-        Z_L <= poly2int_half(buf_S[HALF_S-1:1]) + buf_S[0][47:K];
-        Z_H <= poly2int_half(buf_S[M+D:HALF_S]);
-        Z <=  (Z_H << (HALF_S-1)*L) + Z_L;
-        //Z <= poly2int(buf_S);
-    end
-
     for(genvar i = 0; i < N + D + 1; i = i + 1) begin : QPMM
         for(genvar j = 0; j < M + D; j = j + 1) begin : for_1
             if(i == 0)
@@ -119,6 +136,15 @@ module QPMM_d0_16_16(
             end
         end
     end
+
+    function qpmm_S_half poly2int_1_3;
+        input [S_1_3-1:0][47:0] A;
+
+            poly2int_1_3 = 0;
+            for(integer i = 0; i < S_1_3; i = i + 1) begin
+                poly2int_1_3 = poly2int_1_3 + (A[i] << (L*i));
+            end
+    endfunction
 
     function qpmm_S_half poly2int_half;
         input [HALF_S-1:0][47:0] A;
