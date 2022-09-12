@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 import PARAMS_BN254_16_16::*;
-localparam latency = 3;
+localparam latency = 4;
 localparam latency_FA = 4;
 
 module QPMM_d0_16_16(
@@ -35,6 +35,8 @@ module QPMM_d0_16_16(
     qpmm_fp_t[N+D-1:0] reg_A, reg_B;
     qpmm_fp_t[N+D-1:0] buf_A, buf_B;
     qpmm_fp_t[N+D-1:0] buf_A2, buf_B2;
+    qpmm_fp_t[N+D-1:0] buf_A3, buf_B3;
+
 
     qpmm_fp_t Mpp = _Mpp;
     logic[N+D:0][K-1:0] wire_q;
@@ -147,6 +149,25 @@ module QPMM_d0_16_16(
                 buf_s0_0 <= buf_q;
                 buf_s0_1 <= buf_s0_0;
                 reg_S[i+1][0] <= buf_s0_1;
+            end
+        end
+        else if (latency == 4) begin
+            logic [47:0] buf_s0_0, buf_s0_1, buf_s0_2;
+            always_ff @(posedge clk) begin : ff_ab_q
+                if(i < N + D) begin
+                    buf_A[i] <= reg_A[i];
+                    buf_B[i] <= reg_B[i];
+                    buf_A2[i] <= buf_A[i];
+                    buf_B2[i] <= buf_B[i];
+                    buf_A3[i] <= buf_A2[i];
+                    buf_B3[i] <= buf_B2[i];
+                    reg_A[i+1] <= buf_A3[i];
+                    reg_B[i+1] <= buf_B3[i];
+                end
+                buf_s0_0 <= buf_q;
+                buf_s0_1 <= buf_s0_0;
+                buf_s0_2 <= buf_s0_1;
+                reg_S[i+1][0] <= buf_s0_2;
             end
         end
     end
