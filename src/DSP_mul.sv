@@ -70,7 +70,24 @@ module PE_16_16
         .P(out_s)        // output wire [47 : 0] P
         );
     end
+    else if (latency == 3) begin
+        xbip_dsp48_macro_ab_2 mul_ab (
+        .CLK(clk),      // input wire CLK
+        .A(27'(in_a)),          // input wire [26 : 0] A
+        .B(18'(in_b)),          // input wire [17 : 0] B
+        .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
+        .P()          // output wire [47 : 0] P
+        );
 
+        xbip_dsp48_macro_ab_c_pcin_3 mul_qm (
+        .CLK(clk),    // input wire CLK
+        .PCIN(w_pc),  // input wire [47 : 0] PCIN
+        .A(27'(in_m)),        // input wire [26 : 0] A
+        .B(18'(in_q)),        // input wire [17 : 0] B
+        .C(in_s),        // input wire [47 : 0] C
+        .P(out_s)        // output wire [47 : 0] P
+        );
+    end
 endmodule
 
 module DSP_muladd_16_16
@@ -102,7 +119,15 @@ module DSP_muladd_16_16
         .P(out_s)        // output wire [47 : 0] P
         );
     end
-
+    else if (latency == 3) begin
+        xbip_dsp48_macro_ab_c_3 mul_qm (
+        .CLK(clk),    // input wire CLK
+        .A(27'(in_a)),        // input wire [26 : 0] A
+        .B(18'(in_b)),        // input wire [17 : 0] B
+        .C(in_s),        // input wire [47 : 0] C
+        .P(out_s)        // output wire [47 : 0] P
+        );
+    end
 endmodule
 
 module DSP_mul_16_16
@@ -129,6 +154,16 @@ module DSP_mul_16_16
         .CLK(clk),      // input wire CLK
         .A(27'(in_a)),          // input wire [16 : 0] A
         .B(18'(in_b)),          // input wire [16 : 0] B
+        .PCOUT(),  // output wire [47 : 0] PCOUT
+        .P(out_s)          // output wire [33 : 0] P
+        );
+    end
+    else if (latency == 3) begin
+        xbip_dsp48_macro_ab_3 mul_ab (
+        .CLK(clk),      // input wire CLK
+        .A(27'(in_a)),          // input wire [16 : 0] A
+        .B(18'(in_b)),          // input wire [16 : 0] B
+        .PCOUT(),  // output wire [47 : 0] PCOUT
         .P(out_s)          // output wire [33 : 0] P
         );
     end
