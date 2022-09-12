@@ -1,0 +1,15 @@
+/*
+!/src/
+!/obj/
+!/misc/
+!/report/
+!.gitignore
+!.gitattributes
+!*.tcl
+!*.py
+!README.md
+/misc/ref_dat/*.str
+/misc/ref_dat/*.jou
+/misc/ref_dat/*.log
+/misc/ref_dat/.Xil/*
+/misc/ref_dat/.hbs/*
