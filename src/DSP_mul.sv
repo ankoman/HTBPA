@@ -199,3 +199,36 @@ module DSP_mul
         );
     end
 endmodule
+
+
+
+module PE_24
+(
+    input clk,
+    input [K-1:0] in_b, in_q,
+    input [L-1:0] in_a, in_m,
+    input [2*K-1:0] in_sl,
+    input [48-2*K-1:0] in_su,
+    output [47:0] out_s
+    );
+
+    wire [47:0] w_pc;
+
+    xbip_dsp48_macro_ab_c_1 mul_ab (
+    .CLK(clk),    // input wire CLK
+    .A(27'(in_a)),        // input wire [26 : 0] A
+    .B(18'(in_b)),        // input wire [17 : 0] B
+    .C(48'(in_su << K)),    // input wire [47 : 0] C
+    .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
+    .P()        // output wire [47 : 0] P
+    );
+    xbip_dsp48_macro_ab_c_pcin_1 mul_qm (
+    .CLK(clk),    // input wire CLK
+    .PCIN(w_pc),  // input wire [47 : 0] PCIN
+    .A(27'(in_m)),        // input wire [26 : 0] A
+    .B(18'(in_q)),        // input wire [17 : 0] B
+    .C(48'(in_sl << C)),        // input wire [47 : 0] C
+    .P(out_s)        // output wire [47 : 0] P
+    );
+
+endmodule

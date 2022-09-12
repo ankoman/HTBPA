@@ -25,7 +25,7 @@
 package PARAMS_BN254_d0;
     localparam
         K = 16,
-        L = 16,
+        L = 24,
         C = L - K,
         D = 0,
         Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
@@ -36,13 +36,16 @@ package PARAMS_BN254_d0;
         M = r/L + 1,
         HALF_S = (M+D+1)/2, // must be even
         S_1_3 = (M+D+1)/3,  // 1/3
-        S_1_4 = (M+D-1)/4;  // 1/4
+        //S_1_4 = (M+D-1)/4;  // 1/4
+        S_1_4 = (M+D)/4;  // 1/4
+
 
 
     
     typedef logic[M:0][47:0] qpmm_S_t;
     typedef logic[M-2:0][L-1:0] poly_Mpp_t;
     typedef logic[K*N-1:0] uint_fp_t;
+    typedef logic[L*M-1:0] uint_fpa_t;
     typedef logic[M-1:0][L-1:0] poly_a_t;
     typedef logic[N-1:0][K-1:0] poly_b_t;
     typedef logic[(HALF_S-1)*L+48-1:0] qpmm_S_half;
@@ -52,9 +55,18 @@ package PARAMS_BN254_d0;
 
     typedef union packed {
         uint_fp_t uint;
-        poly_a_t poly_a;
         poly_b_t poly_b;
     } qpmm_fp_t;
+
+    typedef union packed {
+        uint_fpa_t uint;
+        poly_a_t poly_a;
+    } qpmm_fpa_t;
+
+    typedef union packed {
+        uint_fp_t uint;
+        poly_b_t poly_b;
+    } qpmm_fpb_t;
 
     function qpmm_fp_t rand_280();
         // N must be less than 320 bits

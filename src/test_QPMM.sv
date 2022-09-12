@@ -36,7 +36,7 @@ module test_QPMM;
     wire [255:0] res = MR(Z);
     reg [N_PIPELINE_STAGES:0][255:0] reg_ans;
 
-    QPMM_d0_16_16 DUT(.clk, .rstn, .A, .B, .Z);
+    QPMM_d0_24_16 DUT(.clk, .rstn, .A, .B, .Z);
     
     always begin
         #(CYCLE/2) clk <= ~clk;
@@ -92,7 +92,7 @@ module test_QPMM;
     function [255:0] MR;
         input qpmm_fp_t A;
         logic [999:0] tmp_ans = (r_inv*A);
-        MR = tmp_ans % PARAMS_BN254_16_16::Mod;
+        MR = tmp_ans % PARAMS_BN254_d0::Mod;
     endfunction
 
 endmodule
