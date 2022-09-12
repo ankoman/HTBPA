@@ -19,8 +19,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_16_16::*;
-localparam latency = 4;
+import PARAMS_BN254_d0::*;
+localparam latency = 1;
 localparam latency_FA = 4;
 
 module QPMM_d0_16_16(
@@ -96,18 +96,18 @@ module QPMM_d0_16_16(
     for(genvar i = 0; i < N + D + 1; i = i + 1) begin : QPMM
         for(genvar j = 0; j < M + D; j = j + 1) begin : for_1
             if(i == 0)
-                DSP_mul_16_16 #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
+                DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
             else if(i == N + D) begin
                 if(j == M - 1)
                     assign reg_S[i+1][j+1] = '0;
                 else
-                    DSP_muladd_16_16 #(.latency(latency)) qm_S (.clk(clk), .in_a(Mpp.poly_a[j]), .in_b(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1]));
+                    DSP_muladd #(.latency(latency)) qm_S (.clk(clk), .in_a(Mpp.poly_a[j]), .in_b(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1]));
             end
             else begin
                 if(j == M - 1)
-                    DSP_mul_16_16 #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
+                    DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
                 else 
-                    PE_16_16 #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1])); 
+                    PE #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1])); 
             end
         end
         wire [47:0] buf_q = reg_S[i][0][47:K] + reg_S[i][1];

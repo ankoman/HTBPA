@@ -20,18 +20,20 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-`ifndef PARAMS_BN254_16_16
-`define PARAMS_BN254_16_16
-package PARAMS_BN254_16_16;
+`ifndef PARAMS_BN254_d0
+`define PARAMS_BN254_d0
+package PARAMS_BN254_d0;
     localparam
         K = 16,
         L = 16,
+        C = L - K,
         D = 0,
         Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
         _Mpp = 256'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000004,
-        M_tilda = 272'h0x7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff,
-        N = 17,
-        M = 17,
+        M_tilda = 272'h0x7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff, // 268 bits
+        r = 272 - 1,
+        N = r/K + 1,
+        M = r/L + 1,
         HALF_S = (M+D+1)/2, // must be even
         S_1_3 = (M+D+1)/3,  // 1/3
         S_1_4 = (M+D-1)/4;  // 1/4

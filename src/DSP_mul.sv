@@ -18,10 +18,9 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-import PARAMS_BN254_16_16::*;
+import PARAMS_BN254_d0::*;
 
-
-module PE_16_16
+module PE
     #(
     parameter latency = 0
     )(
@@ -104,7 +103,7 @@ module PE_16_16
     end
 endmodule
 
-module DSP_muladd_16_16
+module DSP_muladd
     #(
     parameter latency = 0
     )(
@@ -153,7 +152,7 @@ module DSP_muladd_16_16
     end
 endmodule
 
-module DSP_mul_16_16
+module DSP_mul
     #(
     parameter latency = 0
     )(

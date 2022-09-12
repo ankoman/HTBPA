@@ -19,20 +19,20 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_16_16::*;
+import PARAMS_BN254_d0::*;
 
 module test_QPMM;
     localparam 
         CYCLE = 10,
         DELAY = 2,
         N_DATA = 10000,
-        N_PIPELINE_STAGES = 76,
+        N_PIPELINE_STAGES = 22,
         r_inv = 'h131822b9f3de491ff4d85504410ed56c72e68c1f514017577c489d762ae9cf77;
                
     reg clk, rstn;
     qpmm_fp_t A, B, Z;
     wire [999:0] tmp_ans = MR(A) * MR(B);
-    wire [255:0] ans = tmp_ans % PARAMS_BN254_16_16::Mod;
+    wire [255:0] ans = tmp_ans % PARAMS_BN254_d0::Mod;
     wire [255:0] res = MR(Z);
     reg [N_PIPELINE_STAGES:0][255:0] reg_ans;
 
