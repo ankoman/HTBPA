@@ -33,7 +33,9 @@ package PARAMS_BN254_16_16;
         N = 17,
         M = 17,
         HALF_S = (M+D+1)/2, // must be even
-        S_1_3 = (M+D+1)/3;  // 1/3
+        S_1_3 = (M+D+1)/3,  // 1/3
+        S_1_4 = (M+D-1)/4;  // 1/4
+
 
     
     typedef logic[M:0][47:0] qpmm_S_t;
@@ -43,6 +45,8 @@ package PARAMS_BN254_16_16;
     typedef logic[N-1:0][K-1:0] poly_b_t;
     typedef logic[(HALF_S-1)*L+48-1:0] qpmm_S_half;
     typedef logic[(S_1_3-1)*L+48-1:0] qpmm_S_1_3;
+    typedef logic[(S_1_4-1)*L+48-1:0] qpmm_S_1_4;
+
 
     typedef union packed {
         uint_fp_t uint;

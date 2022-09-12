@@ -21,7 +21,7 @@
 
 import PARAMS_BN254_16_16::*;
 localparam latency = 3;
-localparam latency_FA = 3;
+localparam latency_FA = 4;
 
 module QPMM_d0_16_16(
     input clk, rstn,
@@ -72,6 +72,20 @@ module QPMM_d0_16_16(
             Z_ML <= (Z_M << (S_1_3-1)*L) + Z_L;
             Z_H2 <= Z_H;
             Z <= (Z_H2 << (2*S_1_3-1)*L) + Z_ML;
+        end
+    end
+    else if (latency_FA == 4) begin
+        qpmm_S_1_4 Z_LL, Z_LH, Z_HL, Z_HH;
+        qpmm_S_half Z_L, Z_H;
+        always @(posedge clk) begin
+            buf_S <= reg_S[N+D+1];
+            Z_LL <= poly2int_1_4(buf_S[S_1_4:1]) + buf_S[0][47:K];
+            Z_LH <= poly2int_1_4(buf_S[2*S_1_4:S_1_4+1]);
+            Z_HL <= poly2int_1_4(buf_S[3*S_1_4:2*S_1_4+1]);
+            Z_HH <= poly2int_1_4(buf_S[4*S_1_4:3*S_1_4+1]);
+            Z_L <= (Z_LH << (S_1_4*L)) + Z_LL;
+            Z_H <= (Z_HH << (S_1_4*L)) + Z_HL;
+            Z <= (Z_H << (2*S_1_4*L)) + Z_L;
         end
     end
     ///////////////////////////////////////////////
@@ -136,6 +150,15 @@ module QPMM_d0_16_16(
             end
         end
     end
+
+    function qpmm_S_half poly2int_1_4;
+        input [S_1_4-1:0][47:0] A;
+
+            poly2int_1_4 = 0;
+            for(integer i = 0; i < S_1_4; i = i + 1) begin
+                poly2int_1_4 = poly2int_1_4 + (A[i] << (L*i));
+            end
+    endfunction
 
     function qpmm_S_half poly2int_1_3;
         input [S_1_3-1:0][47:0] A;

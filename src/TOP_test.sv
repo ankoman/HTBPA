@@ -64,7 +64,7 @@ module TOP_test(
         .doutb(blk_mem_gen_1_doutb),
         .wea(xlconstant_0_dout));
 
-    clk_wiz_500 clk_wiz
+    clk_wiz_600 clk_wiz
         (.clk_in1_n(default_sysclk1_300_clk_n),
         .clk_in1_p(default_sysclk1_300_clk_p),
         .clk_out1(clk_wiz_0_clk_out1));
