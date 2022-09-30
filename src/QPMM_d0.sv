@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 import PARAMS_BN254_d0::*;
-localparam latency = 1;
+localparam latency = 3;
 localparam latency_FA = 4;
 
 module QPMM_d0_16_16(
@@ -289,13 +289,13 @@ module QPMM_d0_24_16(
                 if(j == M - 1)
                     assign reg_S[i+1][j+1] = '0;
                 else
-                    PE_24 pe(.clk(clk), .in_a('0), .in_b('0), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
+                    PE_24 #(.latency(latency)) pe(.clk(clk), .in_a('0), .in_b('0), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
             end
             else begin
                 if(j == M - 1)
                     DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
                 else 
-                    PE_24 pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
+                    PE_24 #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
             end
         end
         wire [47:0] buf_q = reg_S[i][0][47:K] + reg_S[i][1][2*K-1:0];

@@ -26,7 +26,7 @@ module test_QPMM;
         CYCLE = 10,
         DELAY = 2,
         N_DATA = 10000,
-        N_PIPELINE_STAGES = 22,
+        N_PIPELINE_STAGES = 58,
         r_inv = 'h131822b9f3de491ff4d85504410ed56c72e68c1f514017577c489d762ae9cf77;
                
     reg clk, rstn;

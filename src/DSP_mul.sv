@@ -203,7 +203,9 @@ endmodule
 
 
 module PE_24
-(
+    #(
+    parameter latency = 0
+    )(
     input clk,
     input [K-1:0] in_b, in_q,
     input [L-1:0] in_a, in_m,
@@ -213,22 +215,62 @@ module PE_24
     );
 
     wire [47:0] w_pc;
-
-    xbip_dsp48_macro_ab_c_1 mul_ab (
-    .CLK(clk),    // input wire CLK
-    .A(27'(in_a)),        // input wire [26 : 0] A
-    .B(18'(in_b)),        // input wire [17 : 0] B
-    .C(48'(in_su << K)),    // input wire [47 : 0] C
-    .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
-    .P()        // output wire [47 : 0] P
-    );
-    xbip_dsp48_macro_ab_c_pcin_1 mul_qm (
-    .CLK(clk),    // input wire CLK
-    .PCIN(w_pc),  // input wire [47 : 0] PCIN
-    .A(27'(in_m)),        // input wire [26 : 0] A
-    .B(18'(in_q)),        // input wire [17 : 0] B
-    .C(48'(in_sl << C)),        // input wire [47 : 0] C
-    .P(out_s)        // output wire [47 : 0] P
-    );
-
+    if (latency == 1) begin
+        xbip_dsp48_macro_ab_c_1 mul_ab (.CLK(clk), .A(27'(in_a)), .B(18'(in_b)), .C(48'(in_su << K)), .PCOUT(w_pc), .P());
+        xbip_dsp48_macro_ab_c_pcin_1 mul_qm (.CLK(clk), .PCIN(w_pc), .A(27'(in_m)), .B(18'(in_q)), .C(48'(in_sl << C)), .P(out_s));
+    end
+    else if (latency == 2) begin
+        xbip_dsp48_macro_ab_c_1 mul_ab (
+        .CLK(clk),    // input wire CLK
+        .A(27'(in_a)),        // input wire [26 : 0] A
+        .B(18'(in_b)),        // input wire [17 : 0] B
+        .C(48'(in_su << K)),    // input wire [47 : 0] C
+        .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
+        .P()        // output wire [47 : 0] P
+        );
+        xbip_dsp48_macro_ab_c_pcin_2 mul_qm (
+        .CLK(clk),    // input wire CLK
+        .PCIN(w_pc),  // input wire [47 : 0] PCIN
+        .A(27'(in_m)),        // input wire [26 : 0] A
+        .B(18'(in_q)),        // input wire [17 : 0] B
+        .C(48'(in_sl << C)),        // input wire [47 : 0] C
+        .P(out_s)        // output wire [47 : 0] P
+        );
+    end 
+    else if (latency == 3) begin
+        xbip_dsp48_macro_ab_c_2 mul_ab (
+        .CLK(clk),    // input wire CLK
+        .A(27'(in_a)),        // input wire [26 : 0] A
+        .B(18'(in_b)),        // input wire [17 : 0] B
+        .C(48'(in_su << K)),    // input wire [47 : 0] C
+        .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
+        .P()        // output wire [47 : 0] P
+        );
+        xbip_dsp48_macro_ab_c_pcin_3 mul_qm (
+        .CLK(clk),    // input wire CLK
+        .PCIN(w_pc),  // input wire [47 : 0] PCIN
+        .A(27'(in_m)),        // input wire [26 : 0] A
+        .B(18'(in_q)),        // input wire [17 : 0] B
+        .C(48'(in_sl << C)),        // input wire [47 : 0] C
+        .P(out_s)        // output wire [47 : 0] P
+        );
+    end
+    else if (latency == 4) begin
+        xbip_dsp48_macro_ab_c_3 mul_ab (
+        .CLK(clk),    // input wire CLK
+        .A(27'(in_a)),        // input wire [26 : 0] A
+        .B(18'(in_b)),        // input wire [17 : 0] B
+        .C(48'(in_su << K)),    // input wire [47 : 0] C
+        .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
+        .P()        // output wire [47 : 0] P
+        );
+        xbip_dsp48_macro_ab_c_pcin_4 mul_qm (
+        .CLK(clk),    // input wire CLK
+        .PCIN(w_pc),  // input wire [47 : 0] PCIN
+        .A(27'(in_m)),        // input wire [26 : 0] A
+        .B(18'(in_q)),        // input wire [17 : 0] B
+        .C(48'(in_sl << C)),        // input wire [47 : 0] C
+        .P(out_s)        // output wire [47 : 0] P
+        );
+    end  
 endmodule

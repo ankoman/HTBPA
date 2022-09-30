@@ -19,6 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+localparam USE_BRAM_MACRO = 1;
 
 module TOP_test(
     Dout_0,
@@ -34,39 +35,83 @@ module TOP_test(
     wire [271:0]blk_mem_gen_0_doutb;
     wire [271:0]blk_mem_gen_1_doutb;
     wire clk_wiz_0_clk_out1;
-    wire [0:0]xlconstant_0_dout = 'x;
-    wire [7:0]xlconstant_1_dout = 'x;
+    wire [0:0]xlconstant_0_dout = '1;
+    wire [7:0]xlconstant_1_dout = '0;
+    wire [7:0]xlconstant_2_dout = '1;
+
 
     assign Dout_0 = blk_mem_gen_1_doutb[0];
 
-    QPMM_d0_24_16 qpmm_inst
-        (.A(blk_mem_gen_0_doutb),
-        .B(blk_mem_gen_1_doutb),
+    // QPMM_d0_24_16 qpmm_inst
+    //     (.A(blk_mem_gen_0_doutb),
+    //     .B(blk_mem_gen_1_doutb),
+    //     .Z(Net),
+    //     .clk(clk_wiz_0_clk_out1),
+    //     .rstn(xlconstant_0_dout));
+
+    multi_cycle_adder #(.latency(2))MCA
+        (.X(blk_mem_gen_0_doutb),
+        .Y(blk_mem_gen_1_doutb),
         .Z(Net),
-        .clk(clk_wiz_0_clk_out1),
-        .rstn(xlconstant_0_dout));
+        .clk(clk_wiz_0_clk_out1));
 
-    blk_mem_gen_272 RAM0
-        (.addra(xlconstant_1_dout),
-        .addrb(xlconstant_1_dout),
-        .clka(clk_wiz_0_clk_out1),
-        .clkb(clk_wiz_0_clk_out1),
-        .dina(Net),
-        .doutb(blk_mem_gen_0_doutb),
-        .wea(xlconstant_0_dout));
+    if (USE_BRAM_MACRO) begin
+        blk_mem_gen_272 RAM0
+            (.addra(xlconstant_1_dout),
+            .addrb(xlconstant_1_dout),
+            .clka(clk_wiz_0_clk_out1),
+            .clkb(clk_wiz_0_clk_out1),
+            .dina(Net),
+            .doutb(blk_mem_gen_0_doutb),
+            .wea(xlconstant_0_dout));
 
-    blk_mem_gen_272 RAM1
-        (.addra(xlconstant_1_dout),
-        .addrb(xlconstant_1_dout),
-        .clka(clk_wiz_0_clk_out1),
-        .clkb(clk_wiz_0_clk_out1),
-        .dina(Net),
-        .doutb(blk_mem_gen_1_doutb),
-        .wea(xlconstant_0_dout));
+        blk_mem_gen_272 RAM1
+            (.addra(xlconstant_1_dout),
+            .addrb(xlconstant_1_dout),
+            .clka(clk_wiz_0_clk_out1),
+            .clkb(clk_wiz_0_clk_out1),
+            .dina(Net),
+            .doutb(blk_mem_gen_1_doutb),
+            .wea(xlconstant_0_dout));
+    end
+    else begin
+        HDL_RAM RAM0
+            (.addra(xlconstant_1_dout),
+            .addrb(xlconstant_1_dout),
+            .clk(clk_wiz_0_clk_out1),
+            .dina(Net),
+            .doutb(blk_mem_gen_0_doutb),
+            .wea(xlconstant_0_dout));
 
-    clk_wiz_400 clk_wiz
+        HDL_RAM RAM1
+            (.addra(xlconstant_1_dout),
+            .addrb(xlconstant_2_dout),
+            .clk(clk_wiz_0_clk_out1),
+            .dina(Net),
+            .doutb(blk_mem_gen_1_doutb),
+            .wea(xlconstant_0_dout));
+    end
+
+    clk_wiz_600 clk_wiz
         (.clk_in1_n(default_sysclk1_300_clk_n),
         .clk_in1_p(default_sysclk1_300_clk_p),
         .clk_out1(clk_wiz_0_clk_out1));
+
+endmodule
+
+module HDL_RAM(
+    input clk,
+    input [7:0] addra, addrb,
+    input wea,
+    input [271:0] dina,
+    output reg[271:0] doutb
+    );
+
+    reg [271:0] ram [140:0];
+    always @(posedge clk) begin
+        doutb <= ram[addrb];
+        if(wea)
+            ram[addra] <= dina;
+    end
 
 endmodule
