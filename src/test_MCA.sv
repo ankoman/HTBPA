@@ -25,8 +25,8 @@ module test_MCA;
     localparam 
         CYCLE = 10,
         DELAY = 2,
-        N_DATA = 10000,
-        N_PIPELINE_STAGES = 2;
+        N_DATA = 1000000,
+        N_PIPELINE_STAGES = 3;
                
     reg clk, rstn;
     uint_fp_t X, Y, Z;

@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-localparam USE_BRAM_MACRO = 1;
+localparam USE_BRAM_IP = 0;
 
 module TOP_test(
     Dout_0,
@@ -40,7 +40,7 @@ module TOP_test(
     wire [7:0]xlconstant_2_dout = '1;
 
 
-    assign Dout_0 = blk_mem_gen_1_doutb[0];
+    assign Dout_0 = blk_mem_gen_1_doutb[271];
 
     // QPMM_d0_24_16 qpmm_inst
     //     (.A(blk_mem_gen_0_doutb),
@@ -49,13 +49,13 @@ module TOP_test(
     //     .clk(clk_wiz_0_clk_out1),
     //     .rstn(xlconstant_0_dout));
 
-    multi_cycle_adder #(.latency(2))MCA
-        (.X(blk_mem_gen_0_doutb),
+    poly_adder_L3_L3 adder
+        (.sub(blk_mem_gen_0_doutb[0]),
+        .X(blk_mem_gen_0_doutb),
         .Y(blk_mem_gen_1_doutb),
-        .Z(Net),
-        .clk(clk_wiz_0_clk_out1));
+        .Z(Net));
 
-    if (USE_BRAM_MACRO) begin
+    if (USE_BRAM_IP) begin
         blk_mem_gen_272 RAM0
             (.addra(xlconstant_1_dout),
             .addrb(xlconstant_1_dout),
@@ -107,9 +107,13 @@ module HDL_RAM(
     output reg[271:0] doutb
     );
 
-    reg [271:0] ram [140:0];
+    (*rw_addr_collision = "no" *) reg [271:0] ram [140:0];
+    reg [271:0] buf_ram1, buf_ram2;
+    
     always @(posedge clk) begin
-        doutb <= ram[addrb];
+        buf_ram1 <= ram[addrb];
+        buf_ram2 <= buf_ram1;
+        doutb <= buf_ram2;
         if(wea)
             ram[addra] <= dina;
     end
