@@ -49,11 +49,24 @@ module TOP_test(
     //     .clk(clk_wiz_0_clk_out1),
     //     .rstn(xlconstant_0_dout));
 
-    poly_adder_L3_L3 adder
-        (.sub(blk_mem_gen_0_doutb[0]),
-        .X(blk_mem_gen_0_doutb),
-        .Y(blk_mem_gen_1_doutb),
-        .Z(Net));
+    // poly_adder_L3_L3 adder
+    //     (.sub(blk_mem_gen_0_doutb[0]),
+    //     .X(blk_mem_gen_0_doutb),
+    //     .Y(blk_mem_gen_1_doutb),
+    //     .Z(Net));
+
+    postadder postadder(
+    .clk(clk_wiz_0_clk_out1),
+    .rstn(blk_mem_gen_1_doutb[0]),
+    .in_L1(blk_mem_gen_0_doutb),
+    .mode1(blk_mem_gen_1_doutb[3:1]),
+    .mode2(blk_mem_gen_1_doutb[6:4]),
+    .mode3(blk_mem_gen_1_doutb[9:7]),
+    .outsel(blk_mem_gen_1_doutb[11:10]),
+    .addr2(blk_mem_gen_1_doutb[13:12]),
+    .addr3(blk_mem_gen_1_doutb[15:14]),
+    .out(Net)
+    );
 
     if (USE_BRAM_IP) begin
         blk_mem_gen_272 RAM0

@@ -37,7 +37,9 @@ package PARAMS_BN254_d0;
         HALF_S = (M+D+1)/2, // must be even
         S_1_3 = (M+D+1)/3,  // 1/3
         //S_1_4 = (M+D-1)/4;  // 1/4
-        S_1_4 = (M+D)/4;  // 1/4
+        S_1_4 = (M+D)/4,
+        ADD_DIV = 4,
+        L3_CARRY = 8;  // 1/4
 
     
     typedef logic[M:0][47:0] qpmm_S_t;
@@ -49,25 +51,25 @@ package PARAMS_BN254_d0;
     typedef logic[(HALF_S-1)*L+48-1:0] qpmm_S_half;
     typedef logic[(S_1_3-1)*L+48-1:0] qpmm_S_1_3;
     typedef logic[(S_1_4-1)*L+48-1:0] qpmm_S_1_4;
-    typedef logic[$bits(uint_fp_t)/4-1:0] fp_div4_t; // uint divided by 4.
+    typedef logic[$bits(uint_fp_t)/ADD_DIV-1:0] fp_div4_t; // uint divided by 4.
 
    typedef struct packed {
         logic carry;
         fp_div4_t val;
     } redundant_term_L1;
-    typedef redundant_term_L1[3:0] redundant_poly_L1;
+    typedef redundant_term_L1[ADD_DIV-1:0] redundant_poly_L1;
 
    typedef struct packed {
         logic [1:0] carry;
         fp_div4_t val;
     } redundant_term_L2;
-    typedef redundant_term_L2[3:0] redundant_poly_L2;
+    typedef redundant_term_L2[ADD_DIV-1:0] redundant_poly_L2;
 
    typedef struct packed {
-        logic [7:0] carry;
+        logic [L3_CARRY-1:0] carry;
         fp_div4_t val;
     } redundant_term_L3;
-    typedef redundant_term_L3[3:0] redundant_poly_L3;
+    typedef redundant_term_L3[ADD_DIV-1:0] redundant_poly_L3;
 
     typedef union packed {
         uint_fp_t uint;
