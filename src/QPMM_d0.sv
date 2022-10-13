@@ -104,7 +104,7 @@ module QPMM_d0_16_16(
                 if(j == M - 1)
                     DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
                 else 
-                    PE #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1])); 
+                    PE_16_16 #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1])); 
             end
         end
         wire [47:0] buf_q = reg_S[i][0][47:K] + reg_S[i][1];
@@ -208,7 +208,7 @@ module QPMM_d0_16_16(
 endmodule
 
 
-module QPMM_d0_24_16(
+module QPMM_d0(
     input clk, rstn,
     input qpmm_fpa_t A,
     input qpmm_fpb_t B,
@@ -269,7 +269,10 @@ module QPMM_d0_24_16(
             Z_LL <= poly2int_1_4(buf_S[S_1_4:1]) + buf_S[0][47:K];
             Z_LH <= poly2int_1_4(buf_S[2*S_1_4:S_1_4+1]);
             Z_HL <= poly2int_1_4(buf_S[3*S_1_4:2*S_1_4+1]);
-            Z_HH <= poly2int_1_4(buf_S[4*S_1_4:3*S_1_4+1]);
+            if(K==16)
+                Z_HH <= poly2int_1_4(buf_S[4*S_1_4:3*S_1_4+1]);
+            else if(K==17)
+                Z_HH <= poly2int_1_4({40'd0, buf_S[3*S_1_4+2:3*S_1_4+1]});
             Z_L <= (Z_LH << (S_1_4*L)) + Z_LL;
             Z_H <= (Z_HH << (S_1_4*L)) + Z_HL;
             Z <= (Z_H << (2*S_1_4*L)) + Z_L;
@@ -292,7 +295,7 @@ module QPMM_d0_24_16(
                 if(j == M - 1)
                     DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
                 else 
-                    PE_24 #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
+                    PE #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
             end
         end
         wire [47:0] buf_q = reg_S[i][0][47:K] + reg_S[i][1][2*K-1:0];

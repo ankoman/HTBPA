@@ -36,18 +36,18 @@ module TOP_test(
     wire [271:0]blk_mem_gen_1_doutb;
     wire clk_wiz_0_clk_out1;
     wire [0:0]xlconstant_0_dout = '1;
-    wire [7:0]xlconstant_1_dout = '0;
-    wire [7:0]xlconstant_2_dout = '1;
+    wire [8:0]xlconstant_1_dout = '0;
+    wire [8:0]xlconstant_2_dout = '1;
 
 
     assign Dout_0 = blk_mem_gen_1_doutb[271];
 
-    // QPMM_d0_24_16 qpmm_inst
-    //     (.A(blk_mem_gen_0_doutb),
-    //     .B(blk_mem_gen_1_doutb),
-    //     .Z(Net),
-    //     .clk(clk_wiz_0_clk_out1),
-    //     .rstn(xlconstant_0_dout));
+    QPMM_d0 qpmm_inst
+        (.A(blk_mem_gen_0_doutb),
+        .B(blk_mem_gen_1_doutb),
+        .Z(Net),
+        .clk(clk_wiz_0_clk_out1),
+        .rstn(xlconstant_0_dout));
 
     // poly_adder_L3_L3 adder
     //     (.sub(blk_mem_gen_0_doutb[0]),
@@ -55,18 +55,18 @@ module TOP_test(
     //     .Y(blk_mem_gen_1_doutb),
     //     .Z(Net));
 
-    postadder postadder(
-    .clk(clk_wiz_0_clk_out1),
-    .rstn(blk_mem_gen_1_doutb[0]),
-    .in_L1(blk_mem_gen_0_doutb),
-    .mode1(blk_mem_gen_1_doutb[3:1]),
-    .mode2(blk_mem_gen_1_doutb[6:4]),
-    .mode3(blk_mem_gen_1_doutb[9:7]),
-    .outsel(blk_mem_gen_1_doutb[11:10]),
-    .addr2(blk_mem_gen_1_doutb[13:12]),
-    .addr3(blk_mem_gen_1_doutb[15:14]),
-    .out(Net)
-    );
+    // postadder postadder(
+    // .clk(clk_wiz_0_clk_out1),
+    // .rstn(blk_mem_gen_1_doutb[0]),
+    // .in_L1(blk_mem_gen_0_doutb),
+    // .mode1(blk_mem_gen_1_doutb[3:1]),
+    // .mode2(blk_mem_gen_1_doutb[6:4]),
+    // .mode3(blk_mem_gen_1_doutb[9:7]),
+    // .outsel(blk_mem_gen_1_doutb[11:10]),
+    // .addr2(blk_mem_gen_1_doutb[13:12]),
+    // .addr3(blk_mem_gen_1_doutb[15:14]),
+    // .out(Net)
+    // );
 
     if (USE_BRAM_IP) begin
         blk_mem_gen_272 RAM0

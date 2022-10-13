@@ -26,7 +26,7 @@ module test_QPMM;
         CYCLE = 10,
         DELAY = 2,
         N_DATA = 1000000,
-        N_PIPELINE_STAGES = 58,
+        N_PIPELINE_STAGES = 55,
         r_inv = 'h131822b9f3de491ff4d85504410ed56c72e68c1f514017577c489d762ae9cf77;
                
     reg clk, rstn;
@@ -61,8 +61,8 @@ module test_QPMM;
     #DELAY;
         $display("Test QPMM start\n");
         for(integer i = 0; i < N_PIPELINE_STAGES; i = i + 1) begin
-            A <= rand_280() % (32*M_tilda);
-            B <= rand_280() % (32*M_tilda);
+            A <= rand_280() % (4*PARAMS_BN254_d0::M_tilde);
+            B <= rand_280() % (4*PARAMS_BN254_d0::M_tilde);
 //            A <= 272'h9d289143693cedb99a3634824056732c6ab659f650c97a3a07de4a3de195611861a;
 //            B <= 272'hcfc83b144a374cedb4ebb176cd5f622edee5ea20fbe8dcd1b6cec23632499a3cc0a1;
             #DELAY
@@ -71,8 +71,8 @@ module test_QPMM;
         end
 
         for(integer i = N_PIPELINE_STAGES; i < N_DATA; i = i + 1) begin
-            A <= rand_280() % (32*M_tilda);
-            B <= rand_280() % (32*M_tilda);
+            A <= rand_280() % (4*PARAMS_BN254_d0::M_tilde);
+            B <= rand_280() % (4*PARAMS_BN254_d0::M_tilde);
             
             #DELAY
             reg_ans[0] <= ans;

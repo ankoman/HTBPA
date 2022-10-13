@@ -19,15 +19,16 @@ from MM_util import *
 ###################################Global Params#######################################
 #######################################################################################
 M = 0x2523648240000001ba344d80000000086121000000000013a700000000000013
-k = 16
+k = 17
 d = 0
-n = math.ceil(256/k) + 1
-r = 2**(k*n)  # > 269 bits
+r_power = 272
+n = math.ceil(r_power/k)
+r = 2**r_power  # > 269 bits
 mask = 2**k - 1
 
-l = 24
+l = 26
 c = abs(l - k)
-m = math.ceil(256/l) + math.ceil(k/l)
+m = math.ceil(r_power/l)
 mask_a = 2**l - 1
 mask_c = 2**c - 1
 mask_2k = 2**(2*k) - 1
@@ -166,23 +167,23 @@ def QPMM_HW_asym_optim(A, B):
                 if j == m - 1:
                     PSs[j+1] = aj[j]*bi[i] & mask_dspout
                 else:
+                    # print(f"{i=}, {j=}")
+                    # print(f"{qi=:x}, {mppj[j]=:x}, {sl=:x}, {su=}")
                     PSs[j+1] = PE(aj[j], bi[i], qi, mppj[j], sl << c, su << k)
 
-        # print(hex(qi))
-        # print(list(map(hex, PSs)))
-        # print(hex(polytoint_a(PSs[1:]) + (PSs[0] >> k)))
+        print(hex(qi))
+        print(list(map(hex, PSs)))
+        print(hex(polytoint_a(PSs[1:]) + (PSs[0] >> k)))
     return (polytoint_a(PSs[1:]) + (PSs[0] >> k)) & (2**(n*k) - 1)
 
 def test_QPMM(HW = 0):
     random.seed(1)
 
-    for i in range(10000000):
-        A = random.randint(31*M_tilda, 32*M_tilda - 1)
-        B = random.randint(31*M_tilda, 32*M_tilda - 1)
-        # A = random.randint(31*M_tilda, 2**272 - 1)
-        # B = random.randint(31*M_tilda, 2**272 - 1)
-        # A = 0xfee56ffd4cda0fc5f3719a3e89fc22614ba51c751b879cd5f27f7f5d74e94d9c0135
-        # B = 0xffc748d441c460766ed1abfa97651c385bd346da6fec3bfd4a8a8c7268622c9be5f0
+    for i in range(1):
+        A = random.randint(M_tilda, 4*M_tilda - 1)
+        B = random.randint(M_tilda, 4*M_tilda - 1)
+        A = 0x03db857681885c50353a50511f433d63f7703e8328da6dff92d94f5229b10f344cb0
+        B = 0x1abbff787f17051de9fcb3715bcb5ff356d533be23525a0d665e3bc7a6964a37cc27
         a = MR(A)
         b = MR(B)
         ans = a*b % M
@@ -194,18 +195,18 @@ def test_QPMM(HW = 0):
             S = QPMM_HW_asym(A, B)
         elif HW == 3:
             S = QPMM_HW_asym_optim(A, B)
-            print(len(bin(S)))
         else:
             S = QPMM(A, B)
 
         print('QPMM:     ' + hex(S))
         print('MR(QPMM): ' + hex(MR(S)))
         print('ANS:      ' + hex(ans))
-        if ans == MR(S):
-            print('OK')
-        else:
-            print('NG')
-            exit()
+        # if ans == MR(S):
+        #     print('OK')
+        # else:
+        #     print('NG')
+        #     exit()
+        assert S < 2*M_tilda, f"{S=:x}: {len(bin(S))-2} bits"
 
 
 if __name__ == '__main__':
