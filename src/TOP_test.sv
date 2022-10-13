@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-localparam USE_BRAM_IP = 0;
+localparam USE_BRAM_IP = 1;
 
 module TOP_test(
     Dout_0,
@@ -120,7 +120,8 @@ module HDL_RAM(
     output reg[271:0] doutb
     );
 
-    (*rw_addr_collision = "no" *) reg [271:0] ram [140:0];
+    //(*rw_addr_collision = "no" *) reg [271:0] ram [140:0];
+    reg [271:0] ram [140:0];
     reg [271:0] buf_ram1, buf_ram2;
     
     always @(posedge clk) begin

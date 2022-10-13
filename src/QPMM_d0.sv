@@ -32,13 +32,10 @@ module QPMM_d0_16_16(
     ///////////////////////////////////////////////
     // Declaration
     //////////////////////////////////////////////
-    qpmm_fp_t[N+D-1:0] reg_A, reg_B;
-    qpmm_fp_t[N+D-1:0] buf_A, buf_B;
-    qpmm_fp_t[N+D-1:0] buf_A2, buf_B2;
-    qpmm_fp_t[N+D-1:0] buf_A3, buf_B3;
+    qpmm_fpa_t[N+D-1:0] reg_A, buf_A, buf_A2, buf_A3;
+    qpmm_fpb_t[N+D-1:0] reg_B, buf_B, buf_B2, buf_B3;
 
-
-    qpmm_fp_t Mpp = _Mpp;
+    qpmm_fpa_t Mpp = _Mpp;
     logic[N+D:0][K-1:0] wire_q;
     qpmm_S_t[N+D+1:0] reg_S;
     qpmm_S_t buf_S;

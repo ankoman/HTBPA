@@ -30,7 +30,7 @@ package PARAMS_BN254_d0;
         D = 0,
         Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
         _Mpp = 256'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000004,
-        M_tilda = 272'h0x7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff, // 268 bits
+        M_tilda = 272'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff, // 267 bits
         r = 272 - 1,
         N = r/K + 1, // 17 at k=16
         M = r/L + 1, //12 at L=24
@@ -90,7 +90,7 @@ package PARAMS_BN254_d0;
         // N must be less than 320 bits
         logic [287:0] tmp;
         assign tmp = {$urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom()};
-        rand_280 = {10'd0, tmp[269:0]};
+        rand_280 = 280'(tmp[271:0]);
     endfunction
 
 endpackage
