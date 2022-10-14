@@ -212,7 +212,7 @@ module QPMM_d0(
     input clk, rstn,
     input qpmm_fpa_t A,
     input qpmm_fpb_t B,
-    output qpmm_fpa_t Z
+    output reg [267:0] Z
     );
 
     ///////////////////////////////////////////////
@@ -230,8 +230,10 @@ module QPMM_d0(
     ///////////////////////////////////////////////
     // Initilization
     //////////////////////////////////////////////
-    assign reg_A[0][271:0] = A[271:0];
-    assign reg_A[0][287:272] = '0;
+    // For 272>
+    // assign reg_A[0][271:0] = A[271:0];
+    // assign reg_A[0][285:272] = '0;
+    assign reg_A[0] = A;
     assign reg_B[0] = B;
     assign reg_S[0] = {default: '0};
     assign wire_q[0] = '0;
@@ -289,7 +291,7 @@ module QPMM_d0(
                 if(j == M - 1)
                     assign reg_S[i+1][j+1] = '0;
                 else
-                    PE_24 #(.latency(latency)) pe(.clk(clk), .in_a('0), .in_b('0), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
+                    PE #(.latency(latency)) pe(.clk(clk), .in_a('0), .in_b('0), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
             end
             else begin
                 if(j == M - 1)

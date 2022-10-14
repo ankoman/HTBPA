@@ -31,9 +31,9 @@ module TOP_test(
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_N" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME default_sysclk1_300, CAN_DEBUG false, FREQ_HZ 300000000" *) input default_sysclk1_300_clk_n;
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_P" *) input default_sysclk1_300_clk_p;
 
-    wire [271:0]Net;
-    wire [271:0]blk_mem_gen_0_doutb;
-    wire [271:0]blk_mem_gen_1_doutb;
+    wire [267:0]Net;
+    wire [287:0]blk_mem_gen_0_doutb;
+    wire [287:0]blk_mem_gen_1_doutb;
     wire clk_wiz_0_clk_out1;
     wire [0:0]xlconstant_0_dout = '1;
     wire [8:0]xlconstant_1_dout = '0;

@@ -21,14 +21,14 @@ from MM_util import *
 M = 0x2523648240000001ba344d80000000086121000000000013a700000000000013
 k = 17
 d = 0
-r_power = 272
+r_power = 289
 n = math.ceil(r_power/k)
 r = 2**r_power  # > 269 bits
 mask = 2**k - 1
 
 l = 26
 c = abs(l - k)
-m = math.ceil(r_power/l)
+m = math.ceil(r_power/l) - 1
 mask_a = 2**l - 1
 mask_c = 2**c - 1
 mask_2k = 2**(2*k) - 1
@@ -40,13 +40,15 @@ M_tilda = get_M_tilda()
 
 def QPMM(A, B):
     bi = [(B >> k*i) & mask for i in range(n + 1)]
+    print(hex(B))
+    print(hex(polytoint(bi)))
 
     S = 0
     for i in range(n + 1):
         qi = S & mask
         S = (S >> k) + qi * M_pp + bi[i]*A
-        print(hex(qi))
-        print(hex(S))
+        # print(hex(qi))
+        # print(hex(S))
 
     return S
 
@@ -180,10 +182,10 @@ def test_QPMM(HW = 0):
     random.seed(1)
 
     for i in range(1):
-        A = random.randint(M_tilda, 4*M_tilda - 1)
-        B = random.randint(M_tilda, 4*M_tilda - 1)
-        A = 0x03db857681885c50353a50511f433d63f7703e8328da6dff92d94f5229b10f344cb0
-        B = 0x1abbff787f17051de9fcb3715bcb5ff356d533be23525a0d665e3bc7a6964a37cc27
+        A = random.randint(128*M_tilda, 1024*M_tilda - 1)
+        B = random.randint(128*M_tilda, 1024*M_tilda - 1)
+        A = 0x0001d6346c30991211970d12e8140b1d76b30a2c44f7c10edf052d67a01afd349513d18d7
+        B = 0x0000ca100baf6800480be079c307152de11ab9beb30e348e9832431c46835083a19436b0d
         a = MR(A)
         b = MR(B)
         ans = a*b % M
@@ -201,12 +203,9 @@ def test_QPMM(HW = 0):
         print('QPMM:     ' + hex(S))
         print('MR(QPMM): ' + hex(MR(S)))
         print('ANS:      ' + hex(ans))
-        # if ans == MR(S):
-        #     print('OK')
-        # else:
-        #     print('NG')
-        #     exit()
-        assert S < 2*M_tilda, f"{S=:x}: {len(bin(S))-2} bits"
+
+        assert ans == MR(S), f'\n{ans=  :x}\n{MR(S)=:x}\n{S=:x}'
+        assert S < 2*M_tilda, f"{S=:x}: {len(bin(S))-4} bits"
 
 
 if __name__ == '__main__':

@@ -23,17 +23,19 @@
 `ifndef PARAMS_BN254_d0
 `define PARAMS_BN254_d0
 package PARAMS_BN254_d0;
+    localparam
+        Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
+        M_tilde = 272'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff; // 267 bits
     // localparam
     //     K = 16,
     //     L = 24,
     //     C = L - K,
     //     D = 0,
-    //     Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
     //     _Mpp = 256'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000004, //k=16
-    //     M_tilde = 272'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff, // 267 bits
-    //     r = 272 - 1,
-    //     N = r/K + 1, // 17 at k=16
-    //     M = r/L + 1, //12 at L=24
+    //     R = 272 - 1,
+    //     R_INV = 'h131822b9f3de491ff4d85504410ed56c72e68c1f514017577c489d762ae9cf77, //r=272
+    //     N = R/K + 1, // 17 at k=16
+    //     M = R/L + 1, //12 at L=24
     //     HALF_S = (M+D+1)/2, // must be even
     //     S_1_3 = (M+D+1)/3,  // 1/3
     //     //S_1_4 = (M+D-1)/4;  // 1/4
@@ -45,12 +47,11 @@ package PARAMS_BN254_d0;
         L = 26,
         C = L - K,
         D = 0,
-        Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
         _Mpp = 256'h3e8c63befe1a0002e8c326a69c00000e1cd5bc2800000021193b18000000002, //k=17
-        M_tilde = 272'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff, // 267 bits
-        r = 272 - 1,
-        N = r/K + 1, // 17 at k=16
-        M = r/L + 1, //12 at L=24
+        R = 289 - 1,
+        R_INV = 'h4183ffd639e59ef555105a592c220885737a65cc60fa8a23659c0a44ebb1577, //r=289
+        N = R/K + 1, 
+        M = 11,
         HALF_S = (M+D+1)/2, // must be even
         S_1_3 = (M+D+1)/3,  // 1/3
         //S_1_4 = (M+D-1)/4;  // 1/4
@@ -102,11 +103,9 @@ package PARAMS_BN254_d0;
         poly_b_t poly_b;
     } qpmm_fpb_t;
 
-    function qpmm_fp_t rand_280();
+    function qpmm_fp_t rand_288();
         // N must be less than 320 bits
-        logic [287:0] tmp;
-        assign tmp = {$urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom()};
-        rand_280 = 280'(tmp[271:0]);
+        rand_288 = {$urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom()};
     endfunction
 
 endpackage
