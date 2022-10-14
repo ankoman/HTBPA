@@ -31,7 +31,7 @@ module TOP_test(
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_N" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME default_sysclk1_300, CAN_DEBUG false, FREQ_HZ 300000000" *) input default_sysclk1_300_clk_n;
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_P" *) input default_sysclk1_300_clk_p;
 
-    wire [287:0]Net;
+    wire [287:0]Net, Net1, Net2;
     wire [287:0]blk_mem_gen_0_doutb;
     wire [287:0]blk_mem_gen_1_doutb;
     wire clk_wiz_0_clk_out1;
@@ -49,7 +49,7 @@ module TOP_test(
     //     .clk(clk_wiz_0_clk_out1),
     //     .rstn(xlconstant_0_dout));
 
-    cmul cmul(.clk(clk_wiz_0_clk_out1), .mode(3'b001), .din(blk_mem_gen_0_doutb), .dout(Net));
+    // cmul #(.LATENCY(1)) cmul (.clk(clk_wiz_0_clk_out1), .mode(blk_mem_gen_1_doutb), .din(blk_mem_gen_0_doutb), .dout(Net));
 
     // poly_adder_L3_L3 adder
     //     (.sub(blk_mem_gen_0_doutb[0]),
@@ -69,6 +69,18 @@ module TOP_test(
     // .addr3(blk_mem_gen_1_doutb[15:14]),
     // .out(Net)
     // );
+
+    preadder preadder (
+    .clk(clk_wiz_0_clk_out1),
+    .rstn(),
+    .X(blk_mem_gen_0_doutb), 
+    .Y(blk_mem_gen_1_doutb),
+    .mode1(blk_mem_gen_1_doutb[3:1]), 
+    .mode2(blk_mem_gen_1_doutb[3:1]),
+    .Z0(Net1), 
+    .Z1(Net2)
+    );
+    assign Net = Net1 ^ Net2;
 
     if (USE_BRAM_IP) begin
         blk_mem_gen_272 RAM0

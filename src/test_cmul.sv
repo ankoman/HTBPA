@@ -56,10 +56,8 @@ module test_cmul;
         rstn <= 1'b1;
     #DELAY;
 
-        for(integer _mode = 5; _mode < 7; _mode = _mode + 1) begin
-            #DELAY;
-            mode <= _mode;
-            if (mode != 5) begin
+        for(mode = 5; mode < 7; mode = mode + 1) begin
+            if (mode !== 5) begin
                 $display("Test cmul start. Mode = %d\n", mode);
                 for(integer i = 0; i < N_DATA; i = i + 1) begin
                     din <= rand_288() % PARAMS_BN254_d0::M_tilde*2;
