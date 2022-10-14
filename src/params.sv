@@ -25,7 +25,7 @@
 package PARAMS_BN254_d0;
     localparam
         Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
-        M_tilde = 272'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff; // 267 bits
+        M_tilde = 267'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff; // 267 bits
     // localparam
     //     K = 16,
     //     L = 24,
@@ -57,8 +57,10 @@ package PARAMS_BN254_d0;
         //S_1_4 = (M+D-1)/4;  // 1/4
         S_1_4 = 3,//(M+D)/4,
         ADD_DIV = 4,
-        L3_CARRY = 8;  // 1/4
+        L3_CARRY = 8,
+        LEN_12M_TILDE = 272;  // Must be divided by ADD_DIV
     
+    typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;
     typedef logic[M:0][47:0] qpmm_S_t;
     typedef logic[M-2:0][L-1:0] poly_Mpp_t;
     typedef logic[K*N-1:0] uint_fp_t;
@@ -68,25 +70,33 @@ package PARAMS_BN254_d0;
     typedef logic[(HALF_S-1)*L+48-1:0] qpmm_S_half;
     typedef logic[(S_1_3-1)*L+48-1:0] qpmm_S_1_3;
     typedef logic[(S_1_4-1)*L+48-1:0] qpmm_S_1_4;
-    typedef logic[$bits(uint_fp_t)/ADD_DIV-1:0] fp_div4_t; // uint divided by 4.
+    typedef logic[LEN_12M_TILDE/ADD_DIV-1:0] fp_div4_t; // uint divided by 4. Lack of 1 bit for 289
 
-   typedef struct packed {
-        logic carry;
-        fp_div4_t val;
+    // Struct
+    typedef struct packed {
+            logic carry;
+            fp_div4_t val;
     } redundant_term_L1;
     typedef redundant_term_L1[ADD_DIV-1:0] redundant_poly_L1;
 
-   typedef struct packed {
-        logic [1:0] carry;
-        fp_div4_t val;
+    typedef struct packed {
+            logic [1:0] carry;
+            fp_div4_t val;
     } redundant_term_L2;
     typedef redundant_term_L2[ADD_DIV-1:0] redundant_poly_L2;
 
-   typedef struct packed {
-        logic [L3_CARRY-1:0] carry;
-        fp_div4_t val;
+    typedef struct packed {
+            logic [L3_CARRY-1:0] carry;
+            fp_div4_t val;
     } redundant_term_L3;
     typedef redundant_term_L3[ADD_DIV-1:0] redundant_poly_L3;
+
+
+    // Union
+    typedef union packed {
+        logic[LEN_12M_TILDE-1:0] uint; // 272
+        fp_div4_t[ADD_DIV-1:0] poly;
+    } M_tilde12_t;
 
     typedef union packed {
         uint_fp_t uint;

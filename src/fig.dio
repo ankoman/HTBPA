@@ -91,8 +91,11 @@
                 <mxCell id="28" value="&amp;lt;288 bits" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
                     <mxGeometry x="715" y="330" width="60" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="30" value="`R=2^{288}`" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=15;" vertex="1" parent="1">
+                <mxCell id="30" value="`R=2^{289}`" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=15;" vertex="1" parent="1">
                     <mxGeometry x="450" y="60" width="100" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="&amp;lt;271 bits" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="715" y="480" width="60" height="20" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

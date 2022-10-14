@@ -31,7 +31,7 @@ module TOP_test(
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_N" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME default_sysclk1_300, CAN_DEBUG false, FREQ_HZ 300000000" *) input default_sysclk1_300_clk_n;
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_P" *) input default_sysclk1_300_clk_p;
 
-    wire [267:0]Net;
+    wire [287:0]Net;
     wire [287:0]blk_mem_gen_0_doutb;
     wire [287:0]blk_mem_gen_1_doutb;
     wire clk_wiz_0_clk_out1;
@@ -42,12 +42,14 @@ module TOP_test(
 
     assign Dout_0 = blk_mem_gen_1_doutb[271];
 
-    QPMM_d0 qpmm_inst
-        (.A(blk_mem_gen_0_doutb),
-        .B(blk_mem_gen_1_doutb),
-        .Z(Net),
-        .clk(clk_wiz_0_clk_out1),
-        .rstn(xlconstant_0_dout));
+    // QPMM_d0 qpmm_inst
+    //     (.A(blk_mem_gen_0_doutb),
+    //     .B(blk_mem_gen_1_doutb),
+    //     .Z(Net),
+    //     .clk(clk_wiz_0_clk_out1),
+    //     .rstn(xlconstant_0_dout));
+
+    cmul cmul(.clk(clk_wiz_0_clk_out1), .mode(3'b001), .din(blk_mem_gen_0_doutb), .dout(Net));
 
     // poly_adder_L3_L3 adder
     //     (.sub(blk_mem_gen_0_doutb[0]),

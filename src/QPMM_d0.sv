@@ -212,7 +212,7 @@ module QPMM_d0(
     input clk, rstn,
     input qpmm_fpa_t A,
     input qpmm_fpb_t B,
-    output reg [267:0] Z
+    output uint_Mtilde_t2 Z
     );
 
     ///////////////////////////////////////////////
