@@ -25,12 +25,12 @@ module test_postadder;
     localparam 
         CYCLE = 10,
         DELAY = 2,
-        N_DATA = 1000000;
+        N_DATA = 100000;
                
     reg clk, rstn;
     uint_fp_t in;
     redundant_poly_L1 in_L1;
-    uint_fp_t ans1, ans2, ans3, res1, res2, res3;
+    wire [LEN_12M_TILDE+L3_CARRY-1:0] ans1, ans2, ans3, res1, res2, res3;
     uint_fp_t reg1;
     uint_fp_t [2:0] reg2, reg3;
     reg [2:0] mode1, mode2, mode3;
@@ -74,13 +74,13 @@ module test_postadder;
         rstn <= 1'b1;
     #DELAY;
 
-        for(integer mode = 0; mode < 6; mode = mode + 1) begin
+        for(integer mode = 2; mode < 6; mode = mode + 1) begin
             mode1 <= mode;
             mode2 <= mode;
             mode3 <= mode;
             $display("Test postadder start. Mode = %d\n", mode);
             for(integer i = 0; i < N_DATA; i = i + 1) begin
-                in <= rand_280();
+                in <= rand_288() % PARAMS_BN254_d0::M_tilde;;
                 #DELAY
                 if(res1 !== ans1) begin
                     $display("#%d Failed: ans1 = %h, res = %h", i, ans1, res1); $stop();
@@ -163,35 +163,4 @@ module test_postadder;
     //         L3toint = L3toint + (din[i] << ($bits(uint_fp_t)/ADD_DIV*i));
     //     end
     // endfunction
-endmodule
-
-module L3toint(
-    input redundant_poly_L3 din,
-    output uint_fp_t dout
-    );
-
-    wire sign0 = din[0].carry[L3_CARRY-1];
-    wire sign1 = din[1].carry[L3_CARRY-1];
-    wire sign2 = din[2].carry[L3_CARRY-1];
-    wire sign3 = din[3].carry[L3_CARRY-1];
-
-    
-    // First cycle
-    wire[$bits(fp_div4_t)-1:0] add1_1, add2_1, add3_1;
-    wire carry1_1, carry2_1, carry3_1;
-    assign {carry1_1, add1_1} = din[1].val + {sign0 ? 60'hfffffffffffffff: 60'd0, din[0].carry};
-    assign {carry2_1, add2_1} = din[2].val + {sign1 ? 60'hfffffffffffffff: 60'd0, din[1].carry};
-    assign {carry3_1, add3_1} = din[3].val + {sign2 ? 60'hfffffffffffffff: 60'd0, din[2].carry};
-
-    // Second cycle
-    wire[$bits(fp_div4_t)-1:0] add2_2, add3_2;
-    wire carry2_2, carry3_2;
-    assign {carry2_2, add2_2} = add2_1 + carry1_1 + (sign0 ? 68'hfffffffffffffffff: 68'd0);
-    assign {carry3_2, add3_2} = add3_1 + carry2_1 + (sign1 ? 68'hfffffffffffffffff: 68'd0);
-
-    // Third cycle
-    wire[$bits(fp_div4_t)-1:0] add3_3 = add3_2 + carry2_2 + (sign0 ? 68'hfffffffffffffffff: 68'd0);
-
-    assign dout = {add3_3, add2_2, add1_1, din[0].val};
-
 endmodule

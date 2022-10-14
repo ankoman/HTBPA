@@ -99,9 +99,64 @@ module poly_adder_L3_L3(
     output redundant_poly_L3 Z
     );
 
-    for(genvar i = 0; i < 4; i = i+1) begin
+    for(genvar i = 0; i < ADD_DIV; i = i+1) begin
         assign Z[i] = X[i] + (sub ? ~Y[i] : Y[i]) + sub;
     end
 
 endmodule
 
+
+module L3toint(
+    input redundant_poly_L3 din,
+    output [LEN_12M_TILDE+L3_CARRY-1:0] dout
+    );
+
+    localparam LEN_COMP = $bits(fp_div4_t) - L3_CARRY;
+    localparam PADD_1 = {LEN_COMP{1'b1}};
+    localparam PADD_0 = {LEN_COMP{1'b0}};
+    localparam PADD_11 = {(LEN_COMP+L3_CARRY){1'b1}};
+    localparam PADD_00 = {(LEN_COMP+L3_CARRY){1'b0}};
+    localparam PADD_111 = {(LEN_COMP+L3_CARRY+L3_CARRY){1'b1}};
+    localparam PADD_000 = {(LEN_COMP+L3_CARRY+L3_CARRY){1'b0}};
+
+    wire sign0 = din[0].carry[L3_CARRY-1];
+    wire sign1 = din[1].carry[L3_CARRY-1];
+    wire sign2 = din[2].carry[L3_CARRY-1];
+    wire sign3 = din[3].carry[L3_CARRY-1];
+
+    
+    // First cycle
+    wire[$bits(fp_div4_t)-1:0] add1_1, add2_1, add3_1;
+    wire carry1_1, carry2_1;
+    wire [L3_CARRY-1:0] carry3_1;
+    assign {carry1_1, add1_1} = din[1].val + {sign0 ? PADD_1: PADD_0, din[0].carry};
+    assign {carry2_1, add2_1} = din[2].val + {sign1 ? PADD_1: PADD_0, din[1].carry};
+    assign {carry3_1, add3_1} = {din[3].carry, din[3].val} + {sign2 ? PADD_11: PADD_00, din[2].carry};
+
+    // Second cycle
+    wire[$bits(fp_div4_t)-1:0] add2_2, add3_2;
+    wire carry2_2;
+    wire [L3_CARRY-1:0] carry3_2;
+    assign {carry2_2, add2_2} = add2_1 + carry1_1 + (sign0 ? PADD_11: PADD_00);
+    assign {carry3_2, add3_2} = {carry3_1, add3_1} + carry2_1 + (sign1 ? PADD_111: PADD_000);
+
+    // Third cycle
+    wire[$bits(fp_div4_t)+L3_CARRY-1:0] add3_3 = {carry3_2, add3_2} + carry2_2 + (sign0 ? PADD_111: PADD_000);
+
+    assign dout = {add3_3, add2_2, add1_1, din[0].val};
+
+endmodule
+
+
+// module L3toL1(
+//     input clk,
+//     input redundant_poly_L3 din,
+//     output redundant_poly_L1 dout
+//     );
+
+//     always @(posedge clk) begin
+//         for(integer i = 0; i < ADD_DIV; i = i + 1) begin
+//             {dout[i].carry, dout[i].val} <= din[i]
+//         end
+//     end
+// endmodule
