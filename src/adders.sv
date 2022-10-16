@@ -147,6 +147,63 @@ module L3toint(
 
 endmodule
 
+module L3touint(
+    input clk,
+    input redundant_poly_L3 din,
+    output [LEN_12M_TILDE+L3_CARRY-1:0] dout
+    );
+
+    localparam LEN_COMP = $bits(fp_div4_t) - L3_CARRY;
+    localparam PADD_1 = {LEN_COMP{1'b1}};
+    localparam PADD_0 = {LEN_COMP{1'b0}};
+    localparam PADD_11 = {(LEN_COMP+L3_CARRY){1'b1}};
+    localparam PADD_00 = {(LEN_COMP+L3_CARRY){1'b0}};
+    localparam PADD_111 = {(LEN_COMP+L3_CARRY+L3_CARRY){1'b1}};
+    localparam PADD_000 = {(LEN_COMP+L3_CARRY+L3_CARRY){1'b0}};
+    localparam M_tilde512 = {PARAMS_BN254_d0::M_tilde, 9'd0};
+
+    wire sign0 = din[0].carry[L3_CARRY-1];
+    wire sign1 = din[1].carry[L3_CARRY-1];
+    wire sign2 = din[2].carry[L3_CARRY-1];
+    wire sign3 = din[3].carry[L3_CARRY-1];
+
+    
+    // First cycle
+    fp_div4_t add1_1, add2_1, add3_1, buf_din0_1;
+    logic carry1_1, carry2_1;
+    logic [L3_CARRY-1:0] carry3_1;
+    always @(posedge clk) begin
+        {carry1_1, add1_1} <= din[1].val + {sign0 ? PADD_1: PADD_0, din[0].carry};
+        {carry2_1, add2_1} <= din[2].val + {sign1 ? PADD_1: PADD_0, din[1].carry};
+        {carry3_1, add3_1} <= {din[3].carry, din[3].val} + {sign2 ? PADD_11: PADD_00, din[2].carry};
+        buf_din0_1 <= din[0].val;
+    end
+
+    // Second cycle
+    fp_div4_t add2_2, add3_2, buf_din0_2, buf_add1_2;
+    logic carry2_2;
+    logic [L3_CARRY-1:0] carry3_2;
+    always @(posedge clk) begin
+        {carry2_2, add2_2} <= add2_1 + carry1_1 + (sign0 ? PADD_11: PADD_00);
+        {carry3_2, add3_2} <= {carry3_1, add3_1} + carry2_1 + (sign1 ? PADD_111: PADD_000);
+        buf_din0_2 <= buf_din0_1;
+        buf_add1_2 <= add1_1;
+    end
+
+    // Third cycle
+    logic[$bits(fp_div4_t)+L3_CARRY-1:0] add3_3;
+    fp_div4_t buf_din0_3, buf_add1_3, buf_add2_3;
+    always @(posedge clk) begin
+        add3_3 <= {carry3_2, add3_2} + carry2_2 + (sign0 ? PADD_111: PADD_000);
+        buf_din0_3 <= buf_din0_2;
+        buf_add1_3 <= buf_add1_2;
+        buf_add2_3 <= add2_2;
+    end
+
+    assign dout = {add3_3, buf_add2_3, buf_add1_3, buf_din0_3};
+
+endmodule
+
 
 // module L3toL1(
 //     input clk,

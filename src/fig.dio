@@ -7,7 +7,7 @@
                 <mxCell id="2" value="Preadder" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="440" y="200" width="160" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="3" value="Reduction1" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="3" value="L3-to-uint" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="440" y="280" width="160" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="4" value="QPMM" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">

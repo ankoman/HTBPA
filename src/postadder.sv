@@ -31,7 +31,7 @@ module postadder(
     input [1:0] outsel,
     input [1:0] addr2,
     input [1:0] addr3, 
-    output redundant_poly_L3 out
+    output redundant_poly_L3 dout
     );
 
     redundant_poly_L3 in;
@@ -88,7 +88,7 @@ module postadder(
     always @(posedge clk) begin
         if(!rstn)begin
             reg1 <= '0;
-            out <= '0;
+            dout <= '0;
             for(integer i = 0; i < 3; i = i + 1) begin
                 reg2[i] <= '0;
                 reg3[i] <= '0;
@@ -97,7 +97,7 @@ module postadder(
             reg1 <= acc1_out;
             reg2[addr2] <= acc2_out;
             reg3[addr3] <= acc3_out;
-            out <= (outsel==2'b00)?reg1:(outsel==2'b01)?reg2_wire:(outsel==2'b10)?reg3_wire:0;
+            dout <= (outsel==2'b00)?reg1:(outsel==2'b01)?reg2_wire:(outsel==2'b10)?reg3_wire:0;
         end
     end
 

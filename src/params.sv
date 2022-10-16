@@ -57,7 +57,7 @@ package PARAMS_BN254_d0;
         //S_1_4 = (M+D-1)/4;  // 1/4
         S_1_4 = 3,//(M+D)/4,
         ADD_DIV = 4,
-        L3_CARRY = 8,
+        L3_CARRY = 20,
         LEN_12M_TILDE = 272;  // Must be divided by ADD_DIV
     
     typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;
