@@ -160,47 +160,62 @@ module L3touint(
     localparam PADD_00 = {(LEN_COMP+L3_CARRY){1'b0}};
     localparam PADD_111 = {(LEN_COMP+L3_CARRY+L3_CARRY){1'b1}};
     localparam PADD_000 = {(LEN_COMP+L3_CARRY+L3_CARRY){1'b0}};
-    localparam M_tilde512 = {PARAMS_BN254_d0::M_tilde, 9'd0};
 
+    fp_div4_t[ADD_DIV:0] M_tilde512;
+    assign M_tilde512 = {PARAMS_BN254_d0::M_tilde, 9'd0};
     wire sign0 = din[0].carry[L3_CARRY-1];
     wire sign1 = din[1].carry[L3_CARRY-1];
     wire sign2 = din[2].carry[L3_CARRY-1];
     wire sign3 = din[3].carry[L3_CARRY-1];
+    reg sign0_1, sign1_1, sign0_2;
 
-    
     // First cycle
-    fp_div4_t add1_1, add2_1, add3_1, buf_din0_1;
-    logic carry1_1, carry2_1;
+    fp_div4_t add0_1, add1_1, add2_1, add3_1;
+    logic carry0_1, carry1_1, carry2_1;
     logic [L3_CARRY-1:0] carry3_1;
     always @(posedge clk) begin
+        {carry0_1, add0_1} <= din[0].val + M_tilde512[0];
         {carry1_1, add1_1} <= din[1].val + {sign0 ? PADD_1: PADD_0, din[0].carry};
         {carry2_1, add2_1} <= din[2].val + {sign1 ? PADD_1: PADD_0, din[1].carry};
         {carry3_1, add3_1} <= {din[3].carry, din[3].val} + {sign2 ? PADD_11: PADD_00, din[2].carry};
-        buf_din0_1 <= din[0].val;
+        sign0_1 <= sign0;
+        sign1_1 <= sign1;
     end
 
     // Second cycle
-    fp_div4_t add2_2, add3_2, buf_din0_2, buf_add1_2;
-    logic carry2_2;
+    fp_div4_t add1_2, add2_2, add3_2, buf_din0_2;
+    logic carry1_2, carry2_2;
     logic [L3_CARRY-1:0] carry3_2;
     always @(posedge clk) begin
-        {carry2_2, add2_2} <= add2_1 + carry1_1 + (sign0 ? PADD_11: PADD_00);
-        {carry3_2, add3_2} <= {carry3_1, add3_1} + carry2_1 + (sign1 ? PADD_111: PADD_000);
-        buf_din0_2 <= buf_din0_1;
-        buf_add1_2 <= add1_1;
+        buf_din0_2 <= add0_1;
+        {carry1_2, add1_2} <= add1_1 + M_tilde512[1] + carry0_1;
+        {carry2_2, add2_2} <= add2_1 + carry1_1 + (sign0_1 ? PADD_11: PADD_00);
+        {carry3_2, add3_2} <= {carry3_1, add3_1} + carry2_1 + (sign1_1 ? PADD_111: PADD_000);
+        sign0_2 <= sign0_1;
     end
 
     // Third cycle
-    logic[$bits(fp_div4_t)+L3_CARRY-1:0] add3_3;
-    fp_div4_t buf_din0_3, buf_add1_3, buf_add2_3;
+    fp_div4_t buf_din0_3, buf_add1_3, add2_3, add3_3;
+    logic carry2_3;
+    logic [L3_CARRY-1:0] carry3_3;
     always @(posedge clk) begin
-        add3_3 <= {carry3_2, add3_2} + carry2_2 + (sign0 ? PADD_111: PADD_000);
         buf_din0_3 <= buf_din0_2;
-        buf_add1_3 <= buf_add1_2;
-        buf_add2_3 <= add2_2;
+        buf_add1_3 <= add1_2;
+        {carry2_3, add2_3} <= add2_2 + M_tilde512[2] + carry1_2;
+        {carry3_3, add3_3} <= {carry3_2, add3_2} + carry2_2 + (sign0_2 ? PADD_111: PADD_000);
     end
 
-    assign dout = {add3_3, buf_add2_3, buf_add1_3, buf_din0_3};
+    // Fource cycle
+    logic[$bits(fp_div4_t)+L3_CARRY-1:0] add3_4;
+    fp_div4_t buf_din0_4, buf_add1_4, buf_add2_4;
+    always @(posedge clk) begin
+        buf_din0_4 <= buf_din0_3;
+        buf_add1_4 <= buf_add1_3;
+        buf_add2_4 <= add2_3;
+        add3_4 <= {carry3_3, add3_3} + carry2_3 + {M_tilde512[4], M_tilde512[3]};
+    end
+
+    assign dout = {add3_4, buf_add2_4, buf_add1_4, buf_din0_4};
 
 endmodule
 

@@ -14,6 +14,8 @@ import sys
 import math
 import collections
 import numpy as no
+import QPMM_d0
+
 Inst = collections.namedtuple('Inst', ('exit', 'me0', 'me1', 'preadd_mode0', 'preadd_mode1', 
 'cmul_mode', 'postadd_mode0', 'postadd_mode1', 'postadd_mode2', 'postadd_sel', 'postadd_addr1', 'postadd_addr2',
 'eeinv', 'waddr0', 'waddr1', 'raddr0', 'raddr1'))
@@ -22,10 +24,13 @@ Inst = collections.namedtuple('Inst', ('exit', 'me0', 'me1', 'preadd_mode0', 'pr
 ###################################Global Params#######################################
 #######################################################################################
 M = 0x2523648240000001ba344d80000000086121000000000013a700000000000013
-
-ram0 = [0] * 256
-ram1 = [0] * 256
-reg_inst = [0] * 10
+M_tilde = 0x7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff
+LAT_READ = 1
+LAT_PREADD = 1
+LAT_QPMM = 13
+LAT_CMUL = 1
+LAT_POSTADD = 1
+MR = QPMM_d0.MR
 
 #######################################################################################
 ###################################  Functions  #######################################
@@ -64,29 +69,145 @@ def load_rom():
             continue
         rom.append(line)
     return rom
-    
+
+def reg_init():
+    preadder.dly_x = 0
+    preadder.dly_y = 0
+    preadder.z0 = 0
+    preadder.z1 = 0
+
+    qpmm.buf = [0] * (LAT_QPMM+1)
+    cmul.buf = [0] * (LAT_CMUL+1)
+
+    postadder.reg1 = 0
+    postadder.reg2 = [0, 0, 0]
+    postadder.reg3 = [0, 0, 0]
+    postadder.dout = 0
+
+def preadder(x, y, mode1, mode2):
+    add_buf_0 = preadder.dly_x + x
+    add_buf_1 = x + y
+    add_buf_2 = x - y
+    add_buf_3 = x + preadder.dly_y
+
+    z0 = preadder.z0
+    z1 = preadder.z1
+    preadder.dly_x = x
+    preadder.dly_y = y
+    preadder.z0 = add_buf_0 if (mode1 == 1) else add_buf_1 if (mode1 == 2) else x
+    preadder.z1 = add_buf_2 if (mode2 == 1) else add_buf_3 if (mode2 == 2) else y
+
+    return z0, z1
+
+def qpmm(x, y):
+    z = QPMM_d0.QPMM(x, y)
+    qpmm.buf = [z] + qpmm.buf[:-1]  # rshift
+    return qpmm.buf[LAT_QPMM]
+
+def cmul(din, mode):
+    dout = din if (mode == 1) else 2*din if (mode == 2) else 3*din if (mode == 3) else 4*din if (mode == 4) else 6*din if (mode == 6) else None
+    cmul.buf = [dout] + cmul.buf[:-1]  # rshift
+    return cmul.buf[LAT_CMUL]
+
+def acc(din, regin, mode):
+    sel_b = 1 if (mode == 1 or mode == 4) else 0
+    add_ain = 0 if (mode == 0 or mode == 1) else din if (mode == 2 or mode == 3) else regin if (mode == 4) else QPMM_d0.M if (mode == 5) else None
+    add_bin = din if sel_b else regin
+    add_sel_sub = 1 if (mode == 3 or mode == 4 or mode == 5) else 0
+    dout = add_ain - add_bin if add_sel_sub else add_ain + add_bin
+    return dout
+
+def postadder(din_L1, mode1, mode2, mode3, outsel, addr2, addr3):
+    acc1_out = acc(din_L1, postadder.reg1, mode1)
+    acc2_out = acc(din_L1, postadder.reg2[addr2], mode2)
+    acc3_out = acc(din_L1, postadder.reg3[addr3], mode3)
+
+    postadder.dout = postadder.reg1 if (outsel == 0) else postadder.reg2[addr2] if (outsel == 1) else postadder.reg3[addr3]
+    postadder.reg1 = acc1_out
+    postadder.reg2[addr2] = acc2_out
+    postadder.reg3[addr3] = acc3_out
+
+    return postadder.dout
+
+def ram_to_mont(ram):
+    for i in range(0x0b):
+        ram[i] = (ram[i] * QPMM_d0.r) % QPMM_d0.M
+        print(f'{ram[i]=:064x}')
+
 def main():
-    global reg_inst
     # Init
-    ram0[0] = 0x1111
-    ram1[0] = 0x12345
+    reg_inst = [decode('00000000000000000001000000000000000000000000000000000000000')] * 20
+    reg_init()
+    ### Not Montgomery representation
+    ram0 = [0] * 256
+    ram0[0x00] = 0x115f6879d11e64eb6b454c4355c8070d23495140d6c0aa008ed3091379e08f1c # Qx0 = 0x115f6879d11e64eb6b454c4355c8070d23495140d6c0aa008ed3091379e08f1c
+    ram0[0x01] = 0xd571e533a64272092790168e7561326764146ec48dd977b3b212bdcb5e92b03 # Qx1 = 0xd571e533a64272092790168e7561326764146ec48dd977b3b212bdcb5e92b03
+    # ram0[0x02] = 0xbc9a802bfe83440104d9bc9f0d4ffafc19d114c8f47b8f3e0a3e979d6c3012a # Qy0 = 0xbc9a802bfe83440104d9bc9f0d4ffafc19d114c8f47b8f3e0a3e979d6c3012a
+    # ram0[0x03] = 0x1b35419758c62bbcb75f33ca54b21fe5ea859e303fb0f1e47e5bcc7538d3cb4c # Qy1 = 0x1b35419758c62bbcb75f33ca54b21fe5ea859e303fb0f1e47e5bcc7538d3cb4c
+    ram0[0x02] = 0x0b69136889b5b368df14c6125f58d5b56f790959a3e04b3b756b0715e7180322
+    ram0[0x03] = 0x115e2eac26a974652371ea2c0247145f4a814d53964ddb776025f0ae35354579
+
+    ram0[0x04] = 0x1 # Qz0
+    ram0[0x05] = 0x0 # Qz1
+    ram0[0x06] = 0x1d8b58a5aee6422aa87af5823a11244eb0c74e459f31787ab3cbd7f42d729c4d  # Px = 0x1d8b58a5aee6422aa87af5823a11244eb0c74e459f31787ab3cbd7f42d729c4d
+    ram0[0x07] = 0x233fb028224a5a3f72d95aaeb9b40e393d6f66591b664fc4d74b1ca4746fd6b  # Py = 0x233fb028224a5a3f72d95aaeb9b40e393d6f66591b664fc4d74b1ca4746fd6b
+    ram0[0x08] = 0x1 # Pz unneccesary
+    ram0[0x09] = 0x1 # r2
+    ram0[0x0a] = 0x1 # ri
+    ram0[0x0b] = 0x1
+    ram_to_mont(ram0)
+
+    # T = Q
+    ram0[0x20] = ram0[0x00] # 32
+    ram0[0x21] = ram0[0x01] # 33
+    ram0[0x22] = ram0[0x02] # 34
+    ram0[0x23] = ram0[0x03] # 35
+    ram0[0x24] = ram0[0x04] # 36
+    ram0[0x25] = ram0[0x05] # 37
+
+# 1291992088000000138403ad00000000060c0c000000000000c6cc0000000000000b,
+# 11efb2745473e4db8634da1ea10914a07553998e838c5ae8cbf258da3ba9cb1681c5,
+# 11efb2745473e4db8634da1ea10914a07553998e838c5ae8cbf258da3ba9cb1681c5,
+# 24d998900000000022484800000000000666c00000000000007,
 
     rom = load_rom()
 
     # Calculation cycle by cycle
-    cycle_cnt = 0
+    cycle_cnt = 3
     pc = 0
-    while True:
-        inst = decode(rom[pc])
-        reg_inst = [inst] + reg_inst[:-1]  # rshift
-        print(inst.exit)
+    rdat0 = 0
+    rdat1 = 0
 
-        if inst.exit or cycle_cnt > 1000000:
-            print('End')
-            break
-        
+    while True:
         pc += 1
         cycle_cnt += 1
+        print(f'CCNT: {cycle_cnt}')
+        inst = decode(rom[pc])
+        #print(inst)
+
+        reg_inst = [inst] + reg_inst[:-1]  # rshift
+        buf_rdat0, buf_rdat1 = rdat0, rdat1
+        rdat0, rdat1 = ram0[inst.raddr0], ram0[inst.raddr1]
+        print(f'{MR(buf_rdat0)=:x}, {MR(buf_rdat1)=:x}')
+        ins_preadd, ins_cmul, ins_postadd, inst_wram = reg_inst[LAT_READ], reg_inst[LAT_READ+LAT_PREADD+LAT_QPMM], reg_inst[LAT_READ+LAT_PREADD+LAT_QPMM+LAT_CMUL], reg_inst[18]
+
+        preadd_out0, preadd_out1 = preadder(buf_rdat0, buf_rdat1, ins_preadd.preadd_mode0, ins_preadd.preadd_mode1)
+        print(f'Preadder: {MR(preadd_out0)=:x}, {MR(preadd_out1)=:x}')
+
+        qpmm_dout = qpmm(preadd_out0, preadd_out1)
+        print(f'QPMM: {MR(qpmm_dout)=:x}')
+
+        cmul_dout = cmul(qpmm_dout, ins_cmul.cmul_mode)
+        print(f'Cmul: {MR(cmul_dout)=:x}')
+
+        print(ins_postadd)
+        postadd_dout = postadder(cmul_dout, ins_postadd.postadd_mode0, ins_postadd.postadd_mode1, ins_postadd.postadd_mode2, ins_postadd.postadd_sel, ins_postadd.postadd_addr1, ins_postadd.postadd_addr2)
+        print(f'Postadder: {MR(postadd_dout)=:#x}')
+
+        input()
+        if inst.exit or cycle_cnt > 100:
+            print('End')
+            break
 
 def int2poly(x):
     mask = 2 ** 64 - 1
@@ -170,7 +291,7 @@ def parse_rom():
         rom = f.readlines()
 
     set_rom = set()
-    list_cmul = []
+    list_freq = []
     for i, inst in enumerate(rom):
 
         me0 = inst[25:26]
@@ -189,38 +310,38 @@ def parse_rom():
         waddr1 = inst[35:43]
         raddr0 = inst[43:51]
         raddr1 = inst[51:59]
-        print(raddr1)
-        list_cmul.append(cmul_mode)
+        print(waddr0)
+        list_freq.append(int(raddr0, 2))
+        list_freq.append(int(raddr1, 2))
 
-    print(collections.Counter((list_cmul)))
+    list_freq = list(set(list_freq) & set(list(range(141))))
+    list_freq = list( set(list(range(141))) - set(list_freq))
+    list_freq.sort()
+
+    print(list_freq)
+    print(list(map(hex, list_freq)))
+
+
+    print(collections.Counter((list_freq)))
+
+def test_red():
+
+    for i in range(10000):
+        A = random.randint(0, M_tilde - 1)
+        B = random.randint(0, M_tilde - 1)
+        Ax = int2poly(A)
+        Bx = int2poly(B)
+
+        res = poly2int_hw(Ax)
+        ans = A
+
+        assert res == ans, f'\n{res=  :x}\n{ans=:x}'
+
 
 if __name__ == '__main__':
     args = sys.argv
     random.seed(0)
-    for i in range(1000000):
-        x = random.randint(0, 2**256-1)
-        y = random.randint(0, 2**250-1)
-        poly_x = int2poly(x)
-        poly_y = int2poly(y)
-        poly_z = poly_sub(poly_x, poly_y)
-        poly_z = poly_sub(poly_z, poly_y)
-        poly_z = poly_sub(poly_z, poly_y)
-        poly_z = poly_sub(poly_z, poly_y)
-        poly_z = poly_sub(poly_z, poly_y)
-        poly_z = poly_sub(poly_z, poly_y)
 
-
-        # print_poly(poly_x)
-        # print_poly(poly_y)
-        # print_poly(poly_z)
-        z = poly2int_hw(poly_z)
-        #print(hex(z))
-        ans = x - 6*y
-        if ans < 0:
-            ans = abs(ans)
-            ans = ans ^ 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-            ans += 1
-        assert z == ans, f'{z:#x} != {ans:#x}'
-
+    test_red()
     #main()
     #parse_rom()

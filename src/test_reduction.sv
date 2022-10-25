@@ -26,13 +26,13 @@ module test_reduction;
         CYCLE = 10,
         DELAY = 2,
         N_DATA = 100000,
-        N_PIPELINE_STAGES = 5;
+        N_PIPELINE_STAGES = 6;
                
     reg clk, rstn;
     uint_fp_t in;
     redundant_poly_L1 in_L1;
     redundant_poly_L3 postadd_out;
-    wire [LEN_12M_TILDE+L3_CARRY-1:0] ans, res;
+    wire [LEN_12M_TILDE+L3_CARRY-1:0] uint_ans, ans, res;
     reg [N_PIPELINE_STAGES:0][LEN_12M_TILDE+L3_CARRY-1:0] reg_ans;
 
     uint_fp_t acc_reg;
@@ -40,6 +40,7 @@ module test_reduction;
 
     assign in_L1 = int2L1(in);
     assign ans = acc(in, acc_reg, mode);
+    assign uint_ans = ans + {PARAMS_BN254_d0::M_tilde, 9'd0};
 
     postadder postadder (.clk, .rstn, .in_L1, .mode1(), .mode2(), .mode3(mode), .outsel(2'b10), .addr2(), .addr3(2'b00), .dout(postadd_out));   
     L3touint DUT (.clk, .din(postadd_out), .dout(res));
@@ -73,17 +74,17 @@ module test_reduction;
             #DELAY
             #(CYCLE-DELAY);
             acc_reg <= ans;
-            reg_ans[0] <= ans;
+            reg_ans[0] <= uint_ans;
         end
 
-        for(integer _mode = 2; _mode < 6; _mode = _mode + 1) begin
+        for(integer _mode = 3; _mode < 6; _mode = _mode + 1) begin
             mode <= _mode;
             $display("Test reduction start. Mode = %d\n", _mode);
 
             for(integer i = 0; i < N_DATA; i = i + 1) begin
                 in <= rand_288() % PARAMS_BN254_d0::M_tilde;;
                 #DELAY
-                reg_ans[0] <= ans;
+                reg_ans[0] <= uint_ans;
 
                 if(res !== reg_ans[N_PIPELINE_STAGES]) begin
                     $display("#%d Failed: ans = %h, res = %h", i, reg_ans[N_PIPELINE_STAGES], res); $stop();
@@ -92,13 +93,13 @@ module test_reduction;
                 #(CYCLE-DELAY);
                 acc_reg <= ans;
 
-                // if(i % (2**(L3_CARRY-1)) === 127) begin
-                //     acc_reg <= '0;
-                //     postadder.reg3[0] <= '0;
-                // end
-                // else begin
-                //     acc_reg <= ans;
-                // end
+                 if(i % (2**(L3_CARRY-1)) === 127) begin
+                     acc_reg <= '0;
+                     postadder.reg3[0] <= '0;
+                 end
+                 else begin
+                     acc_reg <= ans;
+                 end
             end
         end
         
