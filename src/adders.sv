@@ -93,16 +93,24 @@ module multi_cycle_subtractor #(
 endmodule
 
 
-module poly_adder_L3_L3(
-    input sub,
+module poly_adder_L3_L3 #(
+    parameter LATENCY = 0
+    )(
+    input sub, clk,
     input redundant_poly_L3 X, Y,
     output redundant_poly_L3 Z
     );
 
     for(genvar i = 0; i < ADD_DIV; i = i+1) begin
-        assign Z[i] = X[i] + (sub ? ~Y[i] : Y[i]) + sub;
+        if (LATENCY == 0) 
+                assign Z[i] = X[i] + (sub ? ~Y[i] : Y[i]) + sub;
+        else if (LATENCY == 1) begin
+            always @(posedge clk) begin
+                Z[i] <= X[i] + (sub ? ~Y[i] : Y[i]) + sub;
+            end
+        end
     end
-
+    
 endmodule
 
 
@@ -150,7 +158,7 @@ endmodule
 module L3touint(
     input clk,
     input redundant_poly_L3 din,
-    output [LEN_12M_TILDE+L3_CARRY-1:0] dout
+    output [LEN_1024M_TILDE-1:0] dout
     );
 
     localparam LEN_COMP = $bits(fp_div4_t) - L3_CARRY;

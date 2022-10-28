@@ -40,8 +40,8 @@ M_tilda = get_M_tilda()
 
 def QPMM(A, B):
     bi = [(B >> k*i) & mask for i in range(n + 1)]
-    print(hex(B))
-    print(hex(polytoint(bi)))
+    # print(hex(B))
+    # print(hex(polytoint(bi)))
 
     S = 0
     for i in range(n + 1):
@@ -184,8 +184,8 @@ def test_QPMM(HW = 0):
     for i in range(1):
         A = random.randint(128*M_tilda, 1024*M_tilda - 1)
         B = random.randint(128*M_tilda, 1024*M_tilda - 1)
-        A = 0x0001d6346c30991211970d12e8140b1d76b30a2c44f7c10edf052d67a01afd349513d18d7
-        B = 0x0000ca100baf6800480be079c307152de11ab9beb30e348e9832431c46835083a19436b0d
+        A = 0x0fa31909cea51dc4a8113a05c3062235836fd10287cbc9f7b6362c82df0072dc7089cc
+        B = 0x0fa318ff47385d034fb2fe45704017c5726176d5845a2241e84bd4e844813594cab125
         a = MR(A)
         b = MR(B)
         ans = a*b % M

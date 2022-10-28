@@ -57,8 +57,9 @@ package PARAMS_BN254_d0;
         //S_1_4 = (M+D-1)/4;  // 1/4
         S_1_4 = 3,//(M+D)/4,
         ADD_DIV = 4,
-        L3_CARRY = 20,
-        LEN_12M_TILDE = 272;  // Must be divided by ADD_DIV
+        L3_CARRY = 8,
+        LEN_12M_TILDE = 272,
+        LEN_1024M_TILDE = 277;  // Must be divided by ADD_DIV
     
     typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;
     typedef logic[M:0][47:0] qpmm_S_t;
@@ -121,37 +122,20 @@ package PARAMS_BN254_d0;
 endpackage
 `endif 
 
-// package Utility_function;
 
-//     function [Parameters::N+Parameters::D-1:0] randN();
-//         // N must be less than 320 bits
-//         randN = {$urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom()};
-//     endfunction
+`ifndef CONTROL
+`define CONTROL
+package CONTROL;
 
-//     function [Parameters::K:0][Parameters::D:0] int2poly;
-//         input [(Parameters::K+1)*(Parameters::D+1)-1:0] A;
+    // Struct
+    typedef struct packed {
+        logic [26:0] opcode;
+        logic [8:0] waddr0;
+        logic [8:0] waddr1;
+        logic [8:0] raddr0;
+        logic [8:0] raddr1;
+        logic [1:0] thread;
+    } ctrl_sig;
 
-//         for(integer i = 0; i <= Parameters::K; i = i + 1) begin
-//             int2poly[i] = {1'b0, A[i*Parameters::D +:Parameters::D]};
-//         end
-//     endfunction
-    
-//     function [2*(Parameters::N+Parameters::D)-1:0] poly2int_2ND;
-//         input [2*Parameters::K+2:0][Parameters::D:0] A;
-
-//             poly2int_2ND = 0;
-//             for(integer i = 0; i <= 2*Parameters::K+2; i = i + 1) begin
-//                 poly2int_2ND = poly2int_2ND + (A[i] << (Parameters::D*i));
-//             end
-//     endfunction
-
-//     function [Parameters::N+Parameters::D-1:0] poly2int_ND;
-//         input [Parameters::K:0][Parameters::D:0] A;
-
-//             poly2int_ND = 0;
-//             for(integer i = 0; i <= Parameters::K; i = i + 1) begin
-//                 poly2int_ND = poly2int_ND + (A[i] << (Parameters::D*i));
-//             end
-//     endfunction
-
-// endpackage
+endpackage
+`endif 

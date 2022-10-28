@@ -210,9 +210,9 @@ endmodule
 
 module QPMM_d0(
     input clk, rstn,
-    input qpmm_fpa_t A,
-    input qpmm_fpb_t B,
-    output uint_Mtilde_t2 Z
+    input [LEN_1024M_TILDE-1:0] A,
+    input [LEN_1024M_TILDE-1:0] B,
+    output uint_Mtilde2_t Z
     );
 
     ///////////////////////////////////////////////
@@ -233,8 +233,8 @@ module QPMM_d0(
     // For 272>
     // assign reg_A[0][271:0] = A[271:0];
     // assign reg_A[0][285:272] = '0;
-    assign reg_A[0] = A;
-    assign reg_B[0] = B;
+    assign reg_A[0] = ($bits(qpmm_fpa_t))'(A);
+    assign reg_B[0] = ($bits(qpmm_fpb_t))'(B);
     assign reg_S[0] = {default: '0};
     assign wire_q[0] = '0;
 

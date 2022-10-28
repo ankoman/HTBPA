@@ -61,14 +61,33 @@ module TOP_test(
     // .clk(clk_wiz_0_clk_out1),
     // .rstn(blk_mem_gen_1_doutb[0]),
     // .in_L1(blk_mem_gen_0_doutb),
+    // .thread(blk_mem_gen_1_doutb[5:4]),
     // .mode1(blk_mem_gen_1_doutb[3:1]),
     // .mode2(blk_mem_gen_1_doutb[6:4]),
     // .mode3(blk_mem_gen_1_doutb[9:7]),
     // .outsel(blk_mem_gen_1_doutb[11:10]),
     // .addr2(blk_mem_gen_1_doutb[13:12]),
     // .addr3(blk_mem_gen_1_doutb[15:14]),
-    // .out(Net)
+    // .dout(Net)
     // );
+
+    // preadder preadder (
+    // .clk(clk_wiz_0_clk_out1),
+    // .rstn(),
+    // .X(blk_mem_gen_0_doutb), 
+    // .Y(blk_mem_gen_1_doutb),
+    // .thread(blk_mem_gen_1_doutb[5:4]),
+    // .mode1(blk_mem_gen_1_doutb[3:1]), 
+    // .mode2(blk_mem_gen_1_doutb[3:1]),
+    // .Z0(Net1), 
+    // .Z1(Net2)
+    // );
+    // assign Net = Net1 ^ Net2;
+
+    // L3touint reduction (.clk(clk_wiz_0_clk_out1), .din(blk_mem_gen_0_doutb), .dout(Net));
+
+
+    wire [320:0] preadd_out1, preadd_out2, red_out1, red_out2, qpmm_out, cmul_out, Net;
 
     preadder preadder (
     .clk(clk_wiz_0_clk_out1),
@@ -77,10 +96,35 @@ module TOP_test(
     .Y(blk_mem_gen_1_doutb),
     .mode1(blk_mem_gen_1_doutb[3:1]), 
     .mode2(blk_mem_gen_1_doutb[3:1]),
-    .Z0(Net1), 
-    .Z1(Net2)
+    .Z0(preadd_out1), 
+    .Z1(preadd_out2)
     );
-    assign Net = Net1 ^ Net2;
+
+    L3touint reduction1 (.clk(clk_wiz_0_clk_out1), .din(preadd_out1), .dout(red_out1));
+    L3touint reduction2 (.clk(clk_wiz_0_clk_out1), .din(preadd_out2), .dout(red_out2));
+
+    QPMM_d0 qpmm_inst
+        (.A(red_out1),
+        .B(red_out2),
+        .Z(qpmm_out),
+        .clk(clk_wiz_0_clk_out1),
+        .rstn(xlconstant_0_dout));
+
+    cmul #(.LATENCY(1)) cmul (.clk(clk_wiz_0_clk_out1), .mode(blk_mem_gen_1_doutb[5:3]), .din(qpmm_out), .dout(cmul_out));
+
+    postadder postadder(
+    .clk(clk_wiz_0_clk_out1),
+    .rstn(blk_mem_gen_1_doutb[0]),
+    .in_L1(cmul_out),
+    .mode1(blk_mem_gen_1_doutb[3:1]),
+    .mode2(blk_mem_gen_1_doutb[6:4]),
+    .mode3(blk_mem_gen_1_doutb[9:7]),
+    .outsel(blk_mem_gen_1_doutb[11:10]),
+    .addr2(blk_mem_gen_1_doutb[13:12]),
+    .addr3(blk_mem_gen_1_doutb[15:14]),
+    .dout(Net)
+    );
+
 
     if (USE_BRAM_IP) begin
         blk_mem_gen_272 RAM0

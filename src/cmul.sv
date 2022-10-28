@@ -26,7 +26,7 @@ module cmul #(
     )(
     input clk,
     input [2:0] mode,
-    input M_tilde12_t din,
+    input uint_Mtilde2_t din,
     output redundant_poly_L1 dout
     );
 
@@ -36,16 +36,16 @@ module cmul #(
     wire[9:0] shift2 = (mode == 3'd1 || mode == 3'd2)? 0:
                      (mode == 3'd3)? 1: 2;
 
-    M_tilde12_t add1, add2;
+    fp_div4_t[ADD_DIV-1:0] add1, add2;
     assign add1 = din << shift1;
     assign add2 = din << shift2;
 
     for(genvar i = 0; i < ADD_DIV; i = i+1) begin
         if(LATENCY == 0)
-            assign dout[i] = add1.poly[i] + add2.poly[i];
+            assign dout[i] = add1[i] + add2[i];
         else if(LATENCY == 1) begin
             always @(posedge clk) begin
-                dout[i] <= add1.poly[i] + add2.poly[i];
+                dout[i] <= add1[i] + add2[i];
             end
         end
     end

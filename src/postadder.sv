@@ -25,24 +25,21 @@ module postadder(
     input clk,
     input rstn,
     input redundant_poly_L1 in_L1,
-    input [2:0] mode1,
-    input [2:0] mode2,
-    input [2:0] mode3,
-    input [1:0] outsel,
-    input [1:0] addr2,
-    input [1:0] addr3, 
+    input [2:0] mode1, mode2, mode3,
+    input [1:0] outsel, addr2, addr3, thread, 
     output redundant_poly_L3 dout
     );
 
     redundant_poly_L3 in;
     assign in = L1toL3(in_L1);
 
-    redundant_poly_L3 reg1;
-    redundant_poly_L3[2:0] reg2, reg3;
+    redundant_poly_L3[3:0] reg1;
+    redundant_poly_L3[3:0][2:0] reg2, reg3;
     redundant_poly_L3 acc1_out, acc2_out, acc3_out;
-    redundant_poly_L3 reg2_wire, reg3_wire;
-    assign reg2_wire = reg2[addr2];
-    assign reg3_wire = reg3[addr3];
+    redundant_poly_L3 reg1_wire, reg2_wire, reg3_wire, dly_reg1, dly_reg2, dly_reg3;
+    assign reg1_wire = reg1[thread];
+    assign reg2_wire = reg2[thread][addr2];
+    assign reg3_wire = reg3[thread][addr3];
 
     redundant_poly_L3 poly_p;
     assign poly_p = inttoL3(PARAMS_BN254_d0::Mod);
@@ -50,9 +47,9 @@ module postadder(
     //// ACC1
     wire sel_b1 = ((mode1 == 3'b001) || (mode1 == 3'b100));
     redundant_poly_L3 add1_ain;
-    assign add1_ain = (mode1[2:1]===2'b00)? 0:(mode1==3'b010)?in:(mode1==3'b011)?in:(mode1==3'b100)?reg1:(mode1==3'b101)?poly_p:in;
+    assign add1_ain = (mode1[2:1]===2'b00)? 0:(mode1==3'b010)?in:(mode1==3'b011)?in:(mode1==3'b100)?reg1_wire:(mode1==3'b101)?poly_p:in;
     redundant_poly_L3 add1_bin;
-    assign add1_bin = sel_b1? in: reg1;
+    assign add1_bin = sel_b1? in: reg1_wire;
     wire add1_sel_sub = (mode1==3'b011)?1'b1:(mode1==3'b100)?1'b1:(mode1==3'b101)?1'b1:1'b0;
     poly_adder_L3_L3 acc1(.sub(add1_sel_sub), .X(add1_ain), .Y(add1_bin), .Z(acc1_out));
 
@@ -87,17 +84,32 @@ module postadder(
 
     always @(posedge clk) begin
         if(!rstn)begin
-            reg1 <= '0;
+            reg1[0] <= '0;
+            reg1[1] <= '0;
+            reg1[2] <= '0;
+            reg1[3] <= '0;
             dout <= '0;
             for(integer i = 0; i < 3; i = i + 1) begin
-                reg2[i] <= '0;
-                reg3[i] <= '0;
+                reg2[0][i] <= '0;
+                reg3[0][i] <= '0;
+                reg2[1][i] <= '0;
+                reg3[1][i] <= '0;    
+                reg2[2][i] <= '0;
+                reg3[2][i] <= '0;                
+                reg2[3][i] <= '0;
+                reg3[3][i] <= '0;
             end
+            dly_reg1 <= '0;
+            dly_reg2 <= '0;
+            dly_reg3 <= '0;
         end else begin
-            reg1 <= acc1_out;
-            reg2[addr2] <= acc2_out;
-            reg3[addr3] <= acc3_out;
-            dout <= (outsel==2'b00)?reg1:(outsel==2'b01)?reg2_wire:(outsel==2'b10)?reg3_wire:0;
+            reg1[thread] <= acc1_out;
+            reg2[thread][addr2] <= acc2_out;
+            reg3[thread][addr3] <= acc3_out;
+            dly_reg1 <= acc1_out;
+            dly_reg2 <= acc2_out;
+            dly_reg3 <= acc3_out;
+            dout <= (outsel==2'b00)?dly_reg1:(outsel==2'b01)?dly_reg2:(outsel==2'b10)?dly_reg3:'x;
         end
     end
 

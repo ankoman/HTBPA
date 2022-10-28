@@ -40,12 +40,12 @@ module test_postadder;
     assign ans1 = acc(in, reg1, mode1);
     assign ans2 = acc(in, reg2[addr2], mode2);
     assign ans3 = acc(in, reg3[addr3], mode3);
-    // assign res1 = L3toint(DUT.acc1_out);
-    // assign res2 = L3toint(DUT.acc2_out);
-    // assign res3 = L3toint(DUT.acc3_out);
-    L3toint red1 (DUT.acc1_out, res1);
-    L3toint red2 (DUT.acc2_out, res2);
-    L3toint red3 (DUT.acc3_out, res3);
+    assign res1 = func_L3toint(DUT.acc1_out);
+    assign res2 = func_L3toint(DUT.acc2_out);
+    assign res3 = func_L3toint(DUT.acc3_out);
+    // L3toint red1 (DUT.acc1_out, res1);
+    // L3toint red2 (DUT.acc2_out, res2);
+    // L3toint red3 (DUT.acc3_out, res3);
 
 
     postadder DUT(.clk, .rstn, .in_L1, .mode1, .mode2, .mode3, .outsel(2'b00), .addr2, .addr3);
@@ -150,17 +150,12 @@ module test_postadder;
         end
     endfunction
 
-    // function uint_fp_t L3toint;
-    //     input redundant_poly_L3 din;
+    function uint_fp_t func_L3toint;
+        input redundant_poly_L3 din;
 
-    //     automatic logic sign0 = din[0].carry[L3_CARRY-1];
-    //     automatic logic sign1 = din[1].carry[L3_CARRY-1];
-    //     automatic logic sign2 = din[2].carry[L3_CARRY-1];
-    //     automatic logic sign3 = din[3].carry[L3_CARRY-1];
-
-    //     L3toint = 0;
-    //     for(integer i = 0; i <= ADD_DIV; i = i + 1) begin
-    //         L3toint = L3toint + (din[i] << ($bits(uint_fp_t)/ADD_DIV*i));
-    //     end
-    // endfunction
+        func_L3toint = 0;
+        for(integer i = 0; i < ADD_DIV; i = i + 1) begin
+            func_L3toint = func_L3toint + ({din[i].carry[L3_CARRY-1] ? 320'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff : '0, din[i]} << ($bits(fp_div4_t)*i));
+        end
+    endfunction
 endmodule
