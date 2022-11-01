@@ -24,7 +24,7 @@ import PARAMS_BN254_d0::*;
 module cmul #(
     parameter LATENCY = 0
     )(
-    input clk,
+    input clk, rstn,
     input [2:0] mode,
     input uint_Mtilde2_t din,
     output redundant_poly_L1 dout

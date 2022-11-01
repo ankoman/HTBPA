@@ -156,7 +156,7 @@ module L3toint(
 endmodule
 
 module L3touint(
-    input clk,
+    input clk, rstn,
     input redundant_poly_L3 din,
     output [LEN_1024M_TILDE-1:0] dout
     );

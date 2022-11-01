@@ -50,7 +50,7 @@ package PARAMS_BN254_d0;
         _Mpp = 256'h3e8c63befe1a0002e8c326a69c00000e1cd5bc2800000021193b18000000002, //k=17
         R = 289 - 1,
         R_INV = 'h4183ffd639e59ef555105a592c220885737a65cc60fa8a23659c0a44ebb1577, //r=289
-        N = R/K + 1, 
+        N = R/K + 1, //17
         M = 11,
         HALF_S = (M+D+1)/2, // must be even
         S_1_3 = (M+D+1)/3,  // 1/3
@@ -137,5 +137,15 @@ package CONTROL;
         logic [1:0] thread;
     } ctrl_sig;
 
+endpackage
+`endif 
+
+
+`ifndef PARAM_UART
+`define PARAM_UART
+package PARAM_UART;
+
+    parameter   UART_CLK_FREQ = 100000000,
+                UART_BAUD_RATE = 460800;
 endpackage
 `endif 

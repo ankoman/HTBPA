@@ -67,11 +67,10 @@ module BN254_pairing(
     wire [8:0] addrb1_sakamoto = ~busy ? extout_addr : c_sig.raddr1;
 
     //assign dataout1 = (ctrl[26])?{65'b0,eeinvd}:postaddrd;
-    assign memin = ~busy ? extin_data : postadd_out;
-    assign extout_data = postadd_out;
+    assign memin = (~busy) ? extin_data : postadd_out;
+    assign extout_data = memout1;
 
-    sequencer seq (.clk,.rstn,.c_sig(c_sig), .invresult(result_flag),.endflag(endflag),
-                .run(run), .busy(busy), .n_func(n_func), .opstart(opstart), .swrst(swrst));
+    (* keep_hierarchy = "yes" *) sequencer seq (.clk, .rstn, .c_sig, .invresult(result_flag), .endflag, .run, .busy, .n_func, .opstart, .swrst);
 
     blk_mem_gen_304 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(c_sig.raddr0),.doutb(memout0),.clkb(clk));
     blk_mem_gen_304 RAM1 (.wea(me1),.addra(waddr1),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
@@ -88,8 +87,8 @@ module BN254_pairing(
         .Z1(preadd_out1)
     );
 
-    L3touint reduction1 (.clk, .din(preadd_out0), .dout(red_out0));
-    L3touint reduction2 (.clk, .din(preadd_out1), .dout(red_out1));
+    L3touint reduction1 (.clk, .rstn, .din(preadd_out0), .dout(red_out0));
+    L3touint reduction2 (.clk, .rstn, .din(preadd_out1), .dout(red_out1));
 
     QPMM_d0 qpmm_inst(
         .A(red_out0),
@@ -99,7 +98,7 @@ module BN254_pairing(
         .rstn
     );
 
-    cmul #(.LATENCY(1)) cmul (.clk, .mode(ctrl_cmul.opcode[9:7]), .din(qpmm_out), .dout(cmul_out));
+    cmul #(.LATENCY(1)) cmul (.clk, .rstn, .mode(ctrl_cmul.opcode[9:7]), .din(qpmm_out), .dout(cmul_out));
 
     postadder postadder(
     .clk,

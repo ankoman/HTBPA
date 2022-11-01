@@ -47,7 +47,7 @@ module postadder(
     //// ACC1
     wire sel_b1 = ((mode1 == 3'b001) || (mode1 == 3'b100));
     redundant_poly_L3 add1_ain;
-    assign add1_ain = (mode1[2:1]===2'b00)? 0:(mode1==3'b010)?in:(mode1==3'b011)?in:(mode1==3'b100)?reg1_wire:(mode1==3'b101)?poly_p:in;
+    assign add1_ain = (mode1[2:1]==2'b00)? 0:(mode1==3'b010)?in:(mode1==3'b011)?in:(mode1==3'b100)?reg1_wire:(mode1==3'b101)?poly_p:in;
     redundant_poly_L3 add1_bin;
     assign add1_bin = sel_b1? in: reg1_wire;
     wire add1_sel_sub = (mode1==3'b011)?1'b1:(mode1==3'b100)?1'b1:(mode1==3'b101)?1'b1:1'b0;
@@ -61,7 +61,7 @@ module postadder(
     // logic[$bits(uint_fp_t)/4-1:0] reg2_reg_wire_buf_3 = (reg_addr2[3] == 2'b00)? reg2[0][3] : (reg_addr2[3] == 2'b01)? reg2[1][3]: (reg_addr2[3] == 2'b10)? reg2[2][3]:'x;
     //assign reg2_reg_wire = {reg2_reg_wire_buf_3, reg2_reg_wire_buf_2, reg2_reg_wire_buf_1, reg2_reg_wire_buf_0};
     redundant_poly_L3 add2_ain;
-    assign add2_ain = (mode2[2:1]===2'b00)? 0:(mode2==3'b010)?in:(mode2==3'b011)?in:(mode2==3'b100)?reg2_wire:(mode2==3'b101)?poly_p:in;
+    assign add2_ain = (mode2[2:1]==2'b00)? 0:(mode2==3'b010)?in:(mode2==3'b011)?in:(mode2==3'b100)?reg2_wire:(mode2==3'b101)?poly_p:in;
     redundant_poly_L3 add2_bin;
     assign add2_bin = sel_b2? in: reg2_wire;
     wire add2_sel_sub = (mode2==3'b011)?1'b1:(mode2==3'b100)?1'b1:(mode2==3'b101)?1'b1:1'b0;
@@ -75,7 +75,7 @@ module postadder(
     // logic[$bits(uint_fp_t)/4-1:0] reg3_reg_wire_buf_3 = (reg_addr2[3] == 2'b00)? reg3[0][3] : (reg_addr2[3] == 2'b01)? reg3[1][3]: (reg_addr2[3] == 2'b10)? reg3[2][3]:'x;
     //assign reg3_reg_wire = {reg3_reg_wire_buf_3, reg3_reg_wire_buf_2, reg3_reg_wire_buf_1, reg3_reg_wire_buf_0};
     redundant_poly_L3 add3_ain;
-    assign add3_ain = (mode3[2:1]===2'b00)? 0:(mode3==3'b010)?in:(mode3==3'b011)?in:(mode3==3'b100)?reg3_wire:(mode3==3'b101)?poly_p:in;
+    assign add3_ain = (mode3[2:1]==2'b00)? 0:(mode3==3'b010)?in:(mode3==3'b011)?in:(mode3==3'b100)?reg3_wire:(mode3==3'b101)?poly_p:in;
     redundant_poly_L3 add3_bin;
     assign add3_bin = sel_b3? in: reg3_wire;
     wire add3_sel_sub = (mode3==3'b011)?1'b1:(mode3==3'b100)?1'b1:(mode3==3'b101)?1'b1:1'b0;
