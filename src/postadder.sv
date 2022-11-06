@@ -26,20 +26,20 @@ module postadder(
     input rstn,
     input redundant_poly_L1 in_L1,
     input [2:0] mode1, mode2, mode3,
-    input [1:0] outsel, addr2, addr3, thread, 
+    input [1:0] outsel, raddr2, raddr3, waddr2, waddr3, rthread, wthread, 
     output redundant_poly_L3 dout
     );
 
     redundant_poly_L3 in;
     assign in = L1toL3(in_L1);
 
-    redundant_poly_L3[3:0] reg1;
+    redundant_poly_L3[3:0] reg1, reg2_buf, reg3_buf;
     redundant_poly_L3[3:0][2:0] reg2, reg3;
     redundant_poly_L3 acc1_out, acc2_out, acc3_out;
-    redundant_poly_L3 reg1_wire, reg2_wire, reg3_wire, dly_reg1, dly_reg2, dly_reg3;
-    assign reg1_wire = reg1[thread];
-    assign reg2_wire = reg2[thread][addr2];
-    assign reg3_wire = reg3[thread][addr3];
+    redundant_poly_L3 reg1_wire, reg2_wire, reg3_wire, reg_acc2_out, reg_acc3_out;
+    assign reg1_wire = reg1[3];
+    assign reg2_wire = reg2_buf[1];
+    assign reg3_wire = reg3_buf[1];
 
     redundant_poly_L3 poly_p;
     assign poly_p = inttoL3(PARAMS_BN254_d0::Mod);
@@ -55,11 +55,6 @@ module postadder(
 
     //// ACC2
     wire sel_b2 = ((mode2 == 3'b001) || (mode2 == 3'b100));
-    // logic[$bits(uint_fp_t)/4-1:0] reg2_reg_wire_buf_0 = (reg_addr2[0] == 2'b00)? reg2[0][0] : (reg_addr2[0] == 2'b01)? reg2[1][0]: (reg_addr2[0] == 2'b10)? reg2[2][0]:'x;
-    // logic[$bits(uint_fp_t)/4-1:0] reg2_reg_wire_buf_1 = (reg_addr2[1] == 2'b00)? reg2[0][1] : (reg_addr2[1] == 2'b01)? reg2[1][1]: (reg_addr2[1] == 2'b10)? reg2[2][1]:'x;
-    // logic[$bits(uint_fp_t)/4-1:0] reg2_reg_wire_buf_2 = (reg_addr2[2] == 2'b00)? reg2[0][2] : (reg_addr2[2] == 2'b01)? reg2[1][2]: (reg_addr2[2] == 2'b10)? reg2[2][2]:'x;
-    // logic[$bits(uint_fp_t)/4-1:0] reg2_reg_wire_buf_3 = (reg_addr2[3] == 2'b00)? reg2[0][3] : (reg_addr2[3] == 2'b01)? reg2[1][3]: (reg_addr2[3] == 2'b10)? reg2[2][3]:'x;
-    //assign reg2_reg_wire = {reg2_reg_wire_buf_3, reg2_reg_wire_buf_2, reg2_reg_wire_buf_1, reg2_reg_wire_buf_0};
     redundant_poly_L3 add2_ain;
     assign add2_ain = (mode2[2:1]==2'b00)? 0:(mode2==3'b010)?in:(mode2==3'b011)?in:(mode2==3'b100)?reg2_wire:(mode2==3'b101)?poly_p:in;
     redundant_poly_L3 add2_bin;
@@ -69,11 +64,6 @@ module postadder(
 
     //// ACC2
     wire sel_b3 = ((mode3 == 3'b001) || (mode3 == 3'b100));
-    // logic[$bits(uint_fp_t)/4-1:0] reg3_reg_wire_buf_0 = (reg_addr2[0] == 2'b00)? reg3[0][0] : (reg_addr2[0] == 2'b01)? reg3[1][0]: (reg_addr2[0] == 2'b10)? reg3[2][0]:'x;
-    // logic[$bits(uint_fp_t)/4-1:0] reg3_reg_wire_buf_1 = (reg_addr2[1] == 2'b00)? reg3[0][1] : (reg_addr2[1] == 2'b01)? reg3[1][1]: (reg_addr2[1] == 2'b10)? reg3[2][1]:'x;
-    // logic[$bits(uint_fp_t)/4-1:0] reg3_reg_wire_buf_2 = (reg_addr2[2] == 2'b00)? reg3[0][2] : (reg_addr2[2] == 2'b01)? reg3[1][2]: (reg_addr2[2] == 2'b10)? reg3[2][2]:'x;
-    // logic[$bits(uint_fp_t)/4-1:0] reg3_reg_wire_buf_3 = (reg_addr2[3] == 2'b00)? reg3[0][3] : (reg_addr2[3] == 2'b01)? reg3[1][3]: (reg_addr2[3] == 2'b10)? reg3[2][3]:'x;
-    //assign reg3_reg_wire = {reg3_reg_wire_buf_3, reg3_reg_wire_buf_2, reg3_reg_wire_buf_1, reg3_reg_wire_buf_0};
     redundant_poly_L3 add3_ain;
     assign add3_ain = (mode3[2:1]==2'b00)? 0:(mode3==3'b010)?in:(mode3==3'b011)?in:(mode3==3'b100)?reg3_wire:(mode3==3'b101)?poly_p:in;
     redundant_poly_L3 add3_bin;
@@ -99,17 +89,24 @@ module postadder(
                 reg2[3][i] <= '0;
                 reg3[3][i] <= '0;
             end
-            dly_reg1 <= '0;
-            dly_reg2 <= '0;
-            dly_reg3 <= '0;
+            reg_acc2_out <= '0;
+            reg_acc3_out <= '0;
         end else begin
-            reg1[thread] <= acc1_out;
-            reg2[thread][addr2] <= acc2_out;
-            reg3[thread][addr3] <= acc3_out;
-            dly_reg1 <= acc1_out;
-            dly_reg2 <= acc2_out;
-            dly_reg3 <= acc3_out;
-            dout <= (outsel==2'b00)?dly_reg1:(outsel==2'b01)?dly_reg2:(outsel==2'b10)?dly_reg3:'x;
+            reg1[0] <= acc1_out;
+            reg1[1] <= reg1[0];
+            reg1[2] <= reg1[1];
+            reg1[3] <= reg1[2];
+
+            reg2_buf[0] <= reg2[rthread][raddr2];
+            reg2_buf[1] <= reg2_buf[0];
+            reg3_buf[0] <= reg3[rthread][raddr3];
+            reg3_buf[1] <= reg3_buf[0];
+
+            reg2[wthread][waddr2] <= reg_acc2_out;
+            reg3[wthread][waddr3] <= reg_acc3_out;
+            reg_acc2_out <= acc2_out;
+            reg_acc3_out <= acc3_out;
+            dout <= (outsel==2'b00)?reg1[0]:(outsel==2'b01)?reg_acc2_out:(outsel==2'b10)?reg_acc3_out:'x;
         end
     end
 

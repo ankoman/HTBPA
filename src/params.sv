@@ -129,13 +129,50 @@ package CONTROL;
 
     // Struct
     typedef struct packed {
-        logic [26:0] opcode;
-        logic [8:0] waddr0;
-        logic [8:0] waddr1;
+        logic os;
+        logic inve;
+        logic [1:0] poa3;
+        logic [1:0] poa2;
+        logic [1:0] pos;
+        logic [2:0] pom3;
+        logic [2:0] pom2;
+        logic [2:0] pom1;
+        logic [2:0] cm;
+        logic [1:0] pm2;
+        logic [1:0] pm1;
+        logic me1;
+        logic me0;
+    } ctrl_sig_t;
+
+    typedef struct packed {
+        ctrl_sig_t csig;
+        logic [8:0] waddr;
         logic [8:0] raddr0;
         logic [8:0] raddr1;
-        logic [1:0] thread;
-    } ctrl_sig;
+    } micro_ops_t;
+
+    typedef struct packed {
+        logic [1:0] field;
+        logic t;
+        logic [3:0] arith;
+    } operation_t; // 7 bits
+
+    typedef struct packed {
+        logic [2:0] field;
+        logic [4:0] misc;
+    } sub_operation_t; // 8 bits
+
+    typedef struct packed {
+        operation_t op;
+        sub_operation_t sub_op;
+    } opcode_t; // 15 bits
+
+    typedef struct packed {
+        opcode_t opcode;
+        logic [6:0] dst;
+        logic [6:0] src0;
+        logic [6:0] src1;
+    } instruction_t;
 
 endpackage
 `endif 

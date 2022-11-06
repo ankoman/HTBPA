@@ -53,11 +53,12 @@ module BN254_pairing(
     uint_Mtilde2_t qpmm_out;
     redundant_poly_L1 cmul_out;
 
-    ctrl_sig ctrl_preadd, ctrl_cmul, ctrl_postadd, ctrl_postadd2, ctrl_write;
+    ctrl_sig ctrl_preadd, ctrl_cmul, ctrl_postadd, ctrl_postadd2, ctrl_postadd3, ctrl_write;
     assign ctrl_preadd = c_sig_buf[LAT_READ];
     assign ctrl_cmul = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM];
     assign ctrl_postadd = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL];
     assign ctrl_postadd2 = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL+1];
+    assign ctrl_postadd3 = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL-2];
     assign ctrl_write = c_sig_buf[PIPELINE_STAGES - LAT_WRITE];
     
     wire me0 = (~busy) ? extin_en : (ctrl_write.opcode[1] & (ctrl_write.thread == 2'b00));
@@ -104,13 +105,16 @@ module BN254_pairing(
     .clk,
     .rstn,
     .in_L1(cmul_out),
-    .thread(ctrl_postadd.thread),
+    .rthread(ctrl_postadd3.thread),
+    .wthread(ctrl_postadd2.thread),
     .mode1(ctrl_postadd.opcode[12:10]),
     .mode2(ctrl_postadd.opcode[15:13]),
     .mode3(ctrl_postadd.opcode[18:16]),
     .outsel(ctrl_postadd2.opcode[20:19]),
-    .addr2(ctrl_postadd.opcode[22:21]),
-    .addr3(ctrl_postadd.opcode[24:23]),
+    .waddr2(ctrl_postadd2.opcode[22:21]),
+    .waddr3(ctrl_postadd2.opcode[24:23]),
+    .raddr2(ctrl_postadd3.opcode[22:21]),
+    .raddr3(ctrl_postadd3.opcode[24:23]),
     .dout(postadd_out)
     );
 

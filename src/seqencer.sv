@@ -56,9 +56,9 @@ wire [26:0] FP12_frob_addr_wire;
 wire [26:0] FP12_mul_addr_wire;
 wire [26:0] FP12_comul_addr_wire;
 
-wire [58:0] rom_out;
-assign c_sig.opcode = rom_out[58:32]; //2サイクル送れるか�?
-//assign c_sig.opcode = (cnt_4clk == 2'b10) ? rom_out[58:32] : {rom_out[58:53], 11'b11111111111, rom_out[41:32]}; //2サイクル送れるか�?
+logic [58:0] rom_out;
+assign c_sig.opcode = rom_out[58:32]; //2サイクル遅れる？
+//assign c_sig.opcode = (cnt_4clk == 2'b10) ? rom_out[58:32] : {rom_out[58:53], 11'b11111111111, rom_out[41:32]}; //2サイクル遅れる？
 
 assign c_sig.waddr0 = (oopnum == 9'd10)?addra0_wire + compress_mul_addra:(oopnum == 9'd11)?addra0_wire + FP12square_wire[8:0]:(oopnum == 9'd14)?addra0_wire + FP12_comul_addr_wire[8:0]:
                 (oopnum == 9'd15)?addra0_wire + FP12_mul_addr_wire[8:0]:(oopnum == 9'd17)?addra0_wire + FP12_frob_addr_wire[8:0]:addra0_wire;
@@ -68,7 +68,7 @@ assign c_sig.raddr0 = (oopnum == 9'd10)?addrb0_wire + compress_mul_addrb:(oopnum
                 (oopnum == 9'd15)?addrb0_wire + FP12_mul_addr_wire[26:18]:(oopnum == 9'd17)?addrb0_wire + FP12_frob_addr_wire[26:18]:addrb0_wire;
 assign c_sig.raddr1 = (oopnum == 9'd11)?addrb1_wire + FP12square_wire[17:9]: (oopnum == 9'd14)?addrb1_wire + FP12_comul_addr_wire[17:9]:
                 (oopnum == 9'd15)?addrb1_wire + FP12_mul_addr_wire[17:9]:(oopnum == 9'd17)?((cnt == 16'd1)?addrb1_wire:addrb1_wire + FP12_frob_addr_wire[17:9]):addrb1_wire;
-assign c_sig.thread = cnt_4clk + 1; //2サイクル送れるか�?
+assign c_sig.thread = cnt_4clk + 1; //2サイクル遅れる？
 
 assign addra0_wire = rom_out[31:24];
 assign addra1_wire = rom_out[23:16];
@@ -486,7 +486,7 @@ always@ (posedge clk )begin
         init_cnt <= 1;
         busy <= 1;
         
-        //どの?��?囲の関数を実行するか endは+1する
+        //どの?��?囲の関数を実行するか endは+1する
         case(n_func)
             4'd0: begin //pairing
                 opcnt_start <= 0;
@@ -508,7 +508,7 @@ always@ (posedge clk )begin
         
     end
 //     else if(|init_cnt) begin
-//         //外部?��?ータ書き込み??��?
+//         //外部?��?ータ書き込み??��?
 //         //fの初期化�?
 //         init_cnt <= init_cnt + 1;
 //         case (init_cnt)
@@ -523,9 +523,9 @@ always@ (posedge clk )begin
             ocnt <= cnt;
             //        opstartset <= 1;
     
-            //opnumによって何�??��関数を実行するか?��??��?
-            //cnt = 関数?��?の命令数
-            //関数が最後まで行ったらopcnt +=1してcntリセ?��??��?
+            //opnumによって何�??��関数を実行するか?��??��?
+            //cnt = 関数?��?の命令数
+            //関数が最後まで行ったらopcnt +=1してcntリセ?��??��?
             
             if(opcnt == opcnt_end) begin
                 endflag <= 1;
