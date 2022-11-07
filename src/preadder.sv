@@ -41,6 +41,6 @@ module preadder(
             dly_x[thread] <= X;
             dly_y[thread] <= Y;
             Z0 <= (mode1==2'b01)? add_buf_0 : (mode1==2'b10)? add_buf_1: X;
-            Z1 <= (mode2==2'b01)? add_buf_2 : (mode2==2'b10)? add_buf_3: Y;
+            Z1 <= (mode2==2'b01)? add_buf_3 : (mode2==2'b10)? add_buf_2: Y;
     end
 endmodule

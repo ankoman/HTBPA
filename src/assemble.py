@@ -40,6 +40,16 @@ def getSuffix(ins):
 
     return ins, list_suffix
 
+def getPrefix(ins):
+    tmp = ins[0]
+
+    if tmp.isdecimal():
+        prefix = int(ins[0], 10)
+        ins = ins[1:]
+    else:
+        prefix = 1
+
+    return ins, prefix
 
 def encodeReg(reg):
     regSymbol = reg[0]
@@ -56,6 +66,9 @@ def encodeReg(reg):
 
 
 def genBinMain(ins, args, suffix):
+
+    ins, prefix = getPrefix(ins)
+    print(prefix)
 
     list_bin = []
     if ins in list_INS_CTRL:
@@ -75,7 +88,10 @@ def genBinMain(ins, args, suffix):
         exit(-1)
         
     #subfunc
-    list_bin.append('00000000')
+    if ins == 'Fp2_sqr':
+        prefix *= 2
+    list_bin.append(format(prefix, '03b'))
+    list_bin.append('00000')
 
     #Reg
     list_bin.append(encodeReg(args[0])) # dst

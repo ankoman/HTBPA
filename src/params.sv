@@ -128,27 +128,51 @@ endpackage
 package CONTROL;
 
     // Struct
+    // typedef struct packed {
+    //     logic os;
+    //     logic inve;
+    //     logic [1:0] poa3;
+    //     logic [1:0] poa2;
+    //     logic [1:0] pos;
+    //     logic [2:0] pom3;
+    //     logic [2:0] pom2;
+    //     logic [2:0] pom1;
+    //     logic [2:0] cm;
+    //     logic [1:0] pm2;
+    //     logic [1:0] pm1;
+    //     logic me1;
+    //     logic me0;
+    // } ctrl_sig_t;
+
     typedef struct packed {
-        logic os;
         logic inve;
-        logic [1:0] poa3;
-        logic [1:0] poa2;
         logic [1:0] pos;
         logic [2:0] pom3;
         logic [2:0] pom2;
         logic [2:0] pom1;
         logic [2:0] cm;
-        logic [1:0] pm2;
-        logic [1:0] pm1;
-        logic me1;
-        logic me0;
+        logic [1:0] pm;
+        logic me;
     } ctrl_sig_t;
 
     typedef struct packed {
+        logic inve;
+        logic [1:0] pos;
+        logic [2:0] pom3;
+        logic [2:0] pom2;
+        logic [2:0] pom1;
+        logic [1:0] pm;
+        logic me;
+        logic offset_dst;
+        logic offset_src0;
+        logic offset_src1;
+    } ctrl_sig_offset_t; // without cmul
+
+    typedef struct packed {
         ctrl_sig_t csig;
-        logic [8:0] waddr;
-        logic [8:0] raddr0;
-        logic [8:0] raddr1;
+        logic [8:0] dst;
+        logic [8:0] src0;
+        logic [8:0] src1;
     } micro_ops_t;
 
     typedef struct packed {
@@ -158,7 +182,7 @@ package CONTROL;
     } operation_t; // 7 bits
 
     typedef struct packed {
-        logic [2:0] field;
+        logic [2:0] cm;
         logic [4:0] misc;
     } sub_operation_t; // 8 bits
 

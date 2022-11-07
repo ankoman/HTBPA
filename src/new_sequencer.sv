@@ -22,11 +22,11 @@
 import CONTROL::*;
 localparam FIRST_PC_ADDR = 10'h000;
 localparam ROM_DEPTH = 10;
-localparam LEN_FUNC_CNT = 7;
 localparam LEN_MOP_CNT = 7;
 
 localparam BIT_INSTRUCTION_TYPE = 33;
-localparam NOP = 27'hz;
+localparam ctrl_sig_offset_t NOP = 'b0_xx_xxx_xxx_xxx_xx_0_xxx;
+localparam noaddr = 9'hx;
 localparam operation_t op_JMP  = 'bxxx0000;
 localparam operation_t op_CALL = 'bxxx0001;
 localparam operation_t op_RET  = 'bxxx0010;
@@ -43,23 +43,23 @@ module new_sequencer(
     );
 
     logic [ROM_DEPTH-1:0] pc, pc_d; // program counter
+    logic [ROM_DEPTH-1:0] ret_addr; // return address
     logic change_pc, change_pc_d, change_pc_dd;
     assign change_pc = (pc != pc_d);
     logic [LEN_MOP_CNT-1:0] mop_cnt, end_mop_cnt; // micro operation counter
     logic [LEN_MOP_CNT+1:0] cnt_to_fetch; // cycles to fetch
-    logic [1:0] thread_cnt; // thread counter
-    logic [ROM_DEPTH-1:0] ret_addr; // return address
+    logic [1:0] thread_cnt, thread_cnt_d; // thread counter
     logic [3:0] cnt_4clk;
     instruction_t rom_out, rom_out_d; // Latency 3;
-    ctrl_sig_t csig_Fp2_mul, csig_Fp2_sqr;
+    ctrl_sig_offset_t csig_Fp2_mul, csig_Fp2_sqr;
     wire ctrl_instruction = rom_out[BIT_INSTRUCTION_TYPE];
     logic ctrl_instruction_d;
     wire fetch_next = (cnt_to_fetch == {end_mop_cnt, 2'b00});
     wire is_4clks = cnt_4clk[3];
-    wire inc_thread = (mop_cnt == end_mop_cnt);
+    wire inc_thread = (mop_cnt == end_mop_cnt) & busy;
     wire reset_mop_cnt = change_pc_dd | inc_thread;
 
-    assign busy = (pc != FIRST_PC_ADDR);
+    assign busy = (pc != FIRST_PC_ADDR) ^ run;
     new_microcode_rom rom(clk, pc, rom_out);            
 
     always_ff @(posedge clk) begin : misc
@@ -68,6 +68,7 @@ module new_sequencer(
         pc_d <= pc;
         change_pc_d <= change_pc;
         change_pc_dd <= change_pc_d;
+        thread_cnt_d <= thread_cnt;
         if (is_4clks)
             if (ctrl_instruction)
                 if(rom_out.opcode.op === op_CALL)
@@ -100,7 +101,7 @@ module new_sequencer(
         if(!rstn) 
             thread_cnt <= '0;
         else if(inc_thread)
-            thread_cnt <= thread_cnt + 1'b1;
+            thread_cnt <= thread_cnt;
     end
 
     always_ff @(posedge clk) begin
@@ -116,7 +117,7 @@ module new_sequencer(
     //////////////////////////////////////
     //// Counters
     //////////////////////////////////////
-    always_ff @(posedge clk) begin
+    always_ff @(posedge clk) begin : rom_addressing
         if(!rstn) 
             pc <= FIRST_PC_ADDR;
         else begin
@@ -137,14 +138,22 @@ module new_sequencer(
         end
     end
 
+    //変化する部分だけをswitchした方がいい気がする
     always @(posedge clk) begin : inst_decoder
         if(!rstn) 
-            mops.csig <= '0;
+            mops <= '0;
         else begin
+            //csig
             case(rom_out_d.opcode.op)
-                op_Fp2_mul: mops.csig <= csig_Fp2_mul;
-                op_Fp2_sqr: mops.csig <= csig_Fp2_sqr;
-                default: mops.csig <= NOP;
+                op_Fp2_mul: mops <= {func_demode_csig(csig_Fp2_mul, rom_out_d.opcode.sub_op.cm), 
+                                    {thread_cnt_d, rom_out_d.dst + csig_Fp2_mul.offset_dst},
+                                    {thread_cnt_d, rom_out_d.src0 + csig_Fp2_mul.offset_src0},
+                                    {thread_cnt_d, rom_out_d.src1 + csig_Fp2_mul.offset_src1}};
+                op_Fp2_sqr: mops <= {func_demode_csig(csig_Fp2_sqr, rom_out_d.opcode.sub_op.cm),
+                                    {thread_cnt_d, rom_out_d.dst + csig_Fp2_sqr.offset_dst},
+                                    {thread_cnt_d, rom_out_d.src0 + csig_Fp2_sqr.offset_src0},
+                                    {thread_cnt_d, rom_out_d.src1 + csig_Fp2_sqr.offset_src1}};
+                default: mops <= {NOP, noaddr, noaddr, noaddr};
             endcase
         end
     end
@@ -170,9 +179,9 @@ module new_sequencer(
             csig_Fp2_mul <= NOP;
         else begin
             case(mop_cnt)
-                6'd0: csig_Fp2_mul <= 'b00000000000001001110000000;
-                6'd1: csig_Fp2_mul <= 'b00000000000100010011011011;
-                6'd2: csig_Fp2_mul <= 'b00000001001000001010000011;
+                6'd0: csig_Fp2_mul <= 'b0_xx_xxx_001_001_00_0_000;
+                6'd1: csig_Fp2_mul <= 'b0_00_xxx_010_100_00_1_111;
+                6'd2: csig_Fp2_mul <= 'b0_01_xxx_011_xxx_01_1_0xx;
                 default: csig_Fp2_mul <= NOP;
             endcase
         end
@@ -183,14 +192,29 @@ module new_sequencer(
             csig_Fp2_sqr <= NOP;
         else begin
             case(mop_cnt)
-                6'd0: csig_Fp2_sqr <= 'b00100000001000001010000011;
-                6'd1: csig_Fp2_sqr <= 'b00010000001000001001011011;
+                6'd0: csig_Fp2_sqr <= 'b0_00_xxx_xxx_001_00_1_100;
+                6'd1: csig_Fp2_sqr <= 'b0_00_xxx_xxx_001_10_1_0xx;
                 default: csig_Fp2_sqr <= NOP;
             endcase
         end
     end
     
 
+    //////////////////////////////////////
+    //// Functions
+    //////////////////////////////////////
+    function ctrl_sig_t func_demode_csig;
+        input ctrl_sig_offset_t csigin;
+        input [2:0] cmul;
+        func_demode_csig.inve = csigin.inve;
+        func_demode_csig.pos = csigin.pos;
+        func_demode_csig.pom3 = csigin.pom3;
+        func_demode_csig.pom2 = csigin.pom2;
+        func_demode_csig.pom1 = csigin.pom1;
+        func_demode_csig.cm = cmul;
+        func_demode_csig.pm = csigin.pm;
+        func_demode_csig.me = csigin.me;
+    endfunction
 endmodule
 
 module rising_edge(

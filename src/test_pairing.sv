@@ -34,37 +34,35 @@ module test_pairing;
     wire [289-1:0] extout_data;
     wire busy;
 
-    // uint_fpa_t debug_memout0, debug_memout1, debug_preadd0, debug_preadd1, debug_red0, debug_red1, debug_qpmm, debug_cmul, debug_postadd;
-    // assign debug_memout0 = MR(func_L3touint(DUT.memout0));
-    // assign debug_memout1 = MR(func_L3touint(DUT.memout1));
-    // assign debug_preadd0 = MR(func_L3touint(DUT.preadd_out0));
-    // assign debug_preadd1 = MR(func_L3touint(DUT.preadd_out1));
-    // assign debug_red0 = MR(DUT.red_out0);
-    // assign debug_red1 = MR(DUT.red_out1);
-    // assign debug_qpmm = MR(DUT.qpmm_out);
-    // assign debug_cmul = MR(func_L1toint(DUT.cmul_out));
-    // assign debug_postadd = MR(func_L3touint(DUT.postadd_out));
+    uint_fpa_t debug_memout0, debug_memout1, debug_preadd0, debug_preadd1, debug_red0, debug_red1, debug_qpmm, debug_cmul, debug_postadd;
+    assign debug_memout0 = MR(func_L3touint(DUT.memout0));
+    assign debug_memout1 = MR(func_L3touint(DUT.memout1));
+    assign debug_preadd0 = MR(func_L3touint(DUT.preadd_out0));
+    assign debug_preadd1 = MR(func_L3touint(DUT.preadd_out1));
+    assign debug_red0 = MR(DUT.red_out0);
+    assign debug_red1 = MR(DUT.red_out1);
+    assign debug_qpmm = MR(DUT.qpmm_out);
+    assign debug_cmul = MR(func_L1toint(DUT.cmul_out));
+    assign debug_postadd = MR(func_L3touint(DUT.postadd_out));
 
-    // //// For preadd debug
-    // uint_fpa_t debug_add_buf_0, debug_add_buf_1, debug_add_buf_2, debug_add_buf_3, debug_dly_x, debug_dly_y;
-    // assign debug_add_buf_0 = MR(func_L3touint(DUT.preadder.add_buf_0));
-    // assign debug_add_buf_1 = MR(func_L3touint(DUT.preadder.add_buf_1));
-    // assign debug_add_buf_2 = MR(func_L3touint(DUT.preadder.add_buf_2));
-    // assign debug_add_buf_3 = MR(func_L3touint(DUT.preadder.add_buf_3));
-    // assign debug_dly_x = MR(func_L3touint(DUT.preadder.dly_x));
-    // assign debug_dly_y = MR(func_L3touint(DUT.preadder.dly_y));
+    //// For preadd debug
+    uint_fpa_t debug_add_buf_0, debug_add_buf_1, debug_add_buf_2, debug_add_buf_3, debug_dly_x, debug_dly_y;
+    assign debug_add_buf_0 = MR(func_L3touint(DUT.preadder.add_buf_0));
+    assign debug_add_buf_1 = MR(func_L3touint(DUT.preadder.add_buf_1));
+    assign debug_add_buf_2 = MR(func_L3touint(DUT.preadder.add_buf_2));
+    assign debug_add_buf_3 = MR(func_L3touint(DUT.preadder.add_buf_3));
+    assign debug_dly_x = MR(func_L3touint(DUT.preadder.dly_x));
+    assign debug_dly_y = MR(func_L3touint(DUT.preadder.dly_y));
 
-    // //// For postadd debug
-    // uint_fpa_t debug_reg1_wire, debug_reg2_wire, debug_reg3_wire;
-    // assign debug_reg1_wire = MR(func_L3touint(DUT.postadder.reg1_wire));
-    // assign debug_reg2_wire = MR(func_L3touint(DUT.postadder.reg2_wire));
-    // assign debug_reg3_wire = MR(func_L3touint(DUT.postadder.reg3_wire));
+    //// For postadd debug
+    uint_fpa_t debug_reg1_wire, debug_reg2_wire, debug_reg3_wire;
+    assign debug_reg1_wire = MR(func_L3touint(DUT.postadder.reg1_wire));
+    assign debug_reg2_wire = MR(func_L3touint(DUT.postadder.reg2_wire));
+    assign debug_reg3_wire = MR(func_L3touint(DUT.postadder.reg3_wire));
 
-    //BN254_pairing DUT(.clk, .rstn, .swrst, .run, .n_func, .endflag(), .opstart(), .busy(busy), 
-    //    .extin_data, .extin_en, .extin_addr, .extout_data(extout_data), .extout_addr(addr_dout));
+    BN254_pairing DUT(.clk, .rstn, .swrst, .run, .n_func, .endflag(), .opstart(), .busy(busy), 
+       .extin_data, .extin_en, .extin_addr, .extout_data(extout_data), .extout_addr(addr_dout));
     
-    new_sequencer DUT(.clk, .rstn, .run, .n_func, .busy, .mops());
-
     always begin
         #(CYCLE/2) clk <= ~clk;
     end
@@ -87,7 +85,7 @@ module test_pairing;
         #1000;
         swrst <= 1;
         #100;
-        //ram_init();
+        ram_init();
         swrst <= 0;
         run <= 1;
         #(CYCLE);

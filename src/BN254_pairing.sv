@@ -46,34 +46,34 @@ module BN254_pairing(
     wire result_flag;
     reg [23:0] cycle_cnt;
     wire [2:0] invcnt = 3'b0;
-    ctrl_sig c_sig;
-    ctrl_sig [PIPELINE_STAGES - 1:0] c_sig_buf;
+    micro_ops_t mops, ctrl_preadd, ctrl_cmul, ctrl_postadd, ctrl_postadd2, ctrl_postadd3, ctrl_write;;
+    micro_ops_t [PIPELINE_STAGES - 1:0] mops_buf;
     redundant_poly_L3 memin, memout0, memout1, preadd_out0, preadd_out1, postadd_out;
     logic [LEN_1024M_TILDE-1:0] red_out0, red_out1;
     uint_Mtilde2_t qpmm_out;
     redundant_poly_L1 cmul_out;
-
-    ctrl_sig ctrl_preadd, ctrl_cmul, ctrl_postadd, ctrl_postadd2, ctrl_postadd3, ctrl_write;
-    assign ctrl_preadd = c_sig_buf[LAT_READ];
-    assign ctrl_cmul = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM];
-    assign ctrl_postadd = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL];
-    assign ctrl_postadd2 = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL+1];
-    assign ctrl_postadd3 = c_sig_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL-2];
-    assign ctrl_write = c_sig_buf[PIPELINE_STAGES - LAT_WRITE];
+ 
+    assign ctrl_preadd = mops_buf[LAT_READ];
+    assign ctrl_cmul = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM];
+    assign ctrl_postadd = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL];
+    assign ctrl_postadd2 = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL+1];
+    assign ctrl_postadd3 = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL-2];
+    assign ctrl_write = mops_buf[PIPELINE_STAGES - LAT_WRITE];
     
-    wire me0 = (~busy) ? extin_en : (ctrl_write.opcode[1] & (ctrl_write.thread == 2'b00));
-    wire me1 = (~busy) ? extin_en : (ctrl_write.opcode[2] & (ctrl_write.thread == 2'b00));
-    wire [8:0] waddr0 = ~busy ? extin_addr : ctrl_write.waddr0;
-    wire [8:0] waddr1 = ~busy ? extin_addr : ctrl_write.waddr1;
-    wire [8:0] addrb1_sakamoto = ~busy ? extout_addr : c_sig.raddr1;
+    wire me0 = (~busy) ? extin_en : ctrl_write.csig.me;
+    wire me1 = (~busy) ? extin_en : ctrl_write.csig.me;
+    wire [8:0] waddr0 = ~busy ? extin_addr : ctrl_write.dst;
+    wire [8:0] waddr1 = ~busy ? extin_addr : ctrl_write.dst;
+    wire [8:0] addrb1_sakamoto = ~busy ? extout_addr : mops.src1;
 
     //assign dataout1 = (ctrl[26])?{65'b0,eeinvd}:postaddrd;
     assign memin = (~busy) ? extin_data : postadd_out;
     assign extout_data = memout1;
 
-    (* keep_hierarchy = "yes" *) sequencer seq (.clk, .rstn, .c_sig, .invresult(result_flag), .endflag, .run, .busy, .n_func, .opstart, .swrst);
+    //sequencer seq (.clk, .rstn, .c_sig, .invresult(result_flag), .endflag, .run, .busy, .n_func, .opstart, .swrst);
+    new_sequencer seq (.clk, .rstn, .run, .n_func, .busy, .mops);
 
-    blk_mem_gen_304 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(c_sig.raddr0),.doutb(memout0),.clkb(clk));
+    blk_mem_gen_304 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
     blk_mem_gen_304 RAM1 (.wea(me1),.addra(waddr1),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
 
     preadder preadder (
@@ -81,9 +81,9 @@ module BN254_pairing(
         .rstn,
         .X(memout0), 
         .Y(memout1),
-        .thread(ctrl_preadd.thread),
-        .mode1(ctrl_preadd.opcode[4:3]), 
-        .mode2(ctrl_preadd.opcode[6:5]),
+        .thread(0),
+        .mode1(ctrl_preadd.csig.pm), 
+        .mode2(ctrl_preadd.csig.pm),
         .Z0(preadd_out0), 
         .Z1(preadd_out1)
     );
@@ -99,22 +99,18 @@ module BN254_pairing(
         .rstn
     );
 
-    cmul #(.LATENCY(1)) cmul (.clk, .rstn, .mode(ctrl_cmul.opcode[9:7]), .din(qpmm_out), .dout(cmul_out));
+    cmul #(.LATENCY(1)) cmul (.clk, .rstn, .mode(ctrl_cmul.csig.cm), .din(qpmm_out), .dout(cmul_out));
 
     postadder postadder(
     .clk,
     .rstn,
     .in_L1(cmul_out),
-    .rthread(ctrl_postadd3.thread),
-    .wthread(ctrl_postadd2.thread),
-    .mode1(ctrl_postadd.opcode[12:10]),
-    .mode2(ctrl_postadd.opcode[15:13]),
-    .mode3(ctrl_postadd.opcode[18:16]),
-    .outsel(ctrl_postadd2.opcode[20:19]),
-    .waddr2(ctrl_postadd2.opcode[22:21]),
-    .waddr3(ctrl_postadd2.opcode[24:23]),
-    .raddr2(ctrl_postadd3.opcode[22:21]),
-    .raddr3(ctrl_postadd3.opcode[24:23]),
+    .mode1(ctrl_postadd.csig.pom1),
+    .mode2(ctrl_postadd.csig.pom2),
+    .mode3(ctrl_postadd.csig.pom3),
+    .outsel(ctrl_postadd2.csig.pos),
+    .addr2(0),
+    .addr3(0),
     .dout(postadd_out)
     );
 
@@ -122,17 +118,16 @@ module BN254_pairing(
     // wire [prime_width-1:0] eeinvd;
     // extendedEuclidean5 eeinv(.a({3'b0, data0[317:0]}),.p(prime),.a_inv(eeinvd),.result_flag(result_flag),.startflag(ctrl[25]),.clk(clk),.rst(!resetn),.invcnt(invcnt));
 
-    wire ctrl_rst = ~rstn | c_sig.opcode[0] | c_sig.opcode[26];
     always @(posedge clk)begin
-        if(ctrl_rst)begin
-            c_sig_buf <= '0;
+        if(!rstn)begin
+            mops_buf <= '0;
             if (!busy)
                 cycle_cnt <= 0;
             
         end else begin
             if (busy)
                 cycle_cnt <= cycle_cnt + 1'b1;
-            c_sig_buf <= {c_sig_buf[PIPELINE_STAGES - 2:0], c_sig};
+            mops_buf <= {mops_buf[PIPELINE_STAGES - 2:0], mops};
         end
     end
     
