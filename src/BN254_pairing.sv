@@ -60,8 +60,8 @@ module BN254_pairing(
     assign ctrl_postadd3 = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL-2];
     assign ctrl_write = mops_buf[PIPELINE_STAGES - LAT_WRITE];
     
-    wire me0 = (~busy) ? extin_en : ctrl_write.csig.me;
-    wire me1 = (~busy) ? extin_en : ctrl_write.csig.me;
+    wire me0 = (~busy) ? extin_en : ctrl_write.csig.me0;
+    wire me1 = (~busy) ? extin_en : ctrl_write.csig.me1;
     wire [8:0] waddr0 = ~busy ? extin_addr : ctrl_write.dst;
     wire [8:0] waddr1 = ~busy ? extin_addr : ctrl_write.dst;
     wire [8:0] addrb1_sakamoto = ~busy ? extout_addr : mops.src1;
@@ -76,14 +76,12 @@ module BN254_pairing(
     blk_mem_gen_304 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
     blk_mem_gen_304 RAM1 (.wea(me1),.addra(waddr1),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
 
-    preadder preadder (
+    preadder_4thread preadder (
         .clk,
         .rstn,
         .X(memout0), 
         .Y(memout1),
-        .thread(0),
-        .mode1(ctrl_preadd.csig.pm), 
-        .mode2(ctrl_preadd.csig.pm),
+        .mode(ctrl_preadd.csig.pm), 
         .Z0(preadd_out0), 
         .Z1(preadd_out1)
     );
@@ -101,7 +99,7 @@ module BN254_pairing(
 
     cmul #(.LATENCY(1)) cmul (.clk, .rstn, .mode(ctrl_cmul.csig.cm), .din(qpmm_out), .dout(cmul_out));
 
-    postadder postadder(
+    postadder_4thread postadder(
     .clk,
     .rstn,
     .in_L1(cmul_out),
@@ -109,8 +107,8 @@ module BN254_pairing(
     .mode2(ctrl_postadd.csig.pom2),
     .mode3(ctrl_postadd.csig.pom3),
     .outsel(ctrl_postadd2.csig.pos),
-    .addr2(0),
-    .addr3(0),
+    // .addr2(0),
+    // .addr3(0),
     .dout(postadd_out)
     );
 

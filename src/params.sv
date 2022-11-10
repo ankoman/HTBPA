@@ -128,21 +128,26 @@ endpackage
 package CONTROL;
 
     // Struct
-    // typedef struct packed {
-    //     logic os;
-    //     logic inve;
-    //     logic [1:0] poa3;
-    //     logic [1:0] poa2;
-    //     logic [1:0] pos;
-    //     logic [2:0] pom3;
-    //     logic [2:0] pom2;
-    //     logic [2:0] pom1;
-    //     logic [2:0] cm;
-    //     logic [1:0] pm2;
-    //     logic [1:0] pm1;
-    //     logic me1;
-    //     logic me0;
-    // } ctrl_sig_t;
+    typedef struct packed {
+        logic os;
+        logic inve;
+        logic [1:0] poa3;
+        logic [1:0] poa2;
+        logic [1:0] pos;
+        logic [2:0] pom3;
+        logic [2:0] pom2;
+        logic [2:0] pom1;
+        logic [2:0] cm; // Control instruction
+        logic [1:0] pm2;
+        logic [1:0] pm1;
+        logic me1;
+        logic me0;
+        logic opc;
+        logic [7:0] waddr0;
+        logic [7:0] waddr1;
+        logic [7:0] raddr0;
+        logic [7:0] raddr1;
+    } raw_rom_t;
 
     typedef struct packed {
         logic inve;
@@ -152,7 +157,8 @@ package CONTROL;
         logic [2:0] pom1;
         logic [2:0] cm;
         logic [1:0] pm;
-        logic me;
+        logic me1;
+        logic me0;
     } ctrl_sig_t;
 
     typedef struct packed {
@@ -161,8 +167,8 @@ package CONTROL;
         logic [2:0] pom3;
         logic [2:0] pom2;
         logic [2:0] pom1;
+        logic [2:0] cm;
         logic [1:0] pm;
-        logic me;
         logic offset_dst;
         logic offset_src0;
         logic offset_src1;
@@ -182,8 +188,9 @@ package CONTROL;
     } operation_t; // 7 bits
 
     typedef struct packed {
+        logic me;
         logic [2:0] cm;
-        logic [4:0] misc;
+        logic [3:0] end_mop_cnt;
     } sub_operation_t; // 8 bits
 
     typedef struct packed {
