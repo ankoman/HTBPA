@@ -18,15 +18,22 @@ from MM_util import *
 #######################################################################################
 ###################################Global Params#######################################
 #######################################################################################
-M = 0x2523648240000001ba344d80000000086121000000000013a700000000000013
+### For DSP48E2
 k = 17
 d = 0
-r_power = 289
+l = 26
+### For BN254
+# M = 0x2523648240000001ba344d80000000086121000000000013a700000000000013
+# r_power = 289
+
+### For BLS381
+M = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+r_power = 425
+
 n = math.ceil(r_power/k)
 r = 2**r_power  # > 269 bits
 mask = 2**k - 1
 
-l = 26
 c = abs(l - k)
 m = math.ceil(r_power/l) - 1
 mask_a = 2**l - 1
@@ -173,19 +180,17 @@ def QPMM_HW_asym_optim(A, B):
                     # print(f"{qi=:x}, {mppj[j]=:x}, {sl=:x}, {su=}")
                     PSs[j+1] = PE(aj[j], bi[i], qi, mppj[j], sl << c, su << k)
 
-        print(hex(qi))
-        print(list(map(hex, PSs)))
-        print(hex(polytoint_a(PSs[1:]) + (PSs[0] >> k)))
+        # print(hex(qi))
+        # print(list(map(hex, PSs)))
+        # print(hex(polytoint_a(PSs[1:]) + (PSs[0] >> k)))
     return (polytoint_a(PSs[1:]) + (PSs[0] >> k)) & (2**(n*k) - 1)
 
 def test_QPMM(HW = 0):
     random.seed(1)
 
-    for i in range(1):
-        A = random.randint(128*M_tilda, 1024*M_tilda - 1)
-        B = random.randint(128*M_tilda, 1024*M_tilda - 1)
-        A = 0x0fa31909cea51dc4a8113a05c3062235836fd10287cbc9f7b6362c82df0072dc7089cc
-        B = 0x0fa318ff47385d034fb2fe45704017c5726176d5845a2241e84bd4e844813594cab125
+    for i in range(100000):
+        A = random.randint(102*M_tilda, 1024*M_tilda - 1)
+        B = random.randint(1022*M_tilda, 1024*M_tilda - 1)
         a = MR(A)
         b = MR(B)
         ans = a*b % M
@@ -200,9 +205,9 @@ def test_QPMM(HW = 0):
         else:
             S = QPMM(A, B)
 
-        print('QPMM:     ' + hex(S))
-        print('MR(QPMM): ' + hex(MR(S)))
-        print('ANS:      ' + hex(ans))
+        # print('QPMM:     ' + hex(S))
+        # print('MR(QPMM): ' + hex(MR(S)))
+        # print('ANS:      ' + hex(ans))
 
         assert ans == MR(S), f'\n{ans=  :x}\n{MR(S)=:x}\n{S=:x}'
         assert S < 2*M_tilda, f"{S=:x}: {len(bin(S))-4} bits"

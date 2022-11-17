@@ -14,7 +14,7 @@ import raw_csig
 
 filepath = r'./raw_asm.asm'
 
-list_INS_CTRL = ['jmp', 'call', 'ret', 'wait']
+list_INS_CTRL = ['jmp', 'call', 'ret', 'wait', 'exit']
 list_INS_Fp2 = ['Fp2_add', 'Fp2_sub', 'Fp2_mul', 'Fp2_sqr', 'Fp2_sqr_ix', 'Fp2_sqr_xi', 'Fp2_mul_xi']
 list_INS_Fp2_acc = ['Fp2_add_acc', 'Fp2_sub_acc', 'Fp2_mul_acc', 'Fp2_sqr_acc', 'Fp2_sqr_ix_acc', 'Fp2_sqr_xi_acc', 'Fp2_mul_xi_acc']
 list_INS_Fp12 = ['Fp12_add', 'Fp12_sub', 'Fp12_mul', 'Fp12_sqr', 'Fp12_inv']
@@ -180,12 +180,14 @@ def assemble_raw(list_asm):
         list_bin = []
         if ins == 'call':
             jmp_addr = list_func_addr[list(dict_funcs.keys()).index(args[0])] + n_ins + 1
-            print(jmp_addr, end='')
+            # print(jmp_addr, end='')
             list_bin.append('000000000000000000010000001')
             list_bin.append(format(jmp_addr, '016b'))
             list_bin.append('0000000000000000')
+        elif ins == 'exit':
+            list_bin.append('00000000000000000000000000100000000000000000000000000000000')  # EXIT
 
-        print(list_bin)
+        # print(list_bin)
         bincode = ''.join(list_bin)
         list_coe.append(''.join([bincode, ',\n']))
 
@@ -205,7 +207,7 @@ def assemble_raw(list_asm):
             # if me0 != me1:
             #     print(f'Error: me0 != me1: {i}')
             if cm not in ['001', '010', '011', '100', '110']:
-                print('Error: cm')
+                print(f'Error: cm: {i}')
             if int(poa2, 2) != 0:
                 print(f'poa2 != 0: {i}')
             if int(poa3, 2) != 0:
@@ -218,6 +220,8 @@ def assemble_raw(list_asm):
                 print('Error: waddr > 127')
             if int(raddr1, 2) > 127:
                 print('Error: waddr > 127')    
+            # if int(waddr0, 2) == 48:
+            #     print(f'waddr = 48: L{i}')
             list_coe.append(line)
             list_coe.append(',\n')
 
