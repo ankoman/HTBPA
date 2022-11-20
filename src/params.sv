@@ -49,6 +49,7 @@ package PARAMS_BN254_d0;
         D = 0,
         _Mpp = 256'h3e8c63befe1a0002e8c326a69c00000e1cd5bc2800000021193b18000000002, //k=17
         R = 289 - 1,
+        RmodM = 'h212ba4f27ffffff5a2c62effffffffcdb939ffffffffff8a15ffffffffffff8e,
         R_INV = 'h4183ffd639e59ef555105a592c220885737a65cc60fa8a23659c0a44ebb1577, //r=289
         N = R/K + 1, //17
         M = 11,
