@@ -214,12 +214,48 @@ def assemble_raw(list_asm):
                 print(f'poa3 != 0: {i}')
             if waddr0 != waddr1:
                 print(f'Error: waddr0 != waddr1: {i}')
-            if int(waddr0, 2) > 127:
-                print('Error: waddr > 127')
-            if int(raddr0, 2) > 127:
-                print('Error: waddr > 127')
-            if int(raddr1, 2) > 127:
-                print('Error: waddr > 127')    
+            # Frobenius change
+            if int(raddr0, 2) in [0x78, 0x79, 0x7c, 0x85]:
+                line = line[:43] + f'{0x76:08b}' + line[:51]
+            if int(raddr1, 2) in [0x78, 0x79, 0x7c, 0x85]:
+                line = line[:51] + f'{0x76:08b}'
+            if int(raddr0, 2) in [0x7a, 0x8a]:
+                line = line[:43] + f'{0x77:08b}' + line[:51]
+            if int(raddr1, 2) in [0x7a, 0x8a]:
+                line = line[:51] + f'{0x77:08b}'
+            if int(raddr0, 2) in [0x7b]:
+                line = line[:43] + f'{0x78:08b}' + line[:51]
+            if int(raddr1, 2) in [0x7b]:
+                line = line[:51] + f'{0x78:08b}'
+            if int(raddr0, 2) in [0x7d, 0x7e, 0x7f, 0x84]:
+                line = line[:43] + f'{0x79:08b}' + line[:51]
+            if int(raddr1, 2) in [0x7d, 0x7e, 0x7f, 0x84]:
+                line = line[:51] + f'{0x79:08b}'
+            if int(raddr0, 2) in [0x80, 0x81]:
+                line = line[:43] + f'{0x7a:08b}' + line[:51]
+            if int(raddr1, 2) in [0x80, 0x81]:
+                line = line[:51] + f'{0x7a:08b}'
+            if int(raddr0, 2) in [0x82, 0x8c]:
+                line = line[:43] + f'{0x7b:08b}' + line[:51]
+            if int(raddr1, 2) in [0x82, 0x8c]:
+                line = line[:51] + f'{0x7b:08b}'
+            if int(raddr0, 2) in [0x83, 0x8b]:
+                line = line[:43] + f'{0x7c:08b}' + line[:51]
+            if int(raddr1, 2) in [0x83, 0x8b]:
+                line = line[:51] + f'{0x7c:08b}'
+            if int(raddr0, 2) in [0x86, 0x87]:
+                line = line[:43] + f'{0x7d:08b}' + line[:51]
+            if int(raddr1, 2) in [0x86, 0x87]:
+                line = line[:51] + f'{0x7d:08b}'
+            if int(raddr0, 2) in [0x88]:
+                line = line[:43] + f'{0x7e:08b}' + line[:51]
+            if int(raddr1, 2) in [0x88]:
+                line = line[:51] + f'{0x7e:08b}'
+            if int(raddr0, 2) in [0x89]:
+                line = line[:43] + f'{0x7f:08b}' + line[:51]
+            if int(raddr1, 2) in [0x89]:
+                line = line[:51] + f'{0x7f:08b}' 
+
             # if int(waddr0, 2) == 48:
             #     print(f'waddr = 48: L{i}')
             list_coe.append(line)

@@ -27,11 +27,10 @@ localparam noaddr = 9'hx;
 localparam operation_t op_JMP  = 'b000;
 localparam operation_t op_CALL = 'b001;
 localparam operation_t op_RET  = 'b010;
-localparam operation_t op_WAIT = 'b011;
-
+localparam operation_t op_WAITINV = 'b011;
 
 module new_sequencer(
-    input clk, rstn, run,
+    input clk, rstn, run, inv_rdy,
     input [3:0] n_func,
     output busy,
     output micro_ops_t mops
@@ -39,11 +38,11 @@ module new_sequencer(
 
     logic [ROM_DEPTH-1:0] pc; // program counter
     logic [ROM_DEPTH-1:0] ret_addr; // return address
-    logic [3:0] cnt_4clk;
+    logic [N_THREADS-1:0] cnt_Nclk;
     raw_rom_t rom_out; // Latency 2;
     wire ctrl_instruction = rom_out.opc;
-    wire is_4clks = cnt_4clk[3];
-
+    wire is_Nclks = cnt_Nclk[N_THREADS-1];
+    logic waitinv;
 
     assign busy = (pc != FIRST_PC_ADDR) ^ run;
     csig_rom rom(clk, pc, rom_out);            
@@ -54,13 +53,25 @@ module new_sequencer(
     //////////////////////////////////////
     always_ff @(posedge clk) begin
         if(!rstn)
-            cnt_4clk <= '0;
+            cnt_Nclk <= '0;
         else if(run)  
-            cnt_4clk <= 4'd1; //cnt start
+            cnt_Nclk <= 'd1; //cnt start
         else 
-            cnt_4clk <= {cnt_4clk[2:0], cnt_4clk[3]}; // left rotate
+            cnt_Nclk <= {cnt_Nclk[N_THREADS-2:0], cnt_Nclk[N_THREADS-1]}; // left rotate
     end
 
+    always_ff @(posedge clk) begin
+        if(~rstn | inv_rdy)
+            waitinv <= 'b0;
+        else begin
+            if(is_Nclks) begin
+                if(ctrl_instruction) begin
+                    if (rom_out.cm == op_WAITINV)
+                        waitinv <= 'b1;
+                end
+            end
+        end
+    end
 
     //////////////////////////////////////
     //// Decoders
@@ -70,28 +81,31 @@ module new_sequencer(
             pc <= FIRST_PC_ADDR;
         else begin
             if(run)  
-                pc <= 1;
-            else if(is_4clks) begin
-                if(ctrl_instruction) begin
+                pc <= 'b1;
+            else if(is_Nclks) begin
+                if (inv_rdy)
+                    pc <= pc + 1;
+                else if(ctrl_instruction) begin
                     case(rom_out.cm)
                         op_JMP  : pc <= {rom_out.waddr0, rom_out.waddr1};
                         op_CALL : pc <= {rom_out.waddr0, rom_out.waddr1};
                         op_RET  : pc <= ret_addr;
+                        op_WAITINV  : pc <= pc;
                         default : pc <= 'x;
                     endcase
                     if(rom_out.cm == op_CALL)
                         ret_addr <= pc + 1;
                 end
-                else 
+                else if (~waitinv)
                     pc <= pc + 1;
             end
         end
     end
 
-    logic [8:0] dst, src0, src1;
-    assign dst = {func_decode_thread(cnt_4clk), 7'(rom_out.waddr0)};
-    assign src0 = {func_decode_thread(cnt_4clk), 7'(rom_out.raddr0)};
-    assign src1 = {func_decode_thread(cnt_4clk), 7'(rom_out.raddr1)};
+    logic [BRAM_DEPTH-1:0] dst, src0, src1;
+    assign dst = {func_decode_thread(cnt_Nclk), 7'(rom_out.waddr0)};
+    assign src0 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr0)};
+    assign src1 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr1)};
 
     always @(posedge clk) begin : address_decoder
         mops.csig <= (ctrl_instruction) ? NOP : func_raw2csig(rom_out);
@@ -117,14 +131,16 @@ module new_sequencer(
         func_raw2csig.me0 = raw.me0;
     endfunction
 
-    function [1:0] func_decode_thread;
-        input[3:0] cnt_4clk;
+    function [$clog2(N_THREADS)-1:0] func_decode_thread;
+        input[N_THREADS-1:0] cnt_Nclk;
         begin
-            case(cnt_4clk)
-                'b0001 : func_decode_thread = 'b01;
-                'b0010 : func_decode_thread = 'b10;
-                'b0100 : func_decode_thread = 'b11;
-                'b1000 : func_decode_thread = 'b00;
+            case(cnt_Nclk)
+                'b000001 : func_decode_thread = 'b001;
+                'b000010 : func_decode_thread = 'b010;
+                'b000100 : func_decode_thread = 'b011;
+                'b001000 : func_decode_thread = 'b100;
+                'b010000 : func_decode_thread = 'b101;
+                'b100000 : func_decode_thread = 'b110;
             endcase
         end
     endfunction

@@ -126,7 +126,7 @@ module postadder(
     endfunction
 endmodule
 
-module postadder_4thread(
+module postadder_Nthread(
     input clk,
     input rstn,
     input redundant_poly_L1 in_L1,
@@ -138,12 +138,12 @@ module postadder_4thread(
     redundant_poly_L3 in;
     assign in = L1toL3(in_L1);
 
-    redundant_poly_L3[3:0] reg1, reg2, reg3;
+    redundant_poly_L3[N_THREADS-1:0] reg1, reg2, reg3;
     redundant_poly_L3 acc1_out, acc2_out, acc3_out;
     redundant_poly_L3 reg1_wire, reg2_wire, reg3_wire;
-    assign reg1_wire = reg1[3];
-    assign reg2_wire = reg2[3];
-    assign reg3_wire = reg3[3];
+    assign reg1_wire = reg1[N_THREADS-1];
+    assign reg2_wire = reg2[N_THREADS-1];
+    assign reg3_wire = reg3[N_THREADS-1];
 
     redundant_poly_L3 poly_p;
     assign poly_p = inttoL3(PARAMS_BN254_d0::Mod);
@@ -180,15 +180,15 @@ module postadder_4thread(
     always @(posedge clk) begin
         if(!rstn)begin
             dout <= '0;
-            for(integer i = 0; i < 4; i = i + 1) begin
+            for(integer i = 0; i < N_THREADS; i = i + 1) begin
                 reg1[i] <= '0;
                 reg2[i] <= '0;
                 reg3[i] <= '0;
             end
         end else begin
-            reg1 <= {reg1[2:0], acc1_out};
-            reg2 <= {reg2[2:0], acc2_out};
-            reg3 <= {reg3[2:0], acc3_out};
+            reg1 <= {reg1[N_THREADS-2:0], acc1_out};
+            reg2 <= {reg2[N_THREADS-2:0], acc2_out};
+            reg3 <= {reg3[N_THREADS-2:0], acc3_out};
             dout <= (outsel==2'b00)?reg1[0]:(outsel==2'b01)?reg2[0]:(outsel==2'b10)?reg3[0]:'x;
         end
     end

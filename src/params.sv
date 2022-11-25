@@ -49,7 +49,8 @@ package PARAMS_BN254_d0;
         D = 0,
         _Mpp = 256'h3e8c63befe1a0002e8c326a69c00000e1cd5bc2800000021193b18000000002, //k=17
         R = 289 - 1,
-        RmodM = 'h212ba4f27ffffff5a2c62effffffffcdb939ffffffffff8a15ffffffffffff8e,
+        RmodM = 'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d,
+        R2modM = 'h1e3ad4f19ece02905cd917dec0178837a70990ae5b87678a825bfd79f8a881b8,
         R_INV = 'h4183ffd639e59ef555105a592c220885737a65cc60fa8a23659c0a44ebb1577, //r=289
         N = R/K + 1, //17
         M = 11,
@@ -60,7 +61,9 @@ package PARAMS_BN254_d0;
         ADD_DIV = 4,
         L3_CARRY = 8,
         LEN_12M_TILDE = 272,
-        LEN_1024M_TILDE = 277;  // Must be divided by ADD_DIV
+        LEN_1024M_TILDE = 277,
+        N_THREADS = 4,
+        BRAM_DEPTH = 9;  // Must be divided by ADD_DIV
     
     typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;
     typedef logic[M:0][47:0] qpmm_S_t;

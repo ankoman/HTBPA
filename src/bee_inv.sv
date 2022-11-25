@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 import PARAMS_BN254_d0::*;
-localparam N_PIPELINE_STAGES = 6;
+localparam N_PIPELINE_STAGES = 4;
 
 // module beeinv_4threads(
 //   input clk, rstn, run,
@@ -36,7 +36,285 @@ localparam N_PIPELINE_STAGES = 6;
 //   end
 // endmodule
 
-module inv(
+module Mont_inv_multi(
+    input          clk, rstn,
+    input          I_START,
+    input [BRAM_DEPTH-1:0]    I_WADDR,
+    input M_tilde12_t  I_DATA_N,
+    input M_tilde12_t  I_WDATA,
+    output redundant_poly_L3 O_RDATA,
+    output         O_BUSY,
+    output reg     O_DRDY,
+    output [BRAM_DEPTH-1:0]    O_WADDR
+    );
+    localparam MSB = $bits(M_tilde12_t) - 1;
+
+    M_tilde12_t    U0; // 257 bit N
+    M_tilde12_t    U1; // 257 bit dat
+    M_tilde12_t    U2; // 257 bit 0
+    M_tilde12_t    U3; // 257 bit R2
+    M_tilde12_t[N_PIPELINE_STAGES - 1:0] U0_buf, U1_buf, U2_buf, U3_buf;
+    assign U0 = U0_buf[N_PIPELINE_STAGES - 1];
+    assign U1 = U1_buf[N_PIPELINE_STAGES - 1];
+    assign U2 = U2_buf[N_PIPELINE_STAGES - 1];
+    assign U3 = U3_buf[N_PIPELINE_STAGES - 1];
+    for(genvar i = 0; i < ADD_DIV; i = i + 1) begin
+        assign O_RDATA[i].carry = 0;
+        assign O_RDATA[i].val = U3.poly[i];
+    end
+
+    //////////////////////////////////////
+    //// Counters
+    //////////////////////////////////////
+    logic [3:0] cnt_4clk;
+    wire is_4clks = cnt_4clk[3];
+    always_ff @(posedge clk) begin
+        if(!rstn)
+            cnt_4clk <= '0;
+        else if(I_START)  
+            cnt_4clk <= 'd1; //cnt start
+        else if(O_DRDY && is_4clks)  
+            cnt_4clk <= 'd0; //cnt reset
+        else 
+            cnt_4clk <= {cnt_4clk[2:0], cnt_4clk[3]}; // left rotate
+    end
+
+    always_ff @(posedge clk) begin
+        if(!rstn)
+            O_DRDY <= '0;
+        else if (O_DRDY && is_4clks)
+            O_DRDY <= '0;
+        else if (~O_BUSY && is_4clks)
+            O_DRDY <= '1;
+    end
+
+
+    // for calc inversion
+    logic [N_PIPELINE_STAGES - 1:0] U1_is_1_threads;
+    always @(posedge clk) begin
+        for (integer i = 0; i < N_PIPELINE_STAGES; i = i + 1)
+            U1_is_1_threads[i] = (U1_buf[i] == 'h1);
+    end
+
+    wire         U1_is_1 = U1_is_1_threads[N_PIPELINE_STAGES - 2];
+    assign O_BUSY = ~&U1_is_1_threads;
+
+    wire [1:0] sel_addr1_a = {U1_buf[0][MSB], U1_buf[0][0]};
+    function M_tilde12_t f_addr1_a;
+        input [1:0] sel_addr1_a;
+        input M_tilde12_t U1;
+        begin
+            casex(sel_addr1_a)
+                2'b00   : f_addr1_a = {U1[MSB], U1[MSB:1]}; // U1 >>> 1 (= U1 >> 1)
+                2'b01   : f_addr1_a = ~U1;
+                2'b1x   : f_addr1_a = ~{U1[MSB], U1[MSB:1]};
+                default : f_addr1_a = 'hx;
+            endcase // casex ({U1[256], U1[0]})
+        end
+    endfunction // f_addr1_a
+
+
+    wire [1:0] sel_addr2_a = {U1_buf[0][MSB], U1_buf[0][0]};
+    function M_tilde12_t f_addr2_a;
+        input [1:0] sel_addr2_a;
+        input M_tilde12_t U3;
+        begin
+            casex(sel_addr2_a)
+                2'b00 : f_addr2_a = {U3[MSB], U3[MSB:1]};  // inv, U1>=0, U1=even
+                2'b01 : f_addr2_a = ~U3;    // inv, U1>=0, U1=odd
+                2'b1x : f_addr2_a = ~{U3[MSB], U3[MSB:1]}; // inv, U1<0
+                default     : f_addr2_a = 'hx;
+            endcase 
+        end
+    endfunction
+
+    wire [1:0] sel_addr2_b_in = {U1_buf[0][MSB], U1_buf[0][0]};
+    function M_tilde12_t f_addr2_b_in;
+        input [1:0]   sel_addr2_b_in;
+        input M_tilde12_t U2;
+        begin
+            casex(sel_addr2_b_in)
+                2'b00 : f_addr2_b_in = 'b0;    // inv, U1>=0, U1=even
+                2'b01 : f_addr2_b_in = U2;        // inv, U1>=0, U1=odd
+                2'b1x : f_addr2_b_in = 'b0;    // inv, U1<0
+                default      : f_addr2_b_in = 'bx;
+            endcase
+        end
+    endfunction // f_addr2_b_in
+
+
+
+    wire [4:0] sel_addr2_n = {U3_buf[0][MSB], U2_buf[0][MSB], U3_buf[0][0], U1_buf[0][MSB], U1_buf[0][0]};
+    function M_tilde12_t f_addr2_n;
+        input [4:0]   sel_addr2_n;
+        input M_tilde12_t I_DATA_N;
+        begin
+            casex(sel_addr2_n)
+                5'b0x000 : f_addr2_n = 'h0;
+                5'b1x000 : f_addr2_n = I_DATA_N;
+                5'bxx100 : f_addr2_n = {I_DATA_N[MSB], I_DATA_N[MSB:1]};
+                5'bxxx01 : f_addr2_n = 'h0;
+                5'b0x01x : f_addr2_n = I_DATA_N;
+                5'b1x01x : f_addr2_n = 'h0;
+                5'bxx11x : f_addr2_n = {I_DATA_N[MSB], I_DATA_N[MSB:1]};
+                default f_addr2_n = 'hx;
+            endcase // casex (sel_addr2_n)
+        end
+    endfunction // f_addr2_n
+
+
+    wire [4:0] sel_addr2_ci_n = {U3_buf[0][MSB], U2_buf[0][MSB], U3_buf[0][0], U1_buf[0][MSB], U1_buf[0][0]};
+    function f_addr2_ci_n;
+        input [4:0]   sel_addr2_ci_n;
+        begin
+            casex(sel_addr2_ci_n)
+                5'bxx000 : f_addr2_ci_n = 'b0;
+                5'bxx100 : f_addr2_ci_n = 'b1;
+                5'bxxx01 : f_addr2_ci_n = 'b1;
+                5'bxxx1x : f_addr2_ci_n = 'b1;
+                default f_addr2_ci_n = 'bx;
+            endcase // casex (sel_addr2_ci_n)
+        end
+    endfunction // f_addr2_n
+
+
+
+    // select A of addr1
+    M_tilde12_t addr1_a, addr2_a, addr2_n, addr2_b, addr1_b;
+    logic       addr2_ci_n, addr1_ci;
+    // Two cycle adder
+    M_tilde12_t sum1_buf, sum2_buf, sum1, sum2;
+    logic         co1;
+    logic [1:0]   co2;
+    always @(posedge clk) begin
+        addr1_a <= f_addr1_a(sel_addr1_a, U1_buf[0]);
+        addr1_b <= (~U1_buf[0][MSB] & U1_buf[0][0]) ? U0_buf[0] : 'h0;
+        addr1_ci <= (U1_buf[0][MSB] | U1_buf[0][0]); // "U1 < 0" or "U1 is odd"
+        addr2_a <= f_addr2_a(sel_addr2_a, U3_buf[0]);
+        addr2_b <= f_addr2_b_in(sel_addr2_b_in, U2_buf[0]);
+        addr2_n <= f_addr2_n(sel_addr2_n, I_DATA_N);
+        addr2_ci_n <= f_addr2_ci_n(sel_addr2_ci_n);
+
+        {co1, sum1_buf.poly[1:0]} <= addr1_a.poly[1:0] + addr1_b.poly[1:0] + addr1_ci;
+        {co2, sum2_buf.poly[1:0]} <= addr2_a.poly[1:0] + addr2_b.poly[1:0] + addr2_n.poly[1:0] + addr2_ci_n;
+        sum1_buf.poly[3:2] <= addr1_a.poly[3:2] + addr1_b.poly[3:2];
+        sum2_buf.poly[3:2] <= addr2_a.poly[3:2] + addr2_b.poly[3:2] + addr2_n.poly[3:2];
+
+        sum1 <= {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]};
+        sum2 <= {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]};
+    end
+
+    // registers
+    wire [4:0] sel_in_U0;
+    M_tilde12_t in_U0;
+    assign sel_in_U0 = {I_START, U1_is_1, U1[MSB], U1[0], sum1[MSB]};
+    function M_tilde12_t f_in_U0;
+        input [4:0] sel_in_U0;
+        input M_tilde12_t U0;
+        input M_tilde12_t U1;
+        input M_tilde12_t I_WDATA;
+        begin
+            casex(sel_in_U0)
+                5'b0000x : f_in_U0 = U0;
+                5'b00010 : f_in_U0 = U1;
+                5'b00011 : f_in_U0 = U0;
+                5'b001xx : f_in_U0 = U0;
+                5'b01xxx : f_in_U0 = U0;
+                5'b1xxxx : f_in_U0 = I_DATA_N;
+                default : f_in_U0 = 'hx;
+            endcase // case (sel_in_U0)
+        end
+    endfunction // f_in_U0
+
+
+    wire [1:0] sel_in_U1;
+    M_tilde12_t in_U1;
+    assign sel_in_U1 = {I_START, U1_is_1};
+    function M_tilde12_t f_in_U1;
+        input [1:0] sel_in_U1;
+        input M_tilde12_t U1;
+        input M_tilde12_t sum1;
+        input M_tilde12_t I_WDATA;
+        begin
+            casex(sel_in_U1)
+                2'b01 : f_in_U1 = U1;
+                2'b00 : f_in_U1 = sum1;
+                2'b1x : f_in_U1 = I_WDATA;
+                default : f_in_U1 = 'hx;
+            endcase // case (sel_in_U1)
+        end
+    endfunction // f_in_U1
+
+
+
+    wire [4:0] sel_in_U2;
+    M_tilde12_t in_U2;
+    assign sel_in_U2 = {I_START, U1_is_1, U1[MSB], U1[0], sum1[MSB]};
+    function M_tilde12_t f_in_U2;
+        input [4:0] sel_in_U2;
+        input M_tilde12_t U2;
+        input M_tilde12_t U3;
+        begin
+            casex(sel_in_U2)
+                5'bx000x : f_in_U2 = U2;
+                5'bx0010 : f_in_U2 = U3;
+                5'bx0011 : f_in_U2 = U2;
+                5'bx01xx : f_in_U2 = U2;
+                5'b01xxx : f_in_U2 = U2;
+                5'b11xxx : f_in_U2 = '0;
+                default : f_in_U2 = 'hx;
+            endcase // case (sel_in_U2)
+        end
+    endfunction // f_in_U2
+
+
+    wire [1:0] sel_in_U3;
+    M_tilde12_t in_U3;
+    assign sel_in_U3 = {I_START, U1_is_1};
+    function M_tilde12_t f_in_U3;
+        input [1:0] sel_in_U3;
+        input M_tilde12_t U3;
+        input M_tilde12_t sum2;
+        begin
+            casex(sel_in_U3)
+                2'b01 : f_in_U3 = U3;
+                2'bx0 : f_in_U3 = sum2;
+                2'b11 : f_in_U3 = PARAMS_BN254_d0::R2modM;
+                default : f_in_U3 = 'hx;
+            endcase // case (sel_in_U3)
+        end
+    endfunction // f_in_U3
+
+
+    // write data
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn) begin
+            U0_buf <= 'h0;
+            for(integer i = 0; i < N_PIPELINE_STAGES; i = i + 1)
+                U1_buf[i] <= 'h1;
+            U2_buf <= 'h0;
+            U3_buf <= 'h0;
+        end
+        else begin
+            U0_buf[0] <= f_in_U0(sel_in_U0, U0, U1, I_WDATA);
+            U1_buf[0] <= f_in_U1(sel_in_U1, U1, sum1, I_WDATA);
+            U2_buf[0] <= f_in_U2(sel_in_U2, U2, U3);
+            U3_buf[0] <= f_in_U3(sel_in_U3, U3, sum2);
+            U0_buf[N_PIPELINE_STAGES - 1:1] <= U0_buf[N_PIPELINE_STAGES - 2:0];
+            U1_buf[N_PIPELINE_STAGES - 1:1] <= U1_buf[N_PIPELINE_STAGES - 2:0];
+            U2_buf[N_PIPELINE_STAGES - 1:1] <= U2_buf[N_PIPELINE_STAGES - 2:0];
+            U3_buf[N_PIPELINE_STAGES - 1:1] <= U3_buf[N_PIPELINE_STAGES - 2:0];
+        end
+    end
+    logic [3:0][BRAM_DEPTH-1:0] waddr;
+    assign O_WADDR = waddr[N_PIPELINE_STAGES-1];
+    always @(posedge clk) begin
+        waddr <= {waddr[N_PIPELINE_STAGES-2:0], (I_START) ? I_WADDR : waddr[N_PIPELINE_STAGES-1]};
+    end
+endmodule
+
+
+module Mont_inv(
     input          clk, rstn,
     input          I_START,
     input M_tilde12_t  I_DATA_N,
@@ -55,7 +333,6 @@ module inv(
 
 
     // for calc inversion
-    wire         invmode = '1;
     wire         U1_is_1 = (U1 == 'h1);
     wire inv_busy =  ~U1_is_1;
     assign O_BUSY = inv_busy;

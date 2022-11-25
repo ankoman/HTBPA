@@ -29,12 +29,13 @@ module test_eeinv();
     reg clk, rstn, run, swrst, extin_en;
     M_tilde12_t wdata;
     wire busy;
+    reg [8:0] waddr;
 
     always begin
         #(CYCLE/2) clk <= ~clk;
     end
     
-    inv DUT (.clk, .rstn, .I_START(run), .I_DATA_N(M_tilde12_t'(PARAMS_BN254_d0::Mod)), .I_WDATA(wdata), .O_BUSY(busy));
+    Mont_inv_multi DUT (.clk, .rstn, .I_START(run), .I_DATA_N(M_tilde12_t'(PARAMS_BN254_d0::Mod)), .I_WADDR(waddr), .I_WDATA(wdata), .O_BUSY(busy));
 
     /*-------------------------------------------
     Test
@@ -48,21 +49,30 @@ module test_eeinv();
         #100
         rstn <= 1;
         #1000;
-        wdata <= 'h99ac9110cbcdf1924248781ca049785e49e45f9c9b24c70f9fc7db57b20c5d8ad2a;
+        waddr <= 'h11;
+        wdata <= 'h1e15c648984f3a227733779e1b48ad802c2434dbe4e0dce273a446b73fc5b629;
         run <= 1;
         #(CYCLE);
-        // wdata <= 'h99ac9110cbcdf1924248781ca049785e49e45f9c9b24c70f9fc7db57b20c5d8ad2a;
-        // #(CYCLE);
-        // wdata <= 'hb5238fca47627bc91c70d407c6f6df185747a803032e7f19fd10a1fc1e531bd2bc7;
-        // #(CYCLE);
-        // wdata <= 'hf3bb376c204c9720510d2e534b7105c628c4db5f20123d4c29aee190c73433f4062;
-        // #(CYCLE);
+        waddr <= 'h12;
+        wdata <= 'h99ac9110cbcdf1924248781ca049785e49e45f9c9b24c70f9fc7db57b20c5d8ad2a;
+        #(CYCLE);
+        waddr <= 'h13;
+        wdata <= 'hb5238fca47627bc91c70d407c6f6df185747a803032e7f19fd10a1fc1e531bd2bc7;
+        #(CYCLE);
+        waddr <= 'h15;
+        wdata <= 'hf3bb376c204c9720510d2e534b7105c628c4db5f20123d4c29aee190c73433f4062;
+        #(CYCLE);
         run <= 0;
         #1000;
         wait(!busy);
         #100
         run <= 1;
+        waddr <= 'h22;
+        wdata <= 'h111111111111124248781ca049785e49e45f9c9b24c70f9fc7db57b20c5d8ad2a;
         #(CYCLE);
+        waddr <= 'h23;
+        wdata <= 'hba1237bc91c70d407c6f6df185747a803032e7f19fd10a1fc1e531bd2bc7;
+        #(3*CYCLE);
         run <= 0;
         #1000;
         wait(!busy);
