@@ -159,17 +159,30 @@ module test_pairing;
 
         write_rams(9'h1f, 320'h2523648240000001ba344d80000000086121000000000013a700000000000013);   // p (ordinary form) iran?
 
-        write_rams(9'h76, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823);   // g300
-        write_rams(9'h77, 320'h1f6d4e3c505f417e7c275b73857179afe2c2010eeeffabeace000105f0aeb9a6);   // 
-        write_rams(9'h78, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d);   // 
-        write_rams(9'h79, 320'h1eff3a21bcacdbecddccf3227e232976729d52e23a2fb2554d31712d452a77f0);   // 
-        write_rams(9'h7a, 320'h172d23914e303a10a72e82ac1a586ca5193c1434b1ecffa1a2d6130bfe6093e);   // 
-        write_rams(9'h7b, 320'h181b51ef3711dc48902788c90ff150544922738e6dce3c3535d3f98098f34769);   // 
+        write_rams(9'h5e, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823);   // g300
+        write_rams(9'h5f, 320'h1f6d4e3c505f417e7c275b73857179afe2c2010eeeffabeace000105f0aeb9a6);   // 
+        write_rams(9'h6c, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d);   // 
+        write_rams(9'h6d, 320'h1eff3a21bcacdbecddccf3227e232976729d52e23a2fb2554d31712d452a77f0);   // 
+        write_rams(9'h6e, 320'h172d23914e303a10a72e82ac1a586ca5193c1434b1ecffa1a2d6130bfe6093e);   // 
+        write_rams(9'h6f, 320'h181b51ef3711dc48902788c90ff150544922738e6dce3c3535d3f98098f34769);   // 
         write_rams(9'h7c, 320'h12653ba947711dc5521a96bc9562c9fbcac3749d5ccde80c5cd3fa8689a200fc);   // 
         write_rams(9'h7d, 320'h20720c5ad18fdf8de83fdb4d3fc8b040c4311425854e824f675ed25e0510812e);   // 
         write_rams(9'h7e, 320'h12be28d8f88ee23c6819b6c36a9d360c965d8b62a33218074a2c0579765dff17);   // 
         write_rams(9'h7f, 320'hd08129308ee23b92a0cc4b6f00eafb417fe8c719231c3de712c067f670cb8aa);   // 
 
+        // After ML
+        write_rams(9'h10, 320'h18d0e499912c4eb7e63c6c566edf02679fa1bfe1cad4b9743690353641f7697e);    // f00
+        write_rams(9'h11, 320'h3db73d45143be3fd0cfa1cc1c2246299c1ae5d09df32f30603af7d970d1dd22);                                                                       // f01
+        write_rams(9'h12, 320'h1aa32aab0970df6bae1737cdf5b14c4b5e4478d56ff3696e4ac8e4badbe60904);                                                                       // f10
+        write_rams(9'h13, 320'h24d15a5533ce05eb31b93b55e3883bbb75264bac8b9888775e0218b187b0a962);                                                                       // f11
+        write_rams(9'h14, 320'h49e592cfcb464c5256c9c666597ba7f842845968c4b49cd304e09346c128c58);                                                                       // f20
+        write_rams(9'h15, 320'h1615f339204afe95ac9bccdd962204f8722bfafcb8c52e24820883dc61eee938);                                                                       // f21
+        write_rams(9'h16, 320'h89aa5045ef282b1fd00c8b5f72591796c12e3789e033a030ffa41ec5b287029);                                                                       // f30
+        write_rams(9'h17, 320'ha124c8a0142e1b4a70a603d550c9536d7c2a9d0409ee38e414e1586051fd495);                                                                       // f31
+        write_rams(9'h18, 320'h1390b8bdff9e683f908b525591f8e45e8f7a6598a1fb57b589e5bd1adc9e6fb1);                                                                       // f40
+        write_rams(9'h19, 320'hcb05560905bf777bb2af456027795584161f029a0fedd26c051194fda71e6a);                                                                       // f41
+        write_rams(9'h1a, 320'h22b04080ebf98717c8ed3a6c9c9e6e7fce714c0fe8c7bc3d308418159559b83e);                                                                       // f50
+        write_rams(9'h1b, 320'h11b7267bc24d434f4a66ac2e64b614cb1e333840b0b7922e6e533639df8fadc4);                                                                       // f51
 
     endtask
 

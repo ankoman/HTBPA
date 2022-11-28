@@ -76,6 +76,7 @@ module new_sequencer(
     //////////////////////////////////////
     //// Decoders
     //////////////////////////////////////
+    wire [ROM_DEPTH-1:0] jmp_addr = {rom_out.pos, rom_out.pom3, rom_out.pom2, rom_out.pom1};
     always_ff @(posedge clk) begin : rom_addressing
         if(!rstn) 
             pc <= FIRST_PC_ADDR;
@@ -87,8 +88,8 @@ module new_sequencer(
                     pc <= pc + 1;
                 else if(ctrl_instruction) begin
                     case(rom_out.cm)
-                        op_JMP  : pc <= {rom_out.waddr0, rom_out.waddr1};
-                        op_CALL : pc <= {rom_out.waddr0, rom_out.waddr1};
+                        op_JMP  : pc <= jmp_addr;
+                        op_CALL : pc <= jmp_addr;
                         op_RET  : pc <= ret_addr;
                         op_WAITINV  : pc <= pc;
                         default : pc <= 'x;
@@ -102,10 +103,27 @@ module new_sequencer(
         end
     end
 
-    logic [BRAM_DEPTH-1:0] dst, src0, src1;
-    assign dst = {func_decode_thread(cnt_Nclk), 7'(rom_out.waddr0)};
-    assign src0 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr0)};
-    assign src1 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr1)};
+    logic [BRAM_DEPTH-1:0] dst, src0, src1, offset_dst, offset_src0, offset_src1;
+    assign dst = {func_decode_thread(cnt_Nclk), 7'(rom_out.waddr0 + offset_dst)};
+    assign src0 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr0 + offset_src0)};
+    assign src1 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr1 + offset_src1)};
+
+    always_ff @(posedge clk) begin : set_offset
+        if(!rstn) begin
+            offset_dst <= '0;
+            offset_src0 <= '0;
+            offset_src1 <= '0;
+        end
+        else begin
+            if(is_Nclks && ctrl_instruction) begin
+                if(rom_out.cm == op_CALL) begin
+                    offset_dst <= rom_out.waddr0;
+                    offset_src0 <= rom_out.raddr0;
+                    offset_src1 <= rom_out.raddr1;
+                end
+            end
+        end
+    end
 
     always @(posedge clk) begin : address_decoder
         mops.csig <= (ctrl_instruction) ? NOP : func_raw2csig(rom_out);
