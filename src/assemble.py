@@ -191,14 +191,17 @@ def assemble_raw(list_asm):
             list_bin.append('0010000001')
             if len(args) == 1:
                 list_bin.append('00000000000000000000000000000000')
-            elif len(args) == 4:
-                list_bin.append(format(int(args[1], 10), '08b')) # waddr0
-                list_bin.append(format(int(args[1], 10), '08b')) # waddr1
-                list_bin.append(format(int(args[2], 10), '08b')) # raddr0
-                list_bin.append(format(int(args[3], 10), '08b')) # raddr1
-
+            elif len(args) <= 4:
+                list_bin.append(format(int(args[1], 16), '08b')) # waddr0
+                list_bin.append(format(int(args[1], 16), '08b')) # waddr1
+                if len(args) == 3:
+                    list_bin.append(format(int(args[2], 16), '08b')) # raddr0
+                    list_bin.append(format(0, '08b')) # raddr1
+                elif len(args) == 4:
+                    list_bin.append(format(int(args[2], 16), '08b'))  # raddr0
+                    list_bin.append(format(int(args[3], 16), '08b')) # raddr1
             else:
-                print(f'Error: call is not recognised {ins}')
+                print(f'Error: call is not recognised {line}')
 
         elif ins == 'exit':
             list_bin.append('00000000000000000000000000100000000000000000000000000000000')  # EXIT
@@ -230,41 +233,41 @@ def assemble_raw(list_asm):
                 print(f'poa3 != 0: {i}')
             if waddr0 != waddr1:
                 print(f'Error: waddr0 != waddr1: {i}, {waddr0}, {waddr1}')
-            if int(waddr0, 2) in [0x4c, 0x4d, 0x4e, 0x4f, 0x5c, 0x5d, 0x5e, 0x5f, 0x6c, 0x6d, 0x6e, 0x6f]:
-                print(f'Error: waddr0: {i}, {waddr0}')
-            if int(raddr0, 2) in [0x4c, 0x4d, 0x4e, 0x4f, 0x5c, 0x5d, 0x5e, 0x5f, 0x6c, 0x6d, 0x6e, 0x6f]:
-                print(f'Error: raddr0: {i}, {raddr0}')
-            if int(raddr1, 2) in [0x4c, 0x4d, 0x4e, 0x4f, 0x5c, 0x5d, 0x5e, 0x5f, 0x6c, 0x6d, 0x6e, 0x6f]:
-                print(f'Error: raddr0: {i}, {raddr1}')
+            # if int(waddr0, 2) in [0x4c, 0x4d, 0x4e, 0x4f, 0x5c, 0x5d, 0x5e, 0x5f, 0x6c, 0x6d, 0x6e, 0x6f]:
+            #     print(f'Warn: waddr0: {i}, {waddr0}')
+            # if int(raddr0, 2) in [0x4c, 0x4d, 0x4e, 0x4f, 0x5c, 0x5d, 0x5e, 0x5f, 0x6c, 0x6d, 0x6e, 0x6f]:
+            #     print(f'Warn: raddr0: {i}, {raddr0}')
+            # if int(raddr1, 2) in [0x4c, 0x4d, 0x4e, 0x4f, 0x5c, 0x5d, 0x5e, 0x5f, 0x6c, 0x6d, 0x6e, 0x6f]:
+            #     print(f'Warn: raddr0: {i}, {raddr1}')
             # Frobenius change
             if int(raddr0, 2) in [0x78, 0x79, 0x7c, 0x85]:
-                line = line[:43] + f'{0x5e:08b}' + line[:51]
+                line = line[:43] + f'{0x4f:08b}' + line[:51]
             if int(raddr1, 2) in [0x78, 0x79, 0x7c, 0x85]:
-                line = line[:51] + f'{0x5e:08b}'
+                line = line[:51] + f'{0x4f:08b}'
             if int(raddr0, 2) in [0x7a, 0x8a]:
-                line = line[:43] + f'{0x5f:08b}' + line[:51]
+                line = line[:43] + f'{0x5d:08b}' + line[:51]
             if int(raddr1, 2) in [0x7a, 0x8a]:
-                line = line[:51] + f'{0x5f:08b}'
+                line = line[:51] + f'{0x5d:08b}'
             if int(raddr0, 2) in [0x7b]:
-                line = line[:43] + f'{0x6c:08b}' + line[:51]
+                line = line[:43] + f'{0x5e:08b}' + line[:51]
             if int(raddr1, 2) in [0x7b]:
-                line = line[:51] + f'{0x6c:08b}'
+                line = line[:51] + f'{0x5e:08b}'
             if int(raddr0, 2) in [0x7d, 0x7e, 0x7f, 0x84]:
-                line = line[:43] + f'{0x6d:08b}' + line[:51]
+                line = line[:43] + f'{0x5f:08b}' + line[:51]
             if int(raddr1, 2) in [0x7d, 0x7e, 0x7f, 0x84]:
-                line = line[:51] + f'{0x6d:08b}'
+                line = line[:51] + f'{0x5f:08b}'
             if int(raddr0, 2) in [0x80, 0x81]:
-                line = line[:43] + f'{0x6e:08b}' + line[:51]
+                line = line[:43] + f'{0x6d:08b}' + line[:51]
             if int(raddr1, 2) in [0x80, 0x81]:
-                line = line[:51] + f'{0x6e:08b}'
+                line = line[:51] + f'{0x6d:08b}'
             if int(raddr0, 2) in [0x82, 0x8c]:
-                line = line[:43] + f'{0x6f:08b}' + line[:51]
+                line = line[:43] + f'{0x6e:08b}' + line[:51]
             if int(raddr1, 2) in [0x82, 0x8c]:
-                line = line[:51] + f'{0x6f:08b}'
+                line = line[:51] + f'{0x6e:08b}'
             if int(raddr0, 2) in [0x83, 0x8b]:
-                line = line[:43] + f'{0x7c:08b}' + line[:51]
+                line = line[:43] + f'{0x6f:08b}' + line[:51]
             if int(raddr1, 2) in [0x83, 0x8b]:
-                line = line[:51] + f'{0x7c:08b}'
+                line = line[:51] + f'{0x6f:08b}'
             if int(raddr0, 2) in [0x86, 0x87]:
                 line = line[:43] + f'{0x7d:08b}' + line[:51]
             if int(raddr1, 2) in [0x86, 0x87]:
