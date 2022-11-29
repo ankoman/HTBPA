@@ -27,7 +27,7 @@ l = 26
 # r_power = 289
 
 ### For BLS381
-M = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+M = 0x2523648240000001ba344d80000000086121000000000013a700000000000013
 r_power = 425
 
 n = math.ceil(r_power/k)
@@ -44,6 +44,8 @@ mask_dspout = 2**48 - 1
 MM_init(M, k, d, r)
 M_pp = get_Mpp()
 M_tilda = get_M_tilda()
+print(hex(M_pp))
+print(hex(M_tilda))
 
 def QPMM(A, B):
     bi = [(B >> k*i) & mask for i in range(n + 1)]

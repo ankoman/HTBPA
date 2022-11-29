@@ -24,16 +24,18 @@
 `define PARAMS_BN254_d0
 package PARAMS_BN254_d0;
     localparam
-        Mod = 384'h1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab, //The BLS12381 prime
-        M_tilde = 397'h1a00c3e703c13a1a974cc6634c28e2f45df11e1f10f638302ef29d0e7ece12113c3fa3fab157ec03b9ffd202ffffaaabffff; // 397 bits
+        Mod = 384'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BLS12381 prime
+        M_tilde = 397'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff; // 397 bits
     localparam
         K = 17,
         L = 26,
         C = L - K,
         D = 0,
-        _Mpp = 384'hd0061f381e09d0d4ba66331a614717a2ef88f0f887b1c1817794e873f6709089e1fd1fd58abf601dcffe9017fffd556, //k=17
+        _Mpp = 384'h3e8c63befe1a0002e8c326a69c00000e1cd5bc2800000021193b18000000002, //k=17
         R = 425 - 1,
-        R_INV = 'h5d0b6a95f0f140c9be94886e201ff4e1d3e75366d5014ac26f9e99e3ac1a0d2797922988d180e68f014e4fe540686ac, //r=425
+        RmodM = 'h6266ea86a2d27c9ffae7bca245ef0aec53439f2badb6a0480fa012749c8bd9dde2ecd0389ebc8f9c4291d51d3fbb2cd,
+        R2modM = 'h11e41d6827510424302748620c16c6767000b6609ab32f0bbce50a9fa478fa904fb1a226d7c8c3b38ac02e272c3d3bb1,
+        R_INV = 'h15a7000943c2070dbbd1e8ff16d70fb08d138acfcd5b6b977bb66110da4585f9, //r=425
         N = 25, // R/K + 1, at K = 17
         M = 16, // R/L +1
         HALF_S = (M+D+1)/2, // must be even
@@ -46,7 +48,7 @@ package PARAMS_BN254_d0;
         LEN_12M_TILDE = 404,
         LEN_1024M_TILDE = 407,  // Must be divided by ADD_DIV
         N_THREADS = 6,
-        BRAM_DEPTH = 9;  
+        BRAM_DEPTH = 10;  
 
     typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;
     typedef logic[M:0][47:0] qpmm_S_t;
@@ -209,7 +211,7 @@ endpackage
 `ifndef CONTROL
 `define CONTROL
 package CONTROL;
-
+    import PARAMS_BN254_d0::BRAM_DEPTH;
     // Struct
     typedef struct packed {
         logic os;
@@ -259,9 +261,9 @@ package CONTROL;
 
     typedef struct packed {
         ctrl_sig_t csig;
-        logic [8:0] dst;
-        logic [8:0] src0;
-        logic [8:0] src1;
+        logic [BRAM_DEPTH-1:0] dst;
+        logic [BRAM_DEPTH-1:0] src0;
+        logic [BRAM_DEPTH-1:0] src1;
     } micro_ops_t;
 
     typedef struct packed {

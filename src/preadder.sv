@@ -60,7 +60,7 @@ module preadder_Nthread(
     poly_adder_L3_L3 #(.LATENCY(0)) adder0 (.clk, .X(dly_x[N_THREADS-1]), .Y(X), .Z(add_buf_0_wire), .sub(1'b0));
     poly_adder_L3_L3 #(.LATENCY(0)) adder1 (.clk, .X, .Y, .Z(add_buf_1_wire), .sub(1'b0));
     poly_adder_L3_L3 #(.LATENCY(0)) subtractor0 (.clk, .X, .Y, .Z(add_buf_2_wire), .sub(1'b1));
-    poly_adder_L3_L3 #(.LATENCY(0)) adder2 (.clk, .X(Y), .Y(dly_y[3]), .Z(add_buf_3_wire), .sub(1'b0));
+    poly_adder_L3_L3 #(.LATENCY(0)) adder2 (.clk, .X(Y), .Y(dly_y[N_THREADS-1]), .Z(add_buf_3_wire), .sub(1'b0));
 
     always @(posedge clk)begin
             dly_x <= {dly_x[N_THREADS-2:0], X};
