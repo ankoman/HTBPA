@@ -27,8 +27,7 @@ def getInsArgs(line):
     if len(args[0].split(' ')) < 2:
         args = []
     else:
-        args[0] = args[0].split(' ')[1]
-
+        args[0:1] = args[0].split(' ')[1:]
     return ins, args
 
 
@@ -297,6 +296,7 @@ def main():
             #Skip comments and empty lines
             if line.startswith('//'): continue
             if not line.strip(): continue
+            line = line.split('//')[0]
             list_asm.append(line.strip())
 
     list_obj = assemble_raw(list_asm)
