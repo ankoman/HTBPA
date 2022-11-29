@@ -21,20 +21,23 @@
 
 import PARAMS_BN254_d0::*;
 
+localparam bit_width = 381;
+
 module test_QPMM;
     localparam 
         CYCLE = 10,
         DELAY = 2,
         N_DATA = 1000000,
-        N_PIPELINE_STAGES = 58;
+        N_PIPELINE_STAGES = 82; // NLS
+        //N_PIPELINE_STAGES = 58; // BN
                
     reg clk, rstn;
     qpmm_fp_t A, B;
-    wire [267:0] Z;
+    wire [bit_width+16:0] Z;
     wire [999:0] tmp_ans = MR(A) * MR(B);
-    wire [255:0] ans = tmp_ans % PARAMS_BN254_d0::Mod;
-    wire [255:0] res = MR(Z);
-    reg [N_PIPELINE_STAGES:0][255:0] reg_ans;
+    wire [bit_width-1:0] ans = tmp_ans % PARAMS_BN254_d0::Mod;
+    wire [bit_width-1:0] res = MR(Z);
+    reg [N_PIPELINE_STAGES:0][bit_width-1:0] reg_ans;
 
     QPMM_d0 DUT(.clk, .rstn, .A, .B, .Z);
     
@@ -89,7 +92,7 @@ module test_QPMM;
     end
 
 
-    function [255:0] MR;
+    function [bit_width-1:0] MR;
         input qpmm_fp_t A;
         logic [999:0] tmp_ans = (PARAMS_BN254_d0::R_INV*A);
         MR = tmp_ans % PARAMS_BN254_d0::Mod;

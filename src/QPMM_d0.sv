@@ -271,10 +271,10 @@ module QPMM_d0(
             Z_LL <= poly2int_1_4(buf_S[S_1_4:1]) + buf_S[0][47:K];
             Z_LH <= poly2int_1_4(buf_S[2*S_1_4:S_1_4+1]);
             Z_HL <= poly2int_1_4(buf_S[3*S_1_4:2*S_1_4+1]);
-            if(K==16)
+            //if(K==16)
                 Z_HH <= poly2int_1_4(buf_S[4*S_1_4:3*S_1_4+1]);
-            else if(K==17)
-                Z_HH <= poly2int_1_4({40'd0, buf_S[3*S_1_4+2:3*S_1_4+1]});
+            // else if(K==17)
+            //     Z_HH <= poly2int_1_4({40'd0, buf_S[3*S_1_4+2:3*S_1_4+1]});
             Z_L <= (Z_LH << (S_1_4*L)) + Z_LL;
             Z_H <= (Z_HH << (S_1_4*L)) + Z_HL;
             Z <= (Z_H << (2*S_1_4*L)) + Z_L;
