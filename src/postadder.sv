@@ -158,16 +158,16 @@ module postadder_Nthread(
     poly_adder_L3_L3 acc1(.sub(add1_sel_sub), .X(add1_ain), .Y(add1_bin), .Z(acc1_out));
 
     //// ACC2
-    wire sel_b2 = ((mode2 == 3'b001) || (mode2 == 3'b100));
+    wire sel_b2 = ((mode2 == 3'b001) || (mode2 == 3'b100) || (mode2 == 3'b110));
 
     redundant_poly_L3 add2_ain;
-    assign add2_ain = (mode2[2:1]==2'b00)? 0:(mode2==3'b010)?in:(mode2==3'b011)?in:(mode2==3'b100)?reg2_wire:(mode2==3'b101)?poly_p:(mode2==3'b111)?reg2_wire:in;
+    assign add2_ain = (mode2[2:1]==2'b00)? 0:(mode2==3'b010)?in:(mode2==3'b011)?in:(mode2==3'b100)?reg2_wire:(mode2==3'b101)?poly_p:(mode2 == 3'b110)?0:(mode2==3'b111)?reg2_wire:in;
     redundant_poly_L3 add2_bin;
     assign add2_bin = sel_b2? in: reg2_wire;
-    wire add2_sel_sub = (mode2==3'b011)?1'b1:(mode2==3'b100)?1'b1:(mode2==3'b101)?1'b1:1'b0;
+    wire add2_sel_sub = (mode2==3'b011)?1'b1:(mode2==3'b100)?1'b1:(mode2==3'b101)?1'b1:(mode2==3'b110)?1'b1:1'b0;
     poly_adder_L3_L3 acc2(.sub(add2_sel_sub), .X(add2_ain), .Y(add2_bin), .Z(acc2_out));
 
-    //// ACC2
+    //// ACC3
     wire sel_b3 = ((mode3 == 3'b001) || (mode3 == 3'b100));
     redundant_poly_L3 add3_ain;
     assign add3_ain = (mode3[2:1]==2'b00)? 0:(mode3==3'b010)?in:(mode3==3'b011)?in:(mode3==3'b100)?reg3_wire:(mode3==3'b101)?poly_p:(mode3==3'b111)?reg3_wire:in;

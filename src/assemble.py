@@ -301,7 +301,7 @@ def main():
 
     list_obj = assemble_raw(list_asm)
 
-    with open('out_obj.txt', 'w') as f:
+    with open('rom.coe', 'w') as f:
         f.writelines(list_obj)
 
 def temp():

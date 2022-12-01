@@ -25,8 +25,8 @@ import CONTROL::*;
 localparam LAT_READ = 2;
 localparam LAT_PREADD = 1;
 localparam LAT_UINT = 4;
-//localparam LAT_QPMM = 58; // BN
-localparam LAT_QPMM = 82; // BLS
+localparam LAT_QPMM = 58; // BN
+//localparam LAT_QPMM = 82; // BLS
 localparam LAT_CMUL = 1;
 localparam LAT_POSTADD = 2;
 localparam LAT_WRITE = 1;
@@ -71,8 +71,8 @@ module BN254_pairing(
 
     new_sequencer seq (.clk, .rstn, .run, .n_func, .busy, .mops, .inv_rdy);
 
-    blk_mem_gen_436 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
-    blk_mem_gen_436 RAM1 (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
+    blk_mem_gen_304 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
+    blk_mem_gen_304 RAM1 (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
 
     preadder_Nthread preadder (
         .clk,

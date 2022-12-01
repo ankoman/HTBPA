@@ -150,31 +150,31 @@ module new_sequencer(
     endfunction
 
 
-    // function [$clog2(N_THREADS)-1:0] func_decode_thread;
-    //     input[N_THREADS-1:0] cnt_Nclk;
-    //     begin
-    //         case(cnt_Nclk)
-    //             'b0001 : func_decode_thread = 'b01;
-    //             'b0010 : func_decode_thread = 'b10;
-    //             'b0100 : func_decode_thread = 'b11;
-    //             'b1000 : func_decode_thread = 'b00;
-    //         endcase
-    //     end
-    // endfunction
-
     function [$clog2(N_THREADS)-1:0] func_decode_thread;
         input[N_THREADS-1:0] cnt_Nclk;
         begin
             case(cnt_Nclk)
-                'b000001 : func_decode_thread = 'b011;
-                'b000010 : func_decode_thread = 'b100;
-                'b000100 : func_decode_thread = 'b101;
-                'b001000 : func_decode_thread = 'b000;
-                'b010000 : func_decode_thread = 'b001;
-                'b100000 : func_decode_thread = 'b010;
+                'b0001 : func_decode_thread = 'b01;
+                'b0010 : func_decode_thread = 'b10;
+                'b0100 : func_decode_thread = 'b11;
+                'b1000 : func_decode_thread = 'b00;
             endcase
         end
-        endfunction
+    endfunction
+
+    // function [$clog2(N_THREADS)-1:0] func_decode_thread;
+    //     input[N_THREADS-1:0] cnt_Nclk;
+    //     begin
+    //         case(cnt_Nclk)
+    //             'b000001 : func_decode_thread = 'b011;
+    //             'b000010 : func_decode_thread = 'b100;
+    //             'b000100 : func_decode_thread = 'b101;
+    //             'b001000 : func_decode_thread = 'b000;
+    //             'b010000 : func_decode_thread = 'b001;
+    //             'b100000 : func_decode_thread = 'b010;
+    //         endcase
+    //     end
+    // endfunction
 
 endmodule
 
