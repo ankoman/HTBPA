@@ -29,7 +29,7 @@ localparam LAT_QPMM = 58; // BN
 //localparam LAT_QPMM = 82; // BLS
 localparam LAT_CMUL = 1;
 localparam LAT_POSTADD = 2;
-localparam LAT_WRITE = 1;
+localparam LAT_WRITE = 2;
 localparam PIPELINE_STAGES = LAT_READ + LAT_PREADD + LAT_UINT + LAT_QPMM + LAT_CMUL + LAT_POSTADD + LAT_WRITE;
 
 
@@ -60,15 +60,25 @@ module BN254_pairing(
     assign ctrl_inv = mops_buf[LAT_READ];
     assign ctrl_write = mops_buf[PIPELINE_STAGES - LAT_WRITE];
     
-    wire me0 = (~busy) ? extin_en : (inv_rdy)? inv_rdy : ctrl_write.csig.me0;
-    wire me1 = (~busy) ? extin_en : (inv_rdy)? inv_rdy : ctrl_write.csig.me1;
-    wire [BRAM_DEPTH-1:0] waddr0 = (~busy) ? extin_addr : (inv_rdy)? inv_waddr : ctrl_write.dst;
+    logic me0, me1;
+    logic [BRAM_DEPTH-1:0] waddr0;
     //wire [8:0] waddr1 = (~busy) ? extin_addr : (inv_rdy)? inv_waddr : ctrl_write.dst;
     wire [BRAM_DEPTH-1:0] addrb1_sakamoto = ~busy ? extout_addr : mops.src1;
-
-    assign memin = (~busy)? extin_data : (inv_rdy)? inv_out : postadd_out;
     assign extout_data = memout1;
-
+    if(LAT_WRITE == 1) begin
+        assign me0 = (~busy) ? extin_en : (inv_rdy)? inv_rdy : ctrl_write.csig.me0;
+        assign me1 = (~busy) ? extin_en : (inv_rdy)? inv_rdy : ctrl_write.csig.me1;
+        assign waddr0 = (~busy) ? extin_addr : (inv_rdy)? inv_waddr : ctrl_write.dst;
+        assign memin = (~busy)? extin_data : (inv_rdy)? inv_out : postadd_out;
+    end
+    else if (LAT_WRITE == 2) begin
+        always @(posedge clk) begin
+            me0 <= (~busy) ? extin_en : (inv_rdy)? inv_rdy : ctrl_write.csig.me0;
+            me1 <= (~busy) ? extin_en : (inv_rdy)? inv_rdy : ctrl_write.csig.me1;
+            waddr0 <= (~busy) ? extin_addr : (inv_rdy)? inv_waddr : ctrl_write.dst;
+            memin <= (~busy)? extin_data : (inv_rdy)? inv_out : postadd_out;
+        end
+    end
     new_sequencer seq (.clk, .rstn, .run, .n_func, .busy, .mops, .inv_rdy);
 
     blk_mem_gen_304 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
@@ -95,7 +105,7 @@ module BN254_pairing(
         .rstn
     );
 
-    cmul #(.LATENCY(1)) cmul (.clk, .rstn, .mode(ctrl_cmul.csig.cm), .din(qpmm_out), .dout(cmul_out));
+    cmul #(.LATENCY(LAT_CMUL)) cmul (.clk, .rstn, .mode(ctrl_cmul.csig.cm), .din(qpmm_out), .dout(cmul_out));
 
     postadder_Nthread postadder(
     .clk,
