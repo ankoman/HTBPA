@@ -20,7 +20,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 import PARAMS_BN254_d0::*;
-localparam N_PIPELINE_STAGES = 4;
 
 // module beeinv_4threads(
 //   input clk, rstn, run,
@@ -53,11 +52,11 @@ module Mont_inv_multi(
     M_tilde12_t    U1; // 257 bit dat
     M_tilde12_t    U2; // 257 bit 0
     M_tilde12_t    U3; // 257 bit R2
-    M_tilde12_t[N_PIPELINE_STAGES - 1:0] U0_buf, U1_buf, U2_buf, U3_buf;
-    assign U0 = U0_buf[N_PIPELINE_STAGES - 1];
-    assign U1 = U1_buf[N_PIPELINE_STAGES - 1];
-    assign U2 = U2_buf[N_PIPELINE_STAGES - 1];
-    assign U3 = U3_buf[N_PIPELINE_STAGES - 1];
+    M_tilde12_t[N_THREADS - 1:0] U0_buf, U1_buf, U2_buf, U3_buf;
+    assign U0 = U0_buf[N_THREADS - 1];
+    assign U1 = U1_buf[N_THREADS - 1];
+    assign U2 = U2_buf[N_THREADS - 1];
+    assign U3 = U3_buf[N_THREADS - 1];
     for(genvar i = 0; i < ADD_DIV; i = i + 1) begin
         assign O_RDATA[i].carry = 0;
         assign O_RDATA[i].val = U3.poly[i];
@@ -66,37 +65,37 @@ module Mont_inv_multi(
     //////////////////////////////////////
     //// Counters
     //////////////////////////////////////
-    logic [3:0] cnt_4clk;
-    wire is_4clks = cnt_4clk[3];
+    logic [N_THREADS-1:0] cnt_Nclk;
+    wire is_Nclks = cnt_Nclk[N_THREADS-1];
     always_ff @(posedge clk) begin
         if(!rstn)
-            cnt_4clk <= '0;
+            cnt_Nclk <= '0;
         else if(I_START)  
-            cnt_4clk <= 'd1; //cnt start
-        else if(O_DRDY && is_4clks)  
-            cnt_4clk <= 'd0; //cnt reset
-        else 
-            cnt_4clk <= {cnt_4clk[2:0], cnt_4clk[3]}; // left rotate
+            cnt_Nclk <= 'd1; //cnt start 
+        else if(O_DRDY && is_Nclks)  
+            cnt_Nclk <= 'd0; //cnt reset
+        else
+            cnt_Nclk <= {cnt_Nclk[N_THREADS-2:0], cnt_Nclk[N_THREADS-1]}; // left rotate
     end
 
     always_ff @(posedge clk) begin
         if(!rstn)
             O_DRDY <= '0;
-        else if (O_DRDY && is_4clks)
+        else if (O_DRDY && is_Nclks)
             O_DRDY <= '0;
-        else if (~O_BUSY && is_4clks)
+        else if (~O_BUSY && is_Nclks)
             O_DRDY <= '1;
     end
 
 
     // for calc inversion
-    logic [N_PIPELINE_STAGES - 1:0] U1_is_1_threads;
+    logic [N_THREADS - 1:0] U1_is_1_threads;
     always @(posedge clk) begin
-        for (integer i = 0; i < N_PIPELINE_STAGES; i = i + 1)
+        for (integer i = 0; i < N_THREADS; i = i + 1)
             U1_is_1_threads[i] = (U1_buf[i] == 'h1);
     end
 
-    wire         U1_is_1 = U1_is_1_threads[N_PIPELINE_STAGES - 2];
+    wire         U1_is_1 = U1_is_1_threads[N_THREADS - 2];
     assign O_BUSY = ~&U1_is_1_threads;
 
     wire [1:0] sel_addr1_a = {U1_buf[0][MSB], U1_buf[0][0]};
@@ -184,6 +183,7 @@ module Mont_inv_multi(
     logic       addr2_ci_n, addr1_ci;
     // Two cycle adder
     M_tilde12_t sum1_buf, sum2_buf, sum1, sum2;
+    M_tilde12_t [1:0] sum1_buf_for_6T, sum2_buf_for_6T;
     logic         co1;
     logic [1:0]   co2;
     always @(posedge clk) begin
@@ -200,8 +200,16 @@ module Mont_inv_multi(
         sum1_buf.poly[3:2] <= addr1_a.poly[3:2] + addr1_b.poly[3:2];
         sum2_buf.poly[3:2] <= addr2_a.poly[3:2] + addr2_b.poly[3:2] + addr2_n.poly[3:2];
 
-        sum1 <= {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]};
-        sum2 <= {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]};
+        if (N_THREADS == 4) begin
+          sum1 <= {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]};
+          sum2 <= {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]};
+        end 
+        else if (N_THREADS == 6) begin
+          sum1_buf_for_6T <= {sum1_buf_for_6T[0], {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]}};
+          sum2_buf_for_6T <= {sum2_buf_for_6T[0], {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]}};
+          sum1 <= sum1_buf_for_6T[1];
+          sum2 <= sum2_buf_for_6T[1];
+        end
     end
 
     // registers
@@ -290,7 +298,7 @@ module Mont_inv_multi(
     always @(posedge clk or negedge rstn) begin
         if(!rstn) begin
             U0_buf <= 'h0;
-            for(integer i = 0; i < N_PIPELINE_STAGES; i = i + 1)
+            for(integer i = 0; i < N_THREADS; i = i + 1)
                 U1_buf[i] <= 'h1;
             U2_buf <= 'h0;
             U3_buf <= 'h0;
@@ -300,16 +308,16 @@ module Mont_inv_multi(
             U1_buf[0] <= f_in_U1(sel_in_U1, U1, sum1, I_WDATA);
             U2_buf[0] <= f_in_U2(sel_in_U2, U2, U3);
             U3_buf[0] <= f_in_U3(sel_in_U3, U3, sum2);
-            U0_buf[N_PIPELINE_STAGES - 1:1] <= U0_buf[N_PIPELINE_STAGES - 2:0];
-            U1_buf[N_PIPELINE_STAGES - 1:1] <= U1_buf[N_PIPELINE_STAGES - 2:0];
-            U2_buf[N_PIPELINE_STAGES - 1:1] <= U2_buf[N_PIPELINE_STAGES - 2:0];
-            U3_buf[N_PIPELINE_STAGES - 1:1] <= U3_buf[N_PIPELINE_STAGES - 2:0];
+            U0_buf[N_THREADS - 1:1] <= U0_buf[N_THREADS - 2:0];
+            U1_buf[N_THREADS - 1:1] <= U1_buf[N_THREADS - 2:0];
+            U2_buf[N_THREADS - 1:1] <= U2_buf[N_THREADS - 2:0];
+            U3_buf[N_THREADS - 1:1] <= U3_buf[N_THREADS - 2:0];
         end
     end
-    logic [3:0][BRAM_DEPTH-1:0] waddr;
-    assign O_WADDR = waddr[N_PIPELINE_STAGES-1];
+    logic [N_THREADS - 1:0][BRAM_DEPTH-1:0] waddr;
+    assign O_WADDR = waddr[N_THREADS - 1];
     always @(posedge clk) begin
-        waddr <= {waddr[N_PIPELINE_STAGES-2:0], (I_START) ? I_WADDR : waddr[N_PIPELINE_STAGES-1]};
+        waddr <= {waddr[N_THREADS-2:0], (I_START) ? I_WADDR : waddr[N_THREADS-1]};
     end
 endmodule
 

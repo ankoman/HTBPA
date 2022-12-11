@@ -62,10 +62,17 @@ module test_eeinv();
         waddr <= 'h15;
         wdata <= 'hf3bb376c204c9720510d2e534b7105c628c4db5f20123d4c29aee190c73433f4062;
         #(CYCLE);
+        waddr <= 'h16;
+        wdata <= 'h1e15c648984f3a227733779e1b48ad802c2434dbe4e0dce273a446b73fc5b629;
+        #(CYCLE);
+        waddr <= 'h17;
+        wdata <= 'h99ac9110cbcdf1924248781ca049785e49e45f9c9b24c70f9fc7db57b20c5d8ad2a;
+        #(CYCLE);
+
         run <= 0;
         #1000;
         wait(!busy);
-        #100
+        #1000
         run <= 1;
         waddr <= 'h22;
         wdata <= 'h111111111111124248781ca049785e49e45f9c9b24c70f9fc7db57b20c5d8ad2a;
