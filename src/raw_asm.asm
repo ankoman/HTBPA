@@ -1,3 +1,15 @@
+call input_to_Mont
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+call Wait_2cycles
+
 
 call ML_1
 call ML_0
@@ -496,7 +508,8 @@ call Wait_2cycles
 call Wait_2cycles
 call Wait_2cycles
 call Wait_2cycles
-call res_MR
+
+call res_from_Mont
 call Wait_2cycles
 call Wait_2cycles
 call Wait_2cycles
