@@ -13,3 +13,5 @@
 /misc/ref_dat/*.log
 /misc/ref_dat/.Xil/*
 /misc/ref_dat/.hbs/*
+/src/trash/*
+/src/__pycache__/*
