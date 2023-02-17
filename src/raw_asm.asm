@@ -1,16 +1,5 @@
 call input_to_Mont
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-call Wait_2cycles
-
-
+call Init_f
 call ML_1
 call ML_0
 call ML_0

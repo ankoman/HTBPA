@@ -126,19 +126,6 @@ module test_pairing;
     task ram_init_BN;
 
         //Init
-        write_rams(9'h10, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // f00 = r = 1
-        write_rams(9'h11, 0, 0);                                                                       // f01
-        write_rams(9'h12, 0, 0);                                                                       // f10
-        write_rams(9'h13, 0, 0);                                                                       // f11
-        write_rams(9'h14, 0, 0);                                                                       // f20
-        write_rams(9'h15, 0, 0);                                                                       // f21
-        write_rams(9'h16, 0, 0);                                                                       // f30
-        write_rams(9'h17, 0, 0);                                                                       // f31
-        write_rams(9'h18, 0, 0);                                                                       // f40
-        write_rams(9'h19, 0, 0);                                                                       // f41
-        write_rams(9'h1a, 0, 0);                                                                       // f50
-        write_rams(9'h1b, 0, 0);                                                                       // f51
-        
         write_rams(9'h09, 320'h1e3ad4f19ece02905cd917dec0178837a70990ae5b87678a825bfd79f8a881b8, 0);   // r^2 (ordinary form)
         write_rams(9'h0a, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // r (ordinary form)
         write_rams(9'h0b, 1, 0);                                                                       // 1 (ordinary form)
