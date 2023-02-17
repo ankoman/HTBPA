@@ -22,7 +22,7 @@
 import CONTROL::*;
 localparam FIRST_PC_ADDR = 10'h000;
 localparam ROM_DEPTH = 11;
-localparam ctrl_sig_t NOP = 'b0_xx_xxx_xxx_xxx_xxx_xx_0;
+localparam ctrl_sig_t NOP = 'b0_xx_xxx_xxx_xxx_xxx_00_00;
 localparam noaddr = 9'hx;
 localparam operation_t op_JMP  = 'b000;
 localparam operation_t op_CALL = 'b001;

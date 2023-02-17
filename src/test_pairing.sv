@@ -32,9 +32,8 @@ module test_pairing;
                
     reg clk, rstn, run, swrst, extin_en;
     reg [3:0] n_func;
-    reg [BRAM_DEPTH-1:0] extin_addr, addr_dout;
-    redundant_poly_L3 extin_data;
-    wire [289-1:0] extout_data;
+    reg [BRAM_DEPTH-1:0] extin_addr, extout_addr;
+    redundant_poly_L3 extin_data, extout_data;
     wire busy;
 
     wire [bit_width-1:0] debug_memout0, debug_memout1, debug_preadd0, debug_preadd1, debug_red0, debug_red1, debug_qpmm, debug_cmul, debug_postadd;
@@ -64,7 +63,7 @@ module test_pairing;
     assign debug_reg3_wire = MR(func_L3touint(DUT.postadder.reg3_wire));
 
     BN254_pairing DUT(.clk, .rstn, .swrst, .run, .n_func, .endflag(), .opstart(), .busy, 
-       .extin_data, .extin_en, .extin_addr, .extout_data(extout_data), .extout_addr(addr_dout));
+       .extin_data, .extin_en, .extin_addr, .extout_data, .extout_addr);
     
     always begin
         #(CYCLE/2) clk <= ~clk;
@@ -78,7 +77,7 @@ module test_pairing;
         rstn <= 1;
         run <= 0;
         swrst <= 0;
-        addr_dout <= 0;
+        extout_addr <= 0;
         n_func <= 3;
         extin_en <= 0;
         #1000
@@ -89,6 +88,7 @@ module test_pairing;
         swrst <= 1;
         #100;
         ram_init_BN();
+ 
         swrst <= 0;
         run <= 1;
         #(CYCLE);
@@ -96,139 +96,183 @@ module test_pairing;
         #1000;
         wait(!busy);
         
-        
-        // for(integer i=0;i<12;i=i+1) begin
-        //     addr_dout <= 'h10 + i;
-        //     #(CYCLE*100);
-        //     $display("i = %d: %h", i, extout_data);
-        // end
-    
+        $display("\nFirst pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h10 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, extout_data);
+        end
+        $display("\nSecond pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h90 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, extout_data);
+        end
+        $display("\nThird pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h110 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, extout_data);
+        end
+        $display("\n4th pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h190 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, extout_data);
+        end
     $finish;
     end
 
     task ram_init_BN;
-        //////// Ordinary form
-        // write_rams(9'h00, 320'h135ac8d3dfa7c6ed32d1f81ba636425c9bbd750d1e707c5230c1fb6a19086515);   // Qx_0
-        // write_rams(9'h01, 320'h142442f78ef066d44279b14dae55cdff34ab18fd0a68e88e0ad4041504c14982);   // Qx_1
-        // write_rams(9'h02, 320'hb69136889b5b368df14c6125f58d5b56f790959a3e04b3b756b0715e7180322);    // Qy_0
-        // write_rams(9'h03, 320'h115e2eac26a974652371ea2c0247145f4a814d53964ddb776025f0ae35354579);   // Qy_1
-        // write_rams(9'h04, 1);                                                                    // Qz_0
-        // write_rams(9'h05, 0);                                                                    // Qz_1
-        // write_rams(9'h06, 320'h75a767f4b1cb8bd2130260c8c69778ffd42f697651116565c6460364a1eb1b7);    // Px
-        // write_rams(9'h07, 320'h132682b85419eefcd5e73e3f673617d94d7bd307122411e6ba8982dd85e69ea9);   // Py
-        // write_rams(9'h08, 1);                                                                    // Pz
-        // write_rams(9'h09, 320'h128a91347d05f46cb119f52b9a3df6b7ce6c2a12e9a7e0db7ba8a33509ff2c04);   // r2
-        // write_rams(9'h0a, 1);                                                                    // r
-        // write_rams(9'h0b, 1);                                                                    // 1
 
-        // Almost inputs are Montgomery form
-        write_rams(9'h00, 320'h11095cf5bb920088bd85bf335c712806d6283389fcfd2a6e3ccf26cfe62604ff);   // Qx_0
-        write_rams(9'h01, 320'h1d22aeb8a7103a46ac3574d73e04d1ac197d318d9fec0fa7dd3e3db1262ab5b0);   // Qx_1
-        write_rams(9'h02, 320'h1a0f1e9dc3ede0705c1c062231fc3a61f887cbc9ef6fe76682df0072d4708bcc);   // Qy_0
-        write_rams(9'h03, 320'hf87b1dd029582349bc94017c1eb2c07cb845a2239a1fd0ee84481358ccab325);    // Qy_1
-        write_rams(9'h04, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d);    // Qz_0
-        write_rams(9'h05, 0);                                                                       // Qz_1
-        write_rams(9'h06, 320'h19d677cf231f958a96eef7b3d98f4d7a52fa3fd983fa21a8fad069b533b62400);   // Px
-        write_rams(9'h07, 320'h1bd9df4dd90a7fb0bc432a5e3b1affb7493052d44002a2eae20718d22e0523b2);   // Py
-        // Pz
-        write_rams(9'h09, 320'h1e3ad4f19ece02905cd917dec0178837a70990ae5b87678a825bfd79f8a881b8);   // r^2 (ordinary form)
-        write_rams(9'h0a, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d);    // r (ordinary form)
-        write_rams(9'h0b, 1);                                                                       // 1 (ordinary form)
-        write_rams(9'h0c, 320'h12653ba947711dc5521a96bc9562c9fbcac3749d5ccde80c5cd3fa8689a200fc);   // ec_frpb_p
-        write_rams(9'h0d, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823);   // ec_frpb_p
-        write_rams(9'h0e, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823);   // ec_frpb_p
-        write_rams(9'h0f, 320'hd08129308ee23b92a0cc4b6f00eafb417fe8c719231c3de712c067f670cb8aa);   // frobFp6_8?
+        //Init
+        write_rams(9'h10, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // f00 = r = 1
+        write_rams(9'h11, 0, 0);                                                                       // f01
+        write_rams(9'h12, 0, 0);                                                                       // f10
+        write_rams(9'h13, 0, 0);                                                                       // f11
+        write_rams(9'h14, 0, 0);                                                                       // f20
+        write_rams(9'h15, 0, 0);                                                                       // f21
+        write_rams(9'h16, 0, 0);                                                                       // f30
+        write_rams(9'h17, 0, 0);                                                                       // f31
+        write_rams(9'h18, 0, 0);                                                                       // f40
+        write_rams(9'h19, 0, 0);                                                                       // f41
+        write_rams(9'h1a, 0, 0);                                                                       // f50
+        write_rams(9'h1b, 0, 0);                                                                       // f51
+        
+        write_rams(9'h09, 320'h1e3ad4f19ece02905cd917dec0178837a70990ae5b87678a825bfd79f8a881b8, 0);   // r^2 (ordinary form)
+        write_rams(9'h0a, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // r (ordinary form)
+        write_rams(9'h0b, 1, 0);                                                                       // 1 (ordinary form)
+        write_rams(9'h0c, 320'h12653ba947711dc5521a96bc9562c9fbcac3749d5ccde80c5cd3fa8689a200fc, 0);   // ec_frpb_p   Overwritten
+        write_rams(9'h0d, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823, 0);   // ec_frpb_p
+        write_rams(9'h0e, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823, 0);   // ec_frpb_p
+        write_rams(9'h0f, 320'hd08129308ee23b92a0cc4b6f00eafb417fe8c719231c3de712c067f670cb8aa, 0);   // frobFp6_8?
+        write_rams(9'h1f, 320'h2523648240000001ba344d80000000086121000000000013a700000000000013, 0);   // p (ordinary form) iran?
+        
+        write_rams(9'h4f, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823, 0);   // g300
+        write_rams(9'h5d, 320'h1f6d4e3c505f417e7c275b73857179afe2c2010eeeffabeace000105f0aeb9a6, 0);   // 
+        write_rams(9'h5e, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);   // 
+        write_rams(9'h5f, 320'h1eff3a21bcacdbecddccf3227e232976729d52e23a2fb2554d31712d452a77f0, 0);   // 
+        write_rams(9'h6d, 320'h172d23914e303a10a72e82ac1a586ca5193c1434b1ecffa1a2d6130bfe6093e, 0);   // 
+        write_rams(9'h6e, 320'h181b51ef3711dc48902788c90ff150544922738e6dce3c3535d3f98098f34769, 0);   // 
+        write_rams(9'h6f, 320'h12653ba947711dc5521a96bc9562c9fbcac3749d5ccde80c5cd3fa8689a200fc, 0);   // 
+        write_rams(9'h7d, 320'h20720c5ad18fdf8de83fdb4d3fc8b040c4311425854e824f675ed25e0510812e, 0);   // 
+        write_rams(9'h7e, 320'h12be28d8f88ee23c6819b6c36a9d360c965d8b62a33218074a2c0579765dff17, 0);   // 
+        write_rams(9'h7f, 320'hd08129308ee23b92a0cc4b6f00eafb417fe8c719231c3de712c067f670cb8aa, 0);   // 
+        
+        
+        // First pairing input P, Q
+        write_ram(9'h00, 320'h165a975d19ff0e09a8a7c2ea59dd80c6d02271a48b0e82ae9477221e7e7f2cb7, 1);   // Qx_0
+        write_ram(9'h01, 320'he71c380b835ea161f12e388f0549896d2291fa038a92d8d1202bf4600982370, 1);   // Qx_1
+        write_ram(9'h02, 320'h1f012fe65c9ef300ef562319f3e548c4c1374248fc4ab9dda8ea5789992fdf59, 1);   // Qy_0
+        write_ram(9'h03, 320'h176651a9e2c944c47489f40cfb96bb043511c7b77a82aa52069125a158b5764b, 1);    // Qy_1
+        write_ram(9'h04, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Qz_0
+        write_ram(9'h05, 0, 0);                                                                       // Qz_1
+        write_ram(9'h06, 320'h1f533e7ecd21721d7d3812c4879037c8e3129182db6da9d451002c82c07c8684, 1);   // Px
+        write_ram(9'h07, 320'h14b8841aa46f686c257272403eb2ddf5d29a7a9b2eed83f618e0286fa64a6372, 1);   // Py
+
+        write_ram(9'h20, 320'h165a975d19ff0e09a8a7c2ea59dd80c6d02271a48b0e82ae9477221e7e7f2cb7, 1);   // Tx_0
+        write_ram(9'h21, 320'he71c380b835ea161f12e388f0549896d2291fa038a92d8d1202bf4600982370, 1);   // Tx_1
+        write_ram(9'h22, 320'h1f012fe65c9ef300ef562319f3e548c4c1374248fc4ab9dda8ea5789992fdf59, 1);   // Ty_0
+        write_ram(9'h23, 320'h176651a9e2c944c47489f40cfb96bb043511c7b77a82aa52069125a158b5764b, 1);    // Ty_1
+        write_ram(9'h24, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Tz_0
+        write_ram(9'h25, 0, 0);                                                                       // Tz_1
+        
+
+        // Second pairing input 2P, Q
+        write_ram(9'h80, 320'h165a975d19ff0e09a8a7c2ea59dd80c6d02271a48b0e82ae9477221e7e7f2cb7, 1);   // Qx_0
+        write_ram(9'h81, 320'he71c380b835ea161f12e388f0549896d2291fa038a92d8d1202bf4600982370, 1);   // Qx_1
+        write_ram(9'h82, 320'h1f012fe65c9ef300ef562319f3e548c4c1374248fc4ab9dda8ea5789992fdf59, 1);   // Qy_0
+        write_ram(9'h83, 320'h176651a9e2c944c47489f40cfb96bb043511c7b77a82aa52069125a158b5764b, 1);    // Qy_1
+        write_ram(9'h84, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Qz_0
+        write_ram(9'h85, 0, 0);                                                                       // Qz_1
+        write_ram(9'h86, 320'h207f399f16ce1a2c1375d67f31acf4eaabbf2ffc67b4018007db6384c3f0d40, 1);   // Px
+        write_ram(9'h87, 320'hca7d2bc8e46f1a1c8e26d7d38ef6f2be7a8c7bcbd0e1832802ce49eb94c24d6, 1);   // Py
+
+        write_ram(9'ha0, 320'h165a975d19ff0e09a8a7c2ea59dd80c6d02271a48b0e82ae9477221e7e7f2cb7, 1);   // Tx_0
+        write_ram(9'ha1, 320'he71c380b835ea161f12e388f0549896d2291fa038a92d8d1202bf4600982370, 1);   // Tx_1
+        write_ram(9'ha2, 320'h1f012fe65c9ef300ef562319f3e548c4c1374248fc4ab9dda8ea5789992fdf59, 1);   // Ty_0
+        write_ram(9'ha3, 320'h176651a9e2c944c47489f40cfb96bb043511c7b77a82aa52069125a158b5764b, 1);    // Ty_1
+        write_ram(9'ha4, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Tz_0
+        write_ram(9'ha5, 0, 0);   
+        
+        
+       // Third pairing input P, 2Q
+        write_ram(9'h100, 320'h1dc527783bb000859f9706d7374afa3d7b1e142b0622519c8399298000f2aefc, 1);   // Qx_0
+        write_ram(9'h101, 320'h1ff707294f4c30ef423cecab0a0e964c3d99eed7a153cf546985154cb6ad45c0, 1);   // Qx_1
+        write_ram(9'h102, 320'h1c04ac49d0df85fb1060eb945a7411950b70783a8e6a2738b93e08d5c9c7061b, 1);   // Qy_0
+        write_ram(9'h103, 320'h1d6f1dfe65ded635dead872494a6141dbb57bd59051da9ae96d07708d49ccc1d, 1);    // Qy_1
+        write_ram(9'h104, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Qz_0
+        write_ram(9'h105, 0, 0);                                                                       // Qz_1
+        write_ram(9'h106, 320'h1f533e7ecd21721d7d3812c4879037c8e3129182db6da9d451002c82c07c8684, 1);   // Px
+        write_ram(9'h107, 320'h14b8841aa46f686c257272403eb2ddf5d29a7a9b2eed83f618e0286fa64a6372, 1);   // Py
+
+        write_ram(9'h120, 320'h1dc527783bb000859f9706d7374afa3d7b1e142b0622519c8399298000f2aefc, 1);   // Tx_0
+        write_ram(9'h121, 320'h1ff707294f4c30ef423cecab0a0e964c3d99eed7a153cf546985154cb6ad45c0, 1);   // Tx_1
+        write_ram(9'h122, 320'h1c04ac49d0df85fb1060eb945a7411950b70783a8e6a2738b93e08d5c9c7061b, 1);   // Ty_0
+        write_ram(9'h123, 320'h1d6f1dfe65ded635dead872494a6141dbb57bd59051da9ae96d07708d49ccc1d, 1);    // Ty_1
+        write_ram(9'h124, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Tz_0
+        write_ram(9'h125, 0, 0);                                                                       // Tz_1     
 
 
-        write_rams(9'h10, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d);    // f00 = r = 1
-        write_rams(9'h11, 0);                                                                       // f01
-        write_rams(9'h12, 0);                                                                       // f10
-        write_rams(9'h13, 0);                                                                       // f11
-        write_rams(9'h14, 0);                                                                       // f20
-        write_rams(9'h15, 0);                                                                       // f21
-        write_rams(9'h16, 0);                                                                       // f30
-        write_rams(9'h17, 0);                                                                       // f31
-        write_rams(9'h18, 0);                                                                       // f40
-        write_rams(9'h19, 0);                                                                       // f41
-        write_rams(9'h1a, 0);                                                                       // f50
-        write_rams(9'h1b, 0);                                                                       // f51
+       // 4th pairing input 2P, 2Q
+        write_ram(9'h180, 320'h1dc527783bb000859f9706d7374afa3d7b1e142b0622519c8399298000f2aefc, 1);   // Qx_0
+        write_ram(9'h181, 320'h1ff707294f4c30ef423cecab0a0e964c3d99eed7a153cf546985154cb6ad45c0, 1);   // Qx_1
+        write_ram(9'h182, 320'h1c04ac49d0df85fb1060eb945a7411950b70783a8e6a2738b93e08d5c9c7061b, 1);   // Qy_0
+        write_ram(9'h183, 320'h1d6f1dfe65ded635dead872494a6141dbb57bd59051da9ae96d07708d49ccc1d, 1);    // Qy_1
+        write_ram(9'h184, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Qz_0
+        write_ram(9'h185, 0, 0);                                                                       // Qz_1
+        write_ram(9'h186, 320'h207f399f16ce1a2c1375d67f31acf4eaabbf2ffc67b4018007db6384c3f0d40, 1);   // Px
+        write_ram(9'h187, 320'hca7d2bc8e46f1a1c8e26d7d38ef6f2be7a8c7bcbd0e1832802ce49eb94c24d6, 1);   // Py
 
-        write_rams(9'h20, 320'h11095cf5bb920088bd85bf335c712806d6283389fcfd2a6e3ccf26cfe62604ff);   // Tx_0
-        write_rams(9'h21, 320'h1d22aeb8a7103a46ac3574d73e04d1ac197d318d9fec0fa7dd3e3db1262ab5b0);   // Tx_1
-        write_rams(9'h22, 320'h1a0f1e9dc3ede0705c1c062231fc3a61f887cbc9ef6fe76682df0072d4708bcc);   // Ty_0
-        write_rams(9'h23, 320'hf87b1dd029582349bc94017c1eb2c07cb845a2239a1fd0ee84481358ccab325);    // Ty_1
-        write_rams(9'h24, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d);    // Tz_0
-        write_rams(9'h25, 0);                                                                       // Tz_1
-
-        write_rams(9'h1f, 320'h2523648240000001ba344d80000000086121000000000013a700000000000013);   // p (ordinary form) iran?
-
-        write_rams(9'h4f, 320'h6242a6083532414dc675a5d81dcd691ee83ad1dc5d04dbe59ce8ed2bad58823);   // g300
-        write_rams(9'h5d, 320'h1f6d4e3c505f417e7c275b73857179afe2c2010eeeffabeace000105f0aeb9a6);   // 
-        write_rams(9'h5e, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d);   // 
-        write_rams(9'h5f, 320'h1eff3a21bcacdbecddccf3227e232976729d52e23a2fb2554d31712d452a77f0);   // 
-        write_rams(9'h6d, 320'h172d23914e303a10a72e82ac1a586ca5193c1434b1ecffa1a2d6130bfe6093e);   // 
-        write_rams(9'h6e, 320'h181b51ef3711dc48902788c90ff150544922738e6dce3c3535d3f98098f34769);   // 
-        write_rams(9'h6f, 320'h12653ba947711dc5521a96bc9562c9fbcac3749d5ccde80c5cd3fa8689a200fc);   // 
-        write_rams(9'h7d, 320'h20720c5ad18fdf8de83fdb4d3fc8b040c4311425854e824f675ed25e0510812e);   // 
-        write_rams(9'h7e, 320'h12be28d8f88ee23c6819b6c36a9d360c965d8b62a33218074a2c0579765dff17);   // 
-        write_rams(9'h7f, 320'hd08129308ee23b92a0cc4b6f00eafb417fe8c719231c3de712c067f670cb8aa);   // 
-
-        // // After ML
-        // write_rams(9'h10, 320'h18d0e499912c4eb7e63c6c566edf02679fa1bfe1cad4b9743690353641f7697e);    // f00
-        // write_rams(9'h11, 320'h3db73d45143be3fd0cfa1cc1c2246299c1ae5d09df32f30603af7d970d1dd22);                                                                       // f01
-        // write_rams(9'h12, 320'h1aa32aab0970df6bae1737cdf5b14c4b5e4478d56ff3696e4ac8e4badbe60904);                                                                       // f10
-        // write_rams(9'h13, 320'h24d15a5533ce05eb31b93b55e3883bbb75264bac8b9888775e0218b187b0a962);                                                                       // f11
-        // write_rams(9'h14, 320'h49e592cfcb464c5256c9c666597ba7f842845968c4b49cd304e09346c128c58);                                                                       // f20
-        // write_rams(9'h15, 320'h1615f339204afe95ac9bccdd962204f8722bfafcb8c52e24820883dc61eee938);                                                                       // f21
-        // write_rams(9'h16, 320'h89aa5045ef282b1fd00c8b5f72591796c12e3789e033a030ffa41ec5b287029);                                                                       // f30
-        // write_rams(9'h17, 320'ha124c8a0142e1b4a70a603d550c9536d7c2a9d0409ee38e414e1586051fd495);                                                                       // f31
-        // write_rams(9'h18, 320'h1390b8bdff9e683f908b525591f8e45e8f7a6598a1fb57b589e5bd1adc9e6fb1);                                                                       // f40
-        // write_rams(9'h19, 320'hcb05560905bf777bb2af456027795584161f029a0fedd26c051194fda71e6a);                                                                       // f41
-        // write_rams(9'h1a, 320'h22b04080ebf98717c8ed3a6c9c9e6e7fce714c0fe8c7bc3d308418159559b83e);                                                                       // f50
-        // write_rams(9'h1b, 320'h11b7267bc24d434f4a66ac2e64b614cb1e333840b0b7922e6e533639df8fadc4);                                                                       // f51
+        write_ram(9'h1a0, 320'h1dc527783bb000859f9706d7374afa3d7b1e142b0622519c8399298000f2aefc, 1);   // Tx_0
+        write_ram(9'h1a1, 320'h1ff707294f4c30ef423cecab0a0e964c3d99eed7a153cf546985154cb6ad45c0, 1);   // Tx_1
+        write_ram(9'h1a2, 320'h1c04ac49d0df85fb1060eb945a7411950b70783a8e6a2738b93e08d5c9c7061b, 1);   // Ty_0
+        write_ram(9'h1a3, 320'h1d6f1dfe65ded635dead872494a6141dbb57bd59051da9ae96d07708d49ccc1d, 1);    // Ty_1
+        write_ram(9'h1a4, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // Tz_0
+        write_ram(9'h1a5, 0, 0);  
 
     endtask
 
     task ram_init_BLS;
 
         // Almost inputs are Montgomery form
-        write_rams('h00, 'hdf4b8af9746f731eb102e37bfdab7e29ce9d97ae2b7046df03622f1568b576a);   // Qx_0
-        write_rams('h01, 'h1b6d06e2282f8434be29699dddb004ecedaaa8152cd3082464fa2162d36870a5);   // Qx_1
-        write_rams('h02, 'h3e16a641e9f3ce130e6ec789f41c190d9792f757e643c8319c67a83bf14f68);   // Qy_0
-        write_rams('h03, 'h1a53f52eb682ea1c805a889cabababb022121eb047104c624387d79815953f96);    // Qy_1
-        write_rams('h04, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // Qz_0
-        write_rams('h05, 0);                                                                       // Qz_1
-        write_rams('h06, 'h5aedec8f3900eafc21a6b9e4e310cfdfa302dab947f4c5dbb64d9b53ee87849);   // Px
-        write_rams('h07, 'hcbfaad8f4278ee0b0448c9c7ca492900afa8e7401209607eee50e6249c93d91);   // Py
-        // Pz
-        write_rams('h09, 'h1590eecd31b5fe744d06912ae87b9d8555221eae39569dd56985466f53e937f0);   // r^2 (ordinary form)
-        write_rams('h0a, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // r (ordinary form)
-        write_rams('h0b, 1);                                                                       // 1 (ordinary form)
-        write_rams('h0c, 'h11f19657facc549adefe480d6f056833d2857542c9d1a28ecd1dc5347f334cf);   // ec_frpb_p
-        write_rams('h0d, 'h93d8a46d44a06f6f1a1884ee227cce38db1c2ad25fa7ef135c9c7e5bf397b6d);   // ec_frpb_p
-        write_rams('h0e, 'h93d8a46d44a06f6f1a1884ee227cce38db1c2ad25fa7ef135c9c7e5bf397b6d);   // ec_frpb_p
-        write_rams('h0f, 'hac91ed16dd40f98e7ae561b99283d7290fe618a2c9bf3b6563e9f055ef0b406);   // frobFp6_8?
+//        write_rams('h00, 'hdf4b8af9746f731eb102e37bfdab7e29ce9d97ae2b7046df03622f1568b576a);   // Qx_0
+//        write_rams('h01, 'h1b6d06e2282f8434be29699dddb004ecedaaa8152cd3082464fa2162d36870a5);   // Qx_1
+//        write_rams('h02, 'h3e16a641e9f3ce130e6ec789f41c190d9792f757e643c8319c67a83bf14f68);   // Qy_0
+//        write_rams('h03, 'h1a53f52eb682ea1c805a889cabababb022121eb047104c624387d79815953f96);    // Qy_1
+//        write_rams('h04, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // Qz_0
+//        write_rams('h05, 0);                                                                       // Qz_1
+//        write_rams('h06, 'h5aedec8f3900eafc21a6b9e4e310cfdfa302dab947f4c5dbb64d9b53ee87849);   // Px
+//        write_rams('h07, 'hcbfaad8f4278ee0b0448c9c7ca492900afa8e7401209607eee50e6249c93d91);   // Py
+//        // Pz
+//        write_rams('h09, 'h1590eecd31b5fe744d06912ae87b9d8555221eae39569dd56985466f53e937f0);   // r^2 (ordinary form)
+//        write_rams('h0a, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // r (ordinary form)
+//        write_rams('h0b, 1);                                                                       // 1 (ordinary form)
+//        write_rams('h0c, 'h11f19657facc549adefe480d6f056833d2857542c9d1a28ecd1dc5347f334cf);   // ec_frpb_p
+//        write_rams('h0d, 'h93d8a46d44a06f6f1a1884ee227cce38db1c2ad25fa7ef135c9c7e5bf397b6d);   // ec_frpb_p
+//        write_rams('h0e, 'h93d8a46d44a06f6f1a1884ee227cce38db1c2ad25fa7ef135c9c7e5bf397b6d);   // ec_frpb_p
+//        write_rams('h0f, 'hac91ed16dd40f98e7ae561b99283d7290fe618a2c9bf3b6563e9f055ef0b406);   // frobFp6_8?
 
 
-        write_rams('h10, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // f00 = r = 1
-        write_rams('h11, 0);                                                                       // f01
-        write_rams('h12, 0);                                                                       // f10
-        write_rams('h13, 0);                                                                       // f11
-        write_rams('h14, 0);                                                                       // f20
-        write_rams('h15, 0);                                                                       // f21
-        write_rams('h16, 0);                                                                       // f30
-        write_rams('h17, 0);                                                                       // f31
-        write_rams('h18, 0);                                                                       // f40
-        write_rams('h19, 0);                                                                       // f41
-        write_rams('h1a, 0);                                                                       // f50
-        write_rams('h1b, 0);                                                                       // f51
+//        write_rams('h10, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // f00 = r = 1
+//        write_rams('h11, 0);                                                                       // f01
+//        write_rams('h12, 0);                                                                       // f10
+//        write_rams('h13, 0);                                                                       // f11
+//        write_rams('h14, 0);                                                                       // f20
+//        write_rams('h15, 0);                                                                       // f21
+//        write_rams('h16, 0);                                                                       // f30
+//        write_rams('h17, 0);                                                                       // f31
+//        write_rams('h18, 0);                                                                       // f40
+//        write_rams('h19, 0);                                                                       // f41
+//        write_rams('h1a, 0);                                                                       // f50
+//        write_rams('h1b, 0);                                                                       // f51
 
-        write_rams('h20, 'hdf4b8af9746f731eb102e37bfdab7e29ce9d97ae2b7046df03622f1568b576a);   // Tx_0
-        write_rams('h21, 'h1b6d06e2282f8434be29699dddb004ecedaaa8152cd3082464fa2162d36870a5);   // Tx_1
-        write_rams('h22, 'h3e16a641e9f3ce130e6ec789f41c190d9792f757e643c8319c67a83bf14f68);   // Ty_0
-        write_rams('h23, 'h1a53f52eb682ea1c805a889cabababb022121eb047104c624387d79815953f96);    // Ty_1
-        write_rams('h24, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // Tz_0
-        write_rams('h25, 0);                                                                       // Tz_1       
+//        write_rams('h20, 'hdf4b8af9746f731eb102e37bfdab7e29ce9d97ae2b7046df03622f1568b576a);   // Tx_0
+//        write_rams('h21, 'h1b6d06e2282f8434be29699dddb004ecedaaa8152cd3082464fa2162d36870a5);   // Tx_1
+//        write_rams('h22, 'h3e16a641e9f3ce130e6ec789f41c190d9792f757e643c8319c67a83bf14f68);   // Ty_0
+//        write_rams('h23, 'h1a53f52eb682ea1c805a889cabababb022121eb047104c624387d79815953f96);    // Ty_1
+//        write_rams('h24, 'h193b2c4b527f2b1f249612e38fe76c1292fa4721a6c6f23463ef84a7591c173e);    // Tz_0
+//        write_rams('h25, 0);                                                                       // Tz_1       
 
 
         // // Almost inputs are Montgomery form
@@ -272,13 +316,21 @@ module test_pairing;
 
     endtask
 
-    task write_rams(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val);
+    
+    task write_ram(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val, input MR);
+        reg [999:0] tmp_val;
+        tmp_val = val*PARAMS_BN254_d0::RmodM;
+        extin_addr <= addr;
+        extin_data <= inttoL3((MR)? tmp_val % PARAMS_BN254_d0::Mod : val);
+        extin_en <= 1;
+        #(CYCLE);
+        extin_en <= 0;
+
+    endtask
+    
+    task write_rams(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val, input MR);
         for(integer i = 0; i < N_THREADS; i = i + 1) begin
-            extin_addr <= addr + (i << 7);
-            extin_data <= inttoL3(val);
-            extin_en <= 1;
-            #(CYCLE);
-            extin_en <= 0;
+            write_ram(addr + (i << 7), val, MR);
         end
     endtask
 
@@ -299,6 +351,15 @@ module test_pairing;
         func_L1toint = 0;
         for(integer i = 0; i < ADD_DIV; i = i + 1) begin
             func_L1toint = func_L1toint + (din[i] << ($bits(fp_div4_t)*i));
+        end
+    endfunction
+
+    function uint_fpa_t func_L3tolazyuint;
+        input redundant_poly_L3 din;
+
+        func_L3tolazyuint = 0;
+        for(integer i = 0; i < ADD_DIV; i = i + 1) begin
+            func_L3tolazyuint = func_L3tolazyuint + (din[i].val << ($bits(fp_div4_t)*i));
         end
     endfunction
 

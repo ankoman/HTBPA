@@ -29,7 +29,7 @@ localparam LAT_QPMM = 58; // BN
 //localparam LAT_QPMM = 82; // BLS
 localparam LAT_CMUL = 1;
 localparam LAT_POSTADD = 2;
-localparam LAT_WRITE = 2;
+localparam LAT_WRITE = 1;
 localparam PIPELINE_STAGES = LAT_READ + LAT_PREADD + LAT_UINT + LAT_QPMM + LAT_CMUL + LAT_POSTADD + LAT_WRITE;
 
 
