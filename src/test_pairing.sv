@@ -120,12 +120,48 @@ module test_pairing;
             #(CYCLE*5);
             $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
         end
+        
+        ram_init_BN();
+
+        swrst <= 0;
+        run <= 1;
+        #(CYCLE);
+        run <= 0;
+        #1000;
+        wait(!busy);
+        
+        $display("\nFirst pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h10 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+        end
+        $display("\nSecond pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h90 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+        end
+        $display("\nThird pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h110 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+        end
+        $display("\n4th pairing \n");
+        for(integer i=0;i<12;i=i+1) begin
+            extout_addr <= 'h190 + i;
+            #(CYCLE*5);
+            $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+        end
     $finish;
     end
+
 
     task ram_init_BN;
 
         //Init
+        write_rams(9'h08, 0, 0);                                                                       // 0 (ordinary form)
         write_rams(9'h09, 320'h1e3ad4f19ece02905cd917dec0178837a70990ae5b87678a825bfd79f8a881b8, 0);   // r^2 (ordinary form)
         write_rams(9'h0a, 320'h5b61645efa0be833e0cf20c7a8e86587e5efef111005428d8fffefa0f51466d, 0);    // r (ordinary form)
         write_rams(9'h0b, 1, 0);                                                                       // 1 (ordinary form)

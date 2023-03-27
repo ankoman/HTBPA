@@ -149,7 +149,7 @@ module new_sequencer(
         func_raw2csig.me0 = raw.me0;
     endfunction
 
-
+    // For BN
     function [$clog2(N_THREADS)-1:0] func_decode_thread;
         input[N_THREADS-1:0] cnt_Nclk;
         begin
@@ -162,6 +162,7 @@ module new_sequencer(
         end
     endfunction
 
+    // For BLS12
     // function [$clog2(N_THREADS)-1:0] func_decode_thread;
     //     input[N_THREADS-1:0] cnt_Nclk;
     //     begin

@@ -145,9 +145,9 @@ module postadder_Nthread(
     assign reg2_wire = reg2[N_THREADS-1];
     assign reg3_wire = reg3[N_THREADS-1];
 
-    ACC acc1 (in, reg1_wire, mode1, acc1_out);
-    ACC acc2 (in, reg2_wire, mode2, acc2_out);
-    ACC acc3 (in, reg3_wire, mode3, acc3_out);
+    ACC acc1 (clk, in, reg1_wire, mode1, acc1_out);
+    ACC acc2 (clk, in, reg2_wire, mode2, acc2_out);
+    ACC acc3 (clk, in, reg3_wire, mode3, acc3_out);
 
 
     always @(posedge clk) begin
@@ -187,16 +187,32 @@ module postadder_Nthread(
 endmodule
 
 module ACC(
+    input clk,
     input redundant_poly_L3 din,
     input redundant_poly_L3 regin,
     input [2:0] mode,
     output redundant_poly_L3 dout
     );
 
-    redundant_poly_L3 ain, bin;
-    assign ain = sel_a(mode, din, regin);
-    assign bin = sel_b(mode, din, regin);
-    poly_adder_L3_L3 simd_adder (.sub(sel_sub(mode)), .X(ain), .Y(bin), .Z(dout));
+    localparam LATENCY = 1;
+
+    redundant_poly_L3 ain, bin, _acc, _din;
+    logic sub;
+
+    assign _acc = ~regin;
+    assign _din = ~din;
+    if (LATENCY) begin
+        always @(posedge clk) begin
+            ain <= sel_a(mode, din, regin);
+            bin <= sel_b(mode, din, regin);
+            sub <= sel_sub(mode);
+        end
+    end else begin
+        assign ain = sel_a(mode, din, regin);
+        assign bin = sel_b(mode, din, regin);
+        assign sub = sel_sub(mode);
+    end
+    poly_addsub_L3_L3 simd_adder (.sub, .X(ain), .Y(bin), .Z(dout));
 
     function redundant_poly_L3 sel_a;
         input [2:0] mode;
@@ -223,8 +239,10 @@ module ACC(
         begin
             case(mode)
                 'b001 : sel_b = din;
-                'b100 : sel_b = din;
-                'b110 : sel_b = din;
+                'b011 : sel_b = _acc;
+                'b100 : sel_b = _din;
+                'b101 : sel_b = _acc;
+                'b110 : sel_b = _din;
                 default: sel_b = acc;
             endcase
         end
@@ -234,10 +252,10 @@ module ACC(
         input [2:0] mode;
         begin
             case(mode)
-                'b011 : sel_sub = 1'b1;
-                'b100 : sel_sub = 1'b1;
-                'b101 : sel_sub = 1'b1;
-                'b110 : sel_sub = 1'b1;
+                'b011 : sel_sub = 1'b1; //acc
+                'b100 : sel_sub = 1'b1; //din
+                'b101 : sel_sub = 1'b1; //acc
+                'b110 : sel_sub = 1'b1; //din
                 default: sel_sub = 1'b0;
             endcase
         end

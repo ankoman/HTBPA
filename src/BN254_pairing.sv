@@ -28,10 +28,11 @@ localparam LAT_UINT = 4;
 localparam LAT_QPMM = 58; // BN
 //localparam LAT_QPMM = 82; // BLS
 localparam LAT_CMUL = 1;
-localparam LAT_POSTADD = 2;
-localparam LAT_WRITE = 1;
+localparam LAT_POSTADD = 3;
+localparam LAT_WRITE = 2;
 localparam PIPELINE_STAGES = LAT_READ + LAT_PREADD + LAT_UINT + LAT_QPMM + LAT_CMUL + LAT_POSTADD + LAT_WRITE;
-
+// BN < 72
+// BLS < 102
 
 module BN254_pairing(
     input clk, rstn, swrst, run, extin_en,
@@ -56,7 +57,7 @@ module BN254_pairing(
     assign ctrl_preadd = mops_buf[LAT_READ];
     assign ctrl_cmul = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM];
     assign ctrl_postadd = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL];
-    assign ctrl_postadd2 = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL+1];
+    assign ctrl_postadd2 = mops_buf[LAT_READ+LAT_PREADD+LAT_UINT+LAT_QPMM+LAT_CMUL+2];
     assign ctrl_inv = mops_buf[LAT_READ];
     assign ctrl_write = mops_buf[PIPELINE_STAGES - LAT_WRITE];
     
@@ -136,7 +137,6 @@ module BN254_pairing(
             mops_buf <= {mops_buf[PIPELINE_STAGES - 2:0], mops};
         end
     end
-    
     
     
 endmodule

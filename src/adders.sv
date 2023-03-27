@@ -110,9 +110,64 @@ module poly_adder_L3_L3 #(
             end
         end
     end
-    
 endmodule
 
+module poly_addsub_L3_L3 #(
+    parameter LATENCY = 0
+    )(
+    input sub, clk,
+    input redundant_poly_L3 X, Y,
+    output redundant_poly_L3 Z
+    );
+
+    for(genvar i = 0; i < ADD_DIV; i = i+1) begin
+        if (LATENCY == 0) 
+                assign Z[i] = X[i] + Y[i] + sub;
+        else if (LATENCY == 1) begin
+            always @(posedge clk) begin
+                Z[i] <= X[i] + Y[i] + sub;
+            end
+        end
+    end
+endmodule
+
+module poly_adder_L3_L3_wo_sub #(
+    parameter LATENCY = 0
+    )(
+    input clk,
+    input redundant_poly_L3 X, Y,
+    output redundant_poly_L3 Z
+    );
+
+    for(genvar i = 0; i < ADD_DIV; i = i+1) begin
+        if (LATENCY == 0) 
+                assign Z[i] = X[i] + Y[i];
+        else if (LATENCY == 1) begin
+            always @(posedge clk) begin
+                Z[i] <= X[i] + Y[i];
+            end
+        end
+    end
+endmodule
+
+module poly_sub_L3_L3 #(
+    parameter LATENCY = 0
+    )(
+    input clk,
+    input redundant_poly_L3 X, Y,
+    output redundant_poly_L3 Z
+    );
+
+    for(genvar i = 0; i < ADD_DIV; i = i+1) begin
+        if (LATENCY == 0) 
+                assign Z[i] = X[i] + Y[i] + 1'b1;
+        else if (LATENCY == 1) begin
+            always @(posedge clk) begin
+                Z[i] <= X[i] + Y[i] + 1'b1;
+            end
+        end
+    end
+endmodule
 
 module L3toint(
     input redundant_poly_L3 din,
@@ -227,6 +282,17 @@ module L3touint(
 
 endmodule
 
+module CSA #(
+    parameter len = 0
+    )(
+    input [len-1:0] a, b, c,
+    output [len-1:0] ps, cs
+    );
+
+    assign ps = a ^ b ^ c;
+    assign sc = (a&b) | (a&c) | (b&c);
+
+endmodule
 
 // module L3toL1(
 //     input clk,
