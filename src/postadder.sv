@@ -141,9 +141,9 @@ module postadder_Nthread(
     redundant_poly_L3[N_THREADS-1:0] reg1, reg2, reg3;
     redundant_poly_L3 acc1_out, acc2_out, acc3_out;
     redundant_poly_L3 reg1_wire, reg2_wire, reg3_wire;
-    assign reg1_wire = reg1[N_THREADS-1];
-    assign reg2_wire = reg2[N_THREADS-1];
-    assign reg3_wire = reg3[N_THREADS-1];
+    assign reg1_wire = reg1[N_THREADS-2];
+    assign reg2_wire = reg2[N_THREADS-2];
+    assign reg3_wire = reg3[N_THREADS-2];
 
     ACC acc1 (clk, in, reg1_wire, mode1, acc1_out);
     ACC acc2 (clk, in, reg2_wire, mode2, acc2_out);
