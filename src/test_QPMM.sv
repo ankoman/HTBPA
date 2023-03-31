@@ -21,15 +21,24 @@
 
 import PARAMS_BN254_d0::*;
 
-localparam bit_width = 381;
+`ifdef BLS12_381
+    localparam bit_width = 381;
+    localparam N_PIPELINE_STAGES = 82;
+    //localparam N_PIPELINE_STAGES = 108;
+
+`else
+    localparam bit_width = 254 - 3; // Why -3?
+    //localparam N_PIPELINE_STAGES = 22;
+    //localparam N_PIPELINE_STAGES = 40;
+    //localparam N_PIPELINE_STAGES = 58;
+    localparam N_PIPELINE_STAGES = 76;
+`endif 
 
 module test_QPMM;
     localparam 
         CYCLE = 10,
         DELAY = 2,
-        N_DATA = 1000000,
-        N_PIPELINE_STAGES = 82; // NLS
-        //N_PIPELINE_STAGES = 58; // BN
+        N_DATA = 1000000;
                
     reg clk, rstn;
     qpmm_fp_t A, B;

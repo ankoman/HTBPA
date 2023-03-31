@@ -20,6 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 localparam USE_BRAM_IP = 1;
+`ifdef BLS12_381
+    localparam bit_width = 381 + 17;
+`else
+    localparam bit_width = 254 + 17;
+`endif 
 
 module TOP_test(
     Dout_0,
@@ -31,16 +36,16 @@ module TOP_test(
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_N" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME default_sysclk1_300, CAN_DEBUG false, FREQ_HZ 300000000" *) input default_sysclk1_300_clk_n;
   (* X_INTERFACE_INFO = "xilinx.com:interface:diff_clock:1.0 default_sysclk1_300 CLK_P" *) input default_sysclk1_300_clk_p;
 
-    wire [271:0]Net;
-    wire [271:0]blk_mem_gen_0_doutb;
-    wire [271:0]blk_mem_gen_1_doutb;
+    wire [bit_width:0]Net;
+    wire [bit_width:0]blk_mem_gen_0_doutb;
+    wire [bit_width:0]blk_mem_gen_1_doutb;
     wire clk_wiz_0_clk_out1;
     wire [0:0]xlconstant_0_dout = '1;
     wire [7:0]xlconstant_1_dout = '0;
     wire [7:0]xlconstant_2_dout = '1;
 
 
-    assign Dout_0 = blk_mem_gen_1_doutb[271];
+    assign Dout_0 = blk_mem_gen_1_doutb[bit_width];
 
      QPMM_d0 qpmm_inst
          (.A(blk_mem_gen_0_doutb),
@@ -69,7 +74,11 @@ module TOP_test(
 //    );
 
     if (USE_BRAM_IP) begin
-        blk_mem_gen_304 RAM0
+        `ifdef BLS12_381
+            blk_mem_gen_436 RAM0
+        `else
+            blk_mem_gen_304 RAM0
+        `endif 
             (.addra(xlconstant_1_dout),
             .addrb(xlconstant_1_dout),
             .clka(clk_wiz_0_clk_out1),
@@ -78,7 +87,11 @@ module TOP_test(
             .doutb(blk_mem_gen_0_doutb),
             .wea(xlconstant_0_dout));
 
-        blk_mem_gen_304 RAM1
+        `ifdef BLS12_381
+            blk_mem_gen_436 RAM1
+        `else
+            blk_mem_gen_304 RAM1
+        `endif 
             (.addra(xlconstant_1_dout),
             .addrb(xlconstant_1_dout),
             .clka(clk_wiz_0_clk_out1),
@@ -116,13 +129,13 @@ module HDL_RAM(
     input clk,
     input [7:0] addra, addrb,
     input wea,
-    input [271:0] dina,
-    output reg[271:0] doutb
+    input [bit_width:0] dina,
+    output reg[bit_width:0] doutb
     );
 
-    //(*rw_addr_collision = "no" *) reg [271:0] ram [140:0];
-    reg [271:0] ram [140:0];
-    reg [271:0] buf_ram1, buf_ram2;
+    //(*rw_addr_collision = "no" *) reg [bit_width:0] ram [140:0];
+    reg [bit_width:0] ram [140:0];
+    reg [bit_width:0] buf_ram1, buf_ram2;
     
     always @(posedge clk) begin
         buf_ram1 <= ram[addrb];

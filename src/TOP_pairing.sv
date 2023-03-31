@@ -49,87 +49,6 @@ input [7:0] addr,
             .uart_rx(USB_UART_RX)
     );
 
-    // QPMM_d0 qpmm_inst
-    //     (.A(blk_mem_gen_0_doutb),
-    //     .B(blk_mem_gen_1_doutb),
-    //     .Z(Net),
-    //     .clk(clk_wiz_0_clk_out1),
-    //     .rstn(xlconstant_0_dout));
-
-    // cmul #(.LATENCY(1)) cmul (.clk(clk_wiz_0_clk_out1), .mode(blk_mem_gen_1_doutb), .din(blk_mem_gen_0_doutb), .dout(Net));
-
-    // poly_adder_L3_L3 adder
-    //     (.sub(blk_mem_gen_0_doutb[0]),
-    //     .X(blk_mem_gen_0_doutb),
-    //     .Y(blk_mem_gen_1_doutb),
-    //     .Z(Net));
-
-    // postadder postadder(
-    // .clk(clk_wiz_0_clk_out1),
-    // .rstn(blk_mem_gen_1_doutb[0]),
-    // .in_L1(blk_mem_gen_0_doutb),
-    // .thread(blk_mem_gen_1_doutb[5:4]),
-    // .mode1(blk_mem_gen_1_doutb[3:1]),
-    // .mode2(blk_mem_gen_1_doutb[6:4]),
-    // .mode3(blk_mem_gen_1_doutb[9:7]),
-    // .outsel(blk_mem_gen_1_doutb[11:10]),
-    // .addr2(blk_mem_gen_1_doutb[13:12]),
-    // .addr3(blk_mem_gen_1_doutb[15:14]),
-    // .dout(Net)
-    // );
-
-    // preadder preadder (
-    // .clk(clk_wiz_0_clk_out1),
-    // .rstn(),
-    // .X(blk_mem_gen_0_doutb), 
-    // .Y(blk_mem_gen_1_doutb),
-    // .thread(blk_mem_gen_1_doutb[5:4]),
-    // .mode1(blk_mem_gen_1_doutb[3:1]), 
-    // .mode2(blk_mem_gen_1_doutb[3:1]),
-    // .Z0(Net1), 
-    // .Z1(Net2)
-    // );
-    // assign Net = Net1 ^ Net2;
-
-    // L3touint reduction (.clk(clk_wiz_0_clk_out1), .din(blk_mem_gen_0_doutb), .dout(Net));
-
-
-    // if (USE_BRAM_IP) begin
-    //     blk_mem_gen_272 RAM0
-    //         (.addra(xlconstant_1_dout),
-    //         .addrb(xlconstant_1_dout),
-    //         .clka(clk_wiz_0_clk_out1),
-    //         .clkb(clk_wiz_0_clk_out1),
-    //         .dina(Net),
-    //         .doutb(blk_mem_gen_0_doutb),
-    //         .wea(xlconstant_0_dout));
-
-    //     blk_mem_gen_272 RAM1
-    //         (.addra(xlconstant_1_dout),
-    //         .addrb(xlconstant_1_dout),
-    //         .clka(clk_wiz_0_clk_out1),
-    //         .clkb(clk_wiz_0_clk_out1),
-    //         .dina(Net),
-    //         .doutb(blk_mem_gen_1_doutb),
-    //         .wea(xlconstant_0_dout));
-    // end
-    // else begin
-    //     HDL_RAM RAM0
-    //         (.addra(xlconstant_1_dout),
-    //         .addrb(xlconstant_1_dout),
-    //         .clk(clk_wiz_0_clk_out1),
-    //         .dina(Net),
-    //         .doutb(blk_mem_gen_0_doutb),
-    //         .wea(xlconstant_0_dout));
-
-    //     HDL_RAM RAM1
-    //         (.addra(xlconstant_1_dout),
-    //         .addrb(xlconstant_2_dout),
-    //         .clk(clk_wiz_0_clk_out1),
-    //         .dina(Net),
-    //         .doutb(blk_mem_gen_1_doutb),
-    //         .wea(xlconstant_0_dout));
-    // end
 
     // assign USB_UART_RX = Net[271];
     // //extendedEuclidean5 dut (.a(blk_mem_gen_1_doutb), .p(PARAMS_BN254_d0::Mod), .a_inv (Net), .startflag(blk_mem_gen_0_doutb[0]), .clk(clk_wiz_0_clk_out1), .rstn(CPU_RESET));
@@ -143,27 +62,6 @@ input [7:0] addr,
 
 endmodule
 
-module HDL_RAM(
-    input clk,
-    input [7:0] addra, addrb,
-    input wea,
-    input [271:0] dina,
-    output reg[271:0] doutb
-    );
-
-    //(*rw_addr_collision = "no" *) reg [271:0] ram [140:0];
-    reg [271:0] ram [140:0];
-    reg [271:0] buf_ram1, buf_ram2;
-    
-    always @(posedge clk) begin
-        buf_ram1 <= ram[addrb];
-        buf_ram2 <= buf_ram1;
-        doutb <= buf_ram2;
-        if(wea)
-            ram[addra] <= dina;
-    end
-
-endmodule
 
 module Pairing_UART(
     input   clk_uart,
