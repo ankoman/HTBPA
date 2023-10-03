@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
 import CONTROL::*;
 // Latencies
 localparam LAT_READ = 2;
@@ -130,7 +130,7 @@ module BN254_pairing(
 
     wire inv_rdy;
     wire [BRAM_DEPTH-1:0] inv_waddr;
-    Mont_inv_multi eeinv (.clk, .rstn, .I_START(ctrl_inv.csig.inve), .I_DATA_N(M_tilde12_t'(PARAMS_BN254_d0::Mod)), .I_WADDR(ctrl_inv.dst),
+    Mont_inv_multi eeinv (.clk, .rstn, .I_START(ctrl_inv.csig.inve), .I_DATA_N(M_tilde12_t'(CURVE_PARAMS::Mod)), .I_WADDR(ctrl_inv.dst),
         .I_WDATA({memout0[3].val, memout0[2].val, memout0[1].val, memout0[0].val}), .O_RDATA(inv_out), .O_DRDY(inv_rdy), .O_WADDR(inv_waddr));
 
 

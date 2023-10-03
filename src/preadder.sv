@@ -18,8 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
 
 module preadder(
     input clk,

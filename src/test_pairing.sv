@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
 
 `ifdef BLS12_381
     localparam bit_width = 381;
@@ -108,7 +108,7 @@ module test_pairing;
             for(integer i=0;i<12;i=i+1) begin
                 extout_addr <= 'h10 + (j << 7)+ i;
                 #(CYCLE*5);
-                $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+                $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
             end
         end
 
@@ -129,25 +129,25 @@ module test_pairing;
        for(integer i=0;i<12;i=i+1) begin
            extout_addr <= 'h10 + i;
            #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
        end
        $display("\nSecond pairing \n");
        for(integer i=0;i<12;i=i+1) begin
            extout_addr <= 'h90 + i;
            #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
        end
        $display("\nThird pairing \n");
        for(integer i=0;i<12;i=i+1) begin
            extout_addr <= 'h110 + i;
            #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
        end
        $display("\n4th pairing \n");
        for(integer i=0;i<12;i=i+1) begin
            extout_addr <= 'h190 + i;
            #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % PARAMS_BN254_d0::Mod);
+           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
        end
    $finish;
    end
@@ -386,9 +386,9 @@ module test_pairing;
     
    task write_ram(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val, input MR);
        reg [999:0] tmp_val;
-       tmp_val = val*PARAMS_BN254_d0::RmodM;
+       tmp_val = val*CURVE_PARAMS::RmodM;
        extin_addr <= addr;
-       extin_data <= inttoL3((MR)? tmp_val % PARAMS_BN254_d0::Mod : val);
+       extin_data <= inttoL3((MR)? tmp_val % CURVE_PARAMS::Mod : val);
        extin_en <= 1;
        #(CYCLE);
        extin_en <= 0;
@@ -437,14 +437,14 @@ module test_pairing;
        for(integer i = 0; i < ADD_DIV; i = i + 1) begin
            func_L3touint = func_L3touint + ({din[i].carry[L3_CARRY-1] ? 'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff : '0, din[i]} << ($bits(fp_div4_t)*i));
        end
-       func_L3touint = func_L3touint + {PARAMS_BN254_d0::M_tilde, 9'h000};
+       func_L3touint = func_L3touint + {CURVE_PARAMS::M_tilde, 9'h000};
    endfunction
 
    function uint_fpa_t MR;
        input uint_fpa_t din;
        logic [999:0] tmp;
-       tmp = din * PARAMS_BN254_d0::R_INV;
-       MR = tmp % PARAMS_BN254_d0::Mod;
+       tmp = din * CURVE_PARAMS::R_INV;
+       MR = tmp % CURVE_PARAMS::Mod;
    endfunction
 endmodule
 

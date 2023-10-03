@@ -19,8 +19,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
-localparam N_CORES = 8;
+import CURVE_PARAMS::*;
+localparam N_CORES = 1;
 
 module TOP_pairing(
     input   default_sysclk1_300_clk_n,

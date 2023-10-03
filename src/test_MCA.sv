@@ -19,8 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
-
+import CURVE_PARAMS::*;
 module test_MCA;
     localparam 
         CYCLE = 10,

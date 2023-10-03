@@ -19,7 +19,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
+
 localparam latency_FA = 4;
 
 module QPMM_d0_16_16(

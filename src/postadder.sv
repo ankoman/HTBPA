@@ -18,8 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
 
 module postadder(
     input clk,
@@ -42,7 +41,7 @@ module postadder(
     assign reg3_wire = reg3[addr3];
 
     redundant_poly_L3 poly_p;
-    assign poly_p = inttoL3(PARAMS_BN254_d0::Mod);
+    assign poly_p = inttoL3(CURVE_PARAMS::Mod);
 
     //// ACC1
     wire sel_b1 = ((mode1 == 3'b001) || (mode1 == 3'b100));
@@ -283,7 +282,7 @@ endmodule
 //     assign reg3_wire = reg3_buf[1];
 
 //     redundant_poly_L3 poly_p;
-//     assign poly_p = inttoL3(PARAMS_BN254_d0::Mod);
+//     assign poly_p = inttoL3(CURVE_PARAMS::Mod);
 
 //     //// ACC1
 //     wire sel_b1 = ((mode1 == 3'b001) || (mode1 == 3'b100));

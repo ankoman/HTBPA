@@ -19,8 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
-
+import CURVE_PARAMS::*;
 module test_postadder;
     localparam 
         CYCLE = 10,
@@ -80,7 +79,7 @@ module test_postadder;
             mode3 <= mode;
             $display("Test postadder start. Mode = %d\n", mode);
             for(integer i = 0; i < N_DATA; i = i + 1) begin
-                in <= rand_288() % PARAMS_BN254_d0::M_tilde;;
+                in <= rand_288() % CURVE_PARAMS::M_tilde;;
                 #DELAY
                 if(res1 !== ans1) begin
                     $display("#%d Failed: ans1 = %h, res = %h", i, ans1, res1); $stop();
@@ -133,8 +132,8 @@ module test_postadder;
             3'b010: acc = din + regin;
             3'b011: acc = din - regin;
             3'b100: acc = regin - din;
-            3'b101: acc = PARAMS_BN254_d0::Mod - regin;
-            //3'b110: acc = PARAMS_BN254_d0::Mod - din;
+            3'b101: acc = CURVE_PARAMS::Mod - regin;
+            //3'b110: acc = CURVE_PARAMS::Mod - din;
             default: acc = 'x;
         endcase
     endfunction

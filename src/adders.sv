@@ -18,7 +18,8 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
+
 localparam HALF_FP = $bits(uint_fp_t) / 2;  // uint_fp_t must be even, 136 bits
 localparam QUAT_FP = $bits(uint_fp_t) / 4;  // uint_fp_t must be multiple of 4, 68 bits
 
@@ -225,7 +226,7 @@ module L3touint(
     localparam PADD_000 = {(LEN_COMP+L3_CARRY+L3_CARRY){1'b0}};
 
     fp_div4_t[ADD_DIV:0] M_tilde512;
-    assign M_tilde512 = {PARAMS_BN254_d0::M_tilde, 9'd0};
+    assign M_tilde512 = {CURVE_PARAMS::M_tilde, 9'd0};
     wire sign0 = din[0].carry[L3_CARRY-1];
     wire sign1 = din[1].carry[L3_CARRY-1];
     wire sign2 = din[2].carry[L3_CARRY-1];

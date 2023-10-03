@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
 
 module test_reduction;
     localparam 
@@ -40,7 +40,7 @@ module test_reduction;
 
     assign in_L1 = int2L1(in);
     assign ans = acc(in, acc_reg, mode);
-    assign uint_ans = ans + {PARAMS_BN254_d0::M_tilde, 9'd0};
+    assign uint_ans = ans + {M_tilde, 9'd0};
 
     postadder postadder (.clk, .rstn, .in_L1, .mode1(), .mode2(), .mode3(mode), .outsel(2'b10), .addr2(), .addr3(2'b00), .dout(postadd_out));   
     L3touint DUT (.clk, .din(postadd_out), .dout(res));
@@ -70,7 +70,7 @@ module test_reduction;
     #DELAY;
 
         for(integer i = 0; i < N_PIPELINE_STAGES; i = i + 1) begin
-            in <= rand_288() % PARAMS_BN254_d0::M_tilde;;
+            in <= rand_288() % M_tilde;;
             #DELAY
             #(CYCLE-DELAY);
             acc_reg <= ans;
@@ -82,7 +82,7 @@ module test_reduction;
             $display("Test reduction start. Mode = %d\n", _mode);
 
             for(integer i = 0; i < N_DATA; i = i + 1) begin
-                in <= rand_288() % PARAMS_BN254_d0::M_tilde;;
+                in <= rand_288() % M_tilde;;
                 #DELAY
                 reg_ans[0] <= uint_ans;
 
@@ -127,8 +127,8 @@ module test_reduction;
             3'b010: acc = din + regin;
             3'b011: acc = din - regin;
             3'b100: acc = regin - din;
-            3'b101: acc = PARAMS_BN254_d0::Mod - regin;
-            //3'b110: acc = PARAMS_BN254_d0::Mod - din;
+            3'b101: acc = Mod - regin;
+            //3'b110: acc = Mod - din;
             default: acc = 'x;
         endcase
     endfunction

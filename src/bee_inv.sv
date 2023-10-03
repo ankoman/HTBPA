@@ -19,7 +19,6 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
 
 // module beeinv_4threads(
 //   input clk, rstn, run,
@@ -34,6 +33,8 @@ import PARAMS_BN254_d0::*;
 
 //   end
 // endmodule
+
+import CURVE_PARAMS::*;
 
 module Mont_inv_multi(
     input          clk, rstn,
@@ -293,7 +294,7 @@ module Mont_inv_multi(
             casex(sel_in_U3)
                 2'b01 : f_in_U3 = U3;
                 2'bx0 : f_in_U3 = sum2;
-                2'b11 : f_in_U3 = PARAMS_BN254_d0::R2modM;
+                2'b11 : f_in_U3 = CURVE_PARAMS::R2modM;
                 default : f_in_U3 = 'hx;
             endcase // case (sel_in_U3)
         end
@@ -543,7 +544,7 @@ module Mont_inv(
         casex(sel_in_U3)
           2'b00 : f_in_U3 = U3;
           2'bx1 : f_in_U3 = sum2;
-          2'b10 : f_in_U3 = PARAMS_BN254_d0::RmodM;
+          2'b10 : f_in_U3 = CURVE_PARAMS::RmodM;
           default : f_in_U3 = 'hx;
         endcase // case (sel_in_U3)
       end

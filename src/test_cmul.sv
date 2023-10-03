@@ -19,7 +19,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
+import CURVE_PARAMS::*;
+import TYPES::*;
 
 module test_cmul;
     localparam 
@@ -60,7 +61,7 @@ module test_cmul;
             if (mode !== 5) begin
                 $display("Test cmul start. Mode = %d\n", mode);
                 for(integer i = 0; i < N_DATA; i = i + 1) begin
-                    din <= rand_288() % PARAMS_BN254_d0::M_tilde*2;
+                    din <= rand_288() % CURVE_PARAMS::M_tilde*2;
                     #DELAY
                     if(res !== ans) begin
                         $display("#%d Failed: ans = %h, res = %h", i, ans, res); $stop();

@@ -18,7 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+import CURVE_PARAMS::*;
 import CONTROL::*;
 localparam FIRST_PC_ADDR = 10'h000;
 localparam ROM_DEPTH = 11;

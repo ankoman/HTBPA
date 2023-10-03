@@ -19,8 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-import PARAMS_BN254_d0::*;
-
+import CURVE_PARAMS::*;
 module test_eeinv();
     localparam 
         CYCLE = 10,
@@ -35,7 +34,7 @@ module test_eeinv();
         #(CYCLE/2) clk <= ~clk;
     end
     
-    Mont_inv_multi DUT (.clk, .rstn, .I_START(run), .I_DATA_N(M_tilde12_t'(PARAMS_BN254_d0::Mod)), .I_WADDR(waddr), .I_WDATA(wdata), .O_BUSY(busy));
+    Mont_inv_multi DUT (.clk, .rstn, .I_START(run), .I_DATA_N(M_tilde12_t'(CURVE_PARAMS::Mod)), .I_WADDR(waddr), .I_WDATA(wdata), .O_BUSY(busy));
 
     /*-------------------------------------------
     Test

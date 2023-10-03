@@ -21,9 +21,10 @@
 
 `define BLS12_381
 
+`ifndef CURVE_PARAMS
+`define CURVE_PARAMS
+package CURVE_PARAMS;
 `ifdef BLS12_381
-//`define PARAMS_BN254_d0
-package PARAMS_BN254_d0;
     localparam
         Mod = 384'h1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab, //The BLS12381 prime
         M_tilde = 397'h1a00c3e703c13a1a974cc6634c28e2f45df11e1f10f638302ef29d0e7ece12113c3fa3fab157ec03b9ffd202ffffaaabffff; // 397 bits
@@ -49,80 +50,13 @@ package PARAMS_BN254_d0;
         LEN_12M_TILDE = 404,
         LEN_1024M_TILDE = 407,  // Must be divided by ADD_DIV
         N_THREADS = 6,
-        BRAM_DEPTH = 10;  
-
-    typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;
-    typedef logic[M:0][47:0] qpmm_S_t;
-    typedef logic[M-2:0][L-1:0] poly_Mpp_t;
-    typedef logic[K*N-1:0] uint_fp_t;
-    typedef logic[L*M-1:0] uint_fpa_t;
-    typedef logic[M-1:0][L-1:0] poly_a_t; //288
-    typedef logic[N-1:0][K-1:0] poly_b_t; //272
-    typedef logic[(HALF_S-1)*L+48-1:0] qpmm_S_half;
-    typedef logic[(S_1_3-1)*L+48-1:0] qpmm_S_1_3;
-    typedef logic[(S_1_4-1)*L+48-1:0] qpmm_S_1_4;
-    typedef logic[LEN_12M_TILDE/ADD_DIV-1:0] fp_div4_t; // uint divided by 4. Lack of 1 bit for 289
-    // Struct
-    typedef struct packed {
-            logic carry;
-            fp_div4_t val;
-    } redundant_term_L1;
-    typedef redundant_term_L1[ADD_DIV-1:0] redundant_poly_L1;
-    typedef struct packed {
-            logic [1:0] carry;
-            fp_div4_t val;
-    } redundant_term_L2;
-    typedef redundant_term_L2[ADD_DIV-1:0] redundant_poly_L2;
-    typedef struct packed {
-            logic [L3_CARRY-1:0] carry;
-            fp_div4_t val;
-    } redundant_term_L3;
-    typedef redundant_term_L3[ADD_DIV-1:0] redundant_poly_L3;
-    // Union
-    typedef union packed {
-        logic[LEN_12M_TILDE-1:0] uint; // 272
-        fp_div4_t[ADD_DIV-1:0] poly;
-    } M_tilde12_t;
-    typedef union packed {
-        uint_fp_t uint;
-        poly_b_t poly_b;
-    } qpmm_fp_t;
-    typedef union packed {
-        uint_fpa_t uint;
-        poly_a_t poly_a;
-    } qpmm_fpa_t;
-    typedef union packed {
-        uint_fp_t uint;
-        poly_b_t poly_b;
-    } qpmm_fpb_t;
-    function qpmm_fp_t rand_288();
-        // N must be less than 320 bits
-        rand_288 = {$urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom()};
-    endfunction
-endpackage
-
+        BRAM_DEPTH = 10,
+        LAT_PE = 3,
+        LAT_QPMM = (N+1) * LAT_PE + 4;  
 `else
-//`define PARAMS_BN254_d0
-package PARAMS_BN254_d0;
     localparam
         Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
         M_tilde = 267'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff; // 267 bits
-    // localparam
-    //     K = 16,
-    //     L = 24,
-    //     C = L - K,
-    //     D = 0,
-    //     _Mpp = 256'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000004, //k=16
-    //     R = 272 - 1,
-    //     R_INV = 'h131822b9f3de491ff4d85504410ed56c72e68c1f514017577c489d762ae9cf77, //r=272
-    //     N = R/K + 1, // 17 at k=16
-    //     M = R/L + 1, //12 at L=24
-    //     HALF_S = (M+D+1)/2, // must be even
-    //     S_1_3 = (M+D+1)/3,  // 1/3
-    //     //S_1_4 = (M+D-1)/4;  // 1/4
-    //     S_1_4 = (M+D)/4,
-    //     ADD_DIV = 4,
-    //     L3_CARRY = 8;  // 1/4
     localparam
         K = 17,
         L = 26,
@@ -143,9 +77,12 @@ package PARAMS_BN254_d0;
         L3_CARRY = 8,
         LEN_12M_TILDE = 272,
         LEN_1024M_TILDE = 277, // Must be divided by ADD_DIV
-        N_THREADS = 4,
-        BRAM_DEPTH = 9;  
-    
+        N_THREADS = 5,
+        BRAM_DEPTH = 10,  // N_THREADS > 4, then 10
+        LAT_PE = 3,
+        LAT_QPMM = (N+1) * LAT_PE + 4;
+`endif 
+
     typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;
     typedef logic[M:0][47:0] qpmm_S_t;
     typedef logic[M-2:0][L-1:0] poly_Mpp_t;
@@ -157,61 +94,56 @@ package PARAMS_BN254_d0;
     typedef logic[(S_1_3-1)*L+48-1:0] qpmm_S_1_3;
     typedef logic[(S_1_4-1)*L+48-1:0] qpmm_S_1_4;
     typedef logic[LEN_12M_TILDE/ADD_DIV-1:0] fp_div4_t; // uint divided by 4. Lack of 1 bit for 289
-
     // Struct
     typedef struct packed {
             logic carry;
             fp_div4_t val;
     } redundant_term_L1;
     typedef redundant_term_L1[ADD_DIV-1:0] redundant_poly_L1;
-
     typedef struct packed {
             logic [1:0] carry;
             fp_div4_t val;
     } redundant_term_L2;
     typedef redundant_term_L2[ADD_DIV-1:0] redundant_poly_L2;
-
     typedef struct packed {
             logic [L3_CARRY-1:0] carry;
             fp_div4_t val;
     } redundant_term_L3;
     typedef redundant_term_L3[ADD_DIV-1:0] redundant_poly_L3;
-
-
     // Union
     typedef union packed {
         logic[LEN_12M_TILDE-1:0] uint; // 272
         fp_div4_t[ADD_DIV-1:0] poly;
     } M_tilde12_t;
-
     typedef union packed {
         uint_fp_t uint;
         poly_b_t poly_b;
     } qpmm_fp_t;
-
     typedef union packed {
         uint_fpa_t uint;
         poly_a_t poly_a;
     } qpmm_fpa_t;
-
     typedef union packed {
         uint_fp_t uint;
         poly_b_t poly_b;
     } qpmm_fpb_t;
-
     function qpmm_fp_t rand_288();
         // N must be less than 320 bits
+        `ifdef BLS12_381
+        rand_288 = {$urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom()};
+        `else
         rand_288 = {$urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom(), $urandom()};
+        `endif
     endfunction
-
 endpackage
 `endif 
+
 
 
 `ifndef CONTROL
 `define CONTROL
 package CONTROL;
-    import PARAMS_BN254_d0::BRAM_DEPTH;
+    import CURVE_PARAMS::BRAM_DEPTH;
     // Struct
     typedef struct packed {
         logic os;
