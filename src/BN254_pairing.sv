@@ -25,17 +25,12 @@ import CONTROL::*;
 localparam LAT_READ = 2;
 localparam LAT_PREADD = 1;
 localparam LAT_UINT = 4;
-`ifdef BLS12_381
-    localparam LAT_QPMM = 82; // BLS
-`else
-    localparam LAT_QPMM = 58; // BN
-`endif
 localparam LAT_CMUL = 1;
 localparam LAT_POSTADD = 3;
 localparam LAT_WRITE = 2;
 localparam PIPELINE_STAGES = LAT_READ + LAT_PREADD + LAT_UINT + LAT_QPMM + LAT_CMUL + LAT_POSTADD + LAT_WRITE;
-// BN < 72
-// BLS < 102
+// 13 + \lambda_{dsp}
+// 1: 18, 2: 36, 3: 54, 4: 72, 5: 90, 6: 108, 7: 126, 8: 144
 
 module BN254_pairing(
     input clk, rstn, swrst, run, extin_en,
@@ -83,7 +78,7 @@ module BN254_pairing(
             memin <= (~busy)? extin_data : (inv_rdy)? inv_out : postadd_out;
         end
     end
-    new_sequencer seq (.clk, .rstn, .run, .n_func, .busy, .mops, .inv_rdy);
+    new_sequencer #(._N_THREADS(N_THREADS))seq (.clk, .rstn, .run, .n_func, .busy, .mops, .inv_rdy);
 
     `ifdef BLS12_381
         blk_mem_gen_436 RAM0
@@ -91,6 +86,7 @@ module BN254_pairing(
         blk_mem_gen_304 RAM0
     `endif 
     (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
+    
     `ifdef BLS12_381
         blk_mem_gen_436 RAM1
     `else

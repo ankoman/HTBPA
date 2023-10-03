@@ -29,7 +29,9 @@ localparam operation_t op_CALL = 'b001;
 localparam operation_t op_RET  = 'b010;
 localparam operation_t op_WAITINV = 'b011;
 
-module new_sequencer(
+module new_sequencer    #(
+    parameter _N_THREADS = 0
+    )(
     input clk, rstn, run, inv_rdy,
     input [3:0] n_func,
     output busy,
@@ -104,9 +106,18 @@ module new_sequencer(
     end
 
     logic [BRAM_DEPTH-1:0] dst, src0, src1, offset_dst, offset_src0, offset_src1;
-    assign dst = {func_decode_thread(cnt_Nclk), 7'(rom_out.waddr0 + offset_dst)};
-    assign src0 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr0 + offset_src0)};
-    assign src1 = {func_decode_thread(cnt_Nclk), 7'(rom_out.raddr1 + offset_src1)};
+    logic [$clog2(N_THREADS)-1:0] func_decode_thread;
+    if (_N_THREADS == 4) begin
+        assign func_decode_thread = func_decode_thread_4(cnt_Nclk);
+    end else if (_N_THREADS == 5) begin
+        assign func_decode_thread = func_decode_thread_5(cnt_Nclk);
+    end else if (_N_THREADS == 6) begin
+        assign func_decode_thread = func_decode_thread_6(cnt_Nclk);
+    end
+
+    assign dst = {func_decode_thread, 7'(rom_out.waddr0 + offset_dst)};
+    assign src0 = {func_decode_thread, 7'(rom_out.raddr0 + offset_src0)};
+    assign src1 = {func_decode_thread, 7'(rom_out.raddr1 + offset_src1)};
 
     always_ff @(posedge clk) begin : set_offset
         if(!rstn) begin
@@ -149,35 +160,47 @@ module new_sequencer(
         func_raw2csig.me0 = raw.me0;
     endfunction
 
-    `ifdef BLS12_381
-    // For BLS12
-        function [$clog2(N_THREADS)-1:0] func_decode_thread;
-            input[N_THREADS-1:0] cnt_Nclk;
-            begin
-                case(cnt_Nclk)
-                    'b000001 : func_decode_thread = 'b011;
-                    'b000010 : func_decode_thread = 'b100;
-                    'b000100 : func_decode_thread = 'b101;
-                    'b001000 : func_decode_thread = 'b000;
-                    'b010000 : func_decode_thread = 'b001;
-                    'b100000 : func_decode_thread = 'b010;
-                endcase
-            end
-        endfunction
-    `else
-    // For BN
-    function [$clog2(N_THREADS)-1:0] func_decode_thread;
+
+    function [$clog2(N_THREADS)-1:0] func_decode_thread_4;
         input[N_THREADS-1:0] cnt_Nclk;
         begin
             case(cnt_Nclk)
-                'b0001 : func_decode_thread = 'b01;
-                'b0010 : func_decode_thread = 'b10;
-                'b0100 : func_decode_thread = 'b11;
-                'b1000 : func_decode_thread = 'b00;
+                'b0001 : func_decode_thread_4 = 'b01;
+                'b0010 : func_decode_thread_4 = 'b10;
+                'b0100 : func_decode_thread_4 = 'b11;
+                'b1000 : func_decode_thread_4 = 'b00;
             endcase
         end
     endfunction
-    `endif
+    
+    function [$clog2(N_THREADS)-1:0] func_decode_thread_5;
+        input[N_THREADS-1:0] cnt_Nclk;
+        begin
+            case(cnt_Nclk)
+                'b00001 : func_decode_thread_5 = 'b010;
+                'b00010 : func_decode_thread_5 = 'b011;
+                'b00100 : func_decode_thread_5 = 'b100;
+                'b01000 : func_decode_thread_5 = 'b000;
+                'b10000 : func_decode_thread_5 = 'b001;
+            endcase
+        end
+    endfunction
+
+    function [$clog2(N_THREADS)-1:0] func_decode_thread_6;
+        input[N_THREADS-1:0] cnt_Nclk;
+        begin
+            case(cnt_Nclk)
+                'b000001 : func_decode_thread_6 = 'b011;
+                'b000010 : func_decode_thread_6 = 'b100;
+                'b000100 : func_decode_thread_6 = 'b101;
+                'b001000 : func_decode_thread_6 = 'b000;
+                'b010000 : func_decode_thread_6 = 'b001;
+                'b100000 : func_decode_thread_6 = 'b010;
+            endcase
+        end
+    endfunction
+
+
 
 
 endmodule

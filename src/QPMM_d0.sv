@@ -20,7 +20,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 import PARAMS_BN254_d0::*;
-localparam latency = 3;
 localparam latency_FA = 4;
 
 module QPMM_d0_16_16(
@@ -93,24 +92,24 @@ module QPMM_d0_16_16(
     for(genvar i = 0; i < N + D + 1; i = i + 1) begin : QPMM
         for(genvar j = 0; j < M + D; j = j + 1) begin : for_1
             if(i == 0)
-                DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
+                DSP_mul #(.latency(LAT_PE)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
             else if(i == N + D) begin
                 if(j == M - 1)
                     assign reg_S[i+1][j+1] = '0;
                 else
-                    DSP_muladd #(.latency(latency)) qm_S (.clk(clk), .in_a(Mpp.poly_a[j]), .in_b(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1]));
+                    DSP_muladd #(.latency(LAT_PE)) qm_S (.clk(clk), .in_a(Mpp.poly_a[j]), .in_b(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1]));
             end
             else begin
                 if(j == M - 1)
-                    DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
+                    DSP_mul #(.latency(LAT_PE)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
                 else 
-                    PE_16_16 #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1])); 
+                    PE_16_16 #(.latency(LAT_PE)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_s(reg_S[i][j+2]), .out_s(reg_S[i+1][j+1])); 
             end
         end
         wire [47:0] buf_q = reg_S[i][0][47:K] + reg_S[i][1];
         assign wire_q[i] = buf_q[K-1:0];
 
-        if (latency == 1) begin
+        if (LAT_PE == 1) begin
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin
                     reg_A[i+1] <= reg_A[i];
@@ -119,7 +118,7 @@ module QPMM_d0_16_16(
                 reg_S[i+1][0] <= buf_q;
             end
         end
-        else if (latency == 2) begin
+        else if (LAT_PE == 2) begin
             logic [47:0] buf_s0;
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin
@@ -132,7 +131,7 @@ module QPMM_d0_16_16(
                 reg_S[i+1][0] <= buf_s0;
             end
         end
-        else if (latency == 3) begin
+        else if (LAT_PE == 3) begin
             logic [47:0] buf_s0_0, buf_s0_1;
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin
@@ -148,7 +147,7 @@ module QPMM_d0_16_16(
                 reg_S[i+1][0] <= buf_s0_1;
             end
         end
-        else if (latency == 4) begin
+        else if (LAT_PE == 4) begin
             logic [47:0] buf_s0_0, buf_s0_1, buf_s0_2;
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin
@@ -290,24 +289,24 @@ module QPMM_d0(
     for(genvar i = 0; i < N + D + 1; i = i + 1) begin : QPMM
         for(genvar j = 0; j < M + D; j = j + 1) begin : for_1
             if(i == 0)
-                DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
+                DSP_mul #(.latency(LAT_PE)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
             else if(i == N + D) begin
                 if(j == M - 1)
                     assign reg_S[i+1][j+1] = '0;
                 else
-                    PE #(.latency(latency)) pe(.clk(clk), .in_a('0), .in_b('0), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
+                    PE #(.latency(LAT_PE)) pe(.clk(clk), .in_a('0), .in_b('0), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
             end
             else begin
                 if(j == M - 1)
-                    DSP_mul #(.latency(latency)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
+                    DSP_mul #(.latency(LAT_PE)) mul_ab (.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .out_s(reg_S[i+1][j+1]));
                 else 
-                    PE #(.latency(latency)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
+                    PE #(.latency(LAT_PE)) pe(.clk(clk), .in_a(reg_A[i].poly_a[j]), .in_b(reg_B[i].poly_b[i]), .in_m(Mpp.poly_a[j]), .in_q(wire_q[i]), .in_sl(reg_S[i][j+2][2*K-1:0]), .in_su(reg_S[i][j+1][47:2*K]), .out_s(reg_S[i+1][j+1])); 
             end
         end
         wire [47:0] buf_q = reg_S[i][0][47:K] + reg_S[i][1][2*K-1:0];
         assign wire_q[i] = buf_q[K-1:0];
 
-        if (latency == 1) begin
+        if (LAT_PE == 1) begin
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin
                     reg_A[i+1] <= reg_A[i];
@@ -316,7 +315,7 @@ module QPMM_d0(
                 reg_S[i+1][0] <= buf_q;
             end
         end
-        else if (latency == 2) begin
+        else if (LAT_PE == 2) begin
             logic [47:0] buf_s0;
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin
@@ -329,7 +328,7 @@ module QPMM_d0(
                 reg_S[i+1][0] <= buf_s0;
             end
         end
-        else if (latency == 3) begin
+        else if (LAT_PE == 3) begin
             logic [47:0] buf_s0_0, buf_s0_1;
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin
@@ -345,7 +344,7 @@ module QPMM_d0(
                 reg_S[i+1][0] <= buf_s0_1;
             end
         end
-        else if (latency == 4) begin
+        else if (LAT_PE == 4) begin
             logic [47:0] buf_s0_0, buf_s0_1, buf_s0_2;
             always_ff @(posedge clk) begin : ff_ab_q
                 if(i < N + D) begin

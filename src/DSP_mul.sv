@@ -238,55 +238,78 @@ module PE
         );
     end 
     else if (latency == 3) begin
-        xbip_dsp48_macro_ab_c_2 mul_ab (
-        .CLK(clk),    // input wire CLK
-        .A(27'(in_a)),        // input wire [26 : 0] A
-        .B(18'(in_b)),        // input wire [17 : 0] B
-        .C(48'(in_su << K)),    // input wire [47 : 0] C
-        .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
-        .P()        // output wire [47 : 0] P
-        );
-        xbip_dsp48_macro_ab_c_pcin_3 mul_qm (
-        .CLK(clk),    // input wire CLK
-        .PCIN(w_pc),  // input wire [47 : 0] PCIN
-        .A(27'(in_m)),        // input wire [26 : 0] A
-        .B(18'(in_q)),        // input wire [17 : 0] B
-        .C(48'(in_sl << C)),        // input wire [47 : 0] C
-        .P(out_s)        // output wire [47 : 0] P
-        );
-        // logic [26:0] reg_a, reg_m;
-        // logic [17:0] reg_b, reg_q;
-        // logic [47:0] reg_su, reg_sl, reg_sl_, reg_pcout, reg_prod, reg_p;
-        // assign out_s = reg_p;
-        // always @(posedge clk) begin
-        //     reg_a <= 27'(in_a);
-        //     reg_b <= 18'(in_b);
-        //     reg_su <= 48'(in_su << K);
-        //     reg_pcout <= reg_a * reg_b + reg_su;
-        //     reg_m <= 27'(in_m);
-        //     reg_q <= 18'(in_q);
-        //     reg_sl_ <= 48'(in_sl << C);
-        //     reg_sl <= reg_sl_;
-        //     reg_prod <= reg_m * reg_q;
-        //     reg_p <= reg_prod + reg_sl + reg_pcout;
-        // end
+        `ifdef XILINX_SIMULATOR 
+            logic [26:0] reg_a, reg_m;
+            logic [17:0] reg_b, reg_q;
+            logic [47:0] reg_su, reg_sl, reg_sl_, reg_pcout, reg_prod, reg_p;
+            assign out_s = reg_p;
+            always @(posedge clk) begin
+                reg_a <= 27'(in_a);
+                reg_b <= 18'(in_b);
+                reg_su <= 48'(in_su << K);
+                reg_pcout <= reg_a * reg_b + reg_su;
+                reg_m <= 27'(in_m);
+                reg_q <= 18'(in_q);
+                reg_sl_ <= 48'(in_sl << C);
+                reg_sl <= reg_sl_;
+                reg_prod <= reg_m * reg_q;
+                reg_p <= reg_prod + reg_sl + reg_pcout;
+            end
+        `else
+            xbip_dsp48_macro_ab_c_2 mul_ab (
+            .CLK(clk),    // input wire CLK
+            .A(27'(in_a)),        // input wire [26 : 0] A
+            .B(18'(in_b)),        // input wire [17 : 0] B
+            .C(48'(in_su << K)),    // input wire [47 : 0] C
+            .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
+            .P()        // output wire [47 : 0] P
+            );
+            xbip_dsp48_macro_ab_c_pcin_3 mul_qm (
+            .CLK(clk),    // input wire CLK
+            .PCIN(w_pc),  // input wire [47 : 0] PCIN
+            .A(27'(in_m)),        // input wire [26 : 0] A
+            .B(18'(in_q)),        // input wire [17 : 0] B
+            .C(48'(in_sl << C)),        // input wire [47 : 0] C
+            .P(out_s)        // output wire [47 : 0] P
+            );
+        `endif
     end
     else if (latency == 4) begin
-        xbip_dsp48_macro_ab_c_3 mul_ab (
-        .CLK(clk),    // input wire CLK
-        .A(27'(in_a)),        // input wire [26 : 0] A
-        .B(18'(in_b)),        // input wire [17 : 0] B
-        .C(48'(in_su << K)),    // input wire [47 : 0] C
-        .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
-        .P()        // output wire [47 : 0] P
-        );
-        xbip_dsp48_macro_ab_c_pcin_4 mul_qm (
-        .CLK(clk),    // input wire CLK
-        .PCIN(w_pc),  // input wire [47 : 0] PCIN
-        .A(27'(in_m)),        // input wire [26 : 0] A
-        .B(18'(in_q)),        // input wire [17 : 0] B
-        .C(48'(in_sl << C)),        // input wire [47 : 0] C
-        .P(out_s)        // output wire [47 : 0] P
-        );
+        `ifdef XILINX_SIMULATOR 
+            logic [26:0] reg_a, reg_m;
+            logic [17:0] reg_b, reg_q;
+            logic [47:0] reg_su, reg_sl, reg_sl_, reg_pcout, reg_prod, reg_p, reg_pp;
+            assign out_s = reg_p;
+            always @(posedge clk) begin
+                reg_a <= 27'(in_a);
+                reg_b <= 18'(in_b);
+                reg_su <= 48'(in_su << K);
+                reg_pcout <= reg_a * reg_b + reg_su;
+                reg_m <= 27'(in_m);
+                reg_q <= 18'(in_q);
+                reg_sl_ <= 48'(in_sl << C);
+                reg_sl <= reg_sl_;
+                reg_prod <= reg_m * reg_q;
+                reg_pp <= reg_prod + reg_sl + reg_pcout;
+                reg_p <= reg_pp;
+            end
+        `else
+            xbip_dsp48_macro_ab_c_3 mul_ab (
+            .CLK(clk),    // input wire CLK
+            .A(27'(in_a)),        // input wire [26 : 0] A
+            .B(18'(in_b)),        // input wire [17 : 0] B
+            .C(48'(in_su << K)),    // input wire [47 : 0] C
+            .PCOUT(w_pc),  // output wire [47 : 0] PCOUT
+            .P()        // output wire [47 : 0] P
+            );
+            xbip_dsp48_macro_ab_c_pcin_4 mul_qm (
+            .CLK(clk),    // input wire CLK
+            .PCIN(w_pc),  // input wire [47 : 0] PCIN
+            .A(27'(in_m)),        // input wire [26 : 0] A
+            .B(18'(in_q)),        // input wire [17 : 0] B
+            .C(48'(in_sl << C)),        // input wire [47 : 0] C
+            .P(out_s)        // output wire [47 : 0] P
+            );
+        `endif
     end  
 endmodule

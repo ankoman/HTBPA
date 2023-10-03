@@ -204,6 +204,12 @@ module Mont_inv_multi(
           sum1 <= {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]};
           sum2 <= {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]};
         end 
+        else if (N_THREADS == 5) begin
+          sum1_buf_for_6T <= {sum1_buf_for_6T[0], {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]}};
+          sum2_buf_for_6T <= {sum2_buf_for_6T[0], {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]}};
+          sum1 <= sum1_buf_for_6T[0];
+          sum2 <= sum2_buf_for_6T[0];
+        end
         else if (N_THREADS == 6) begin
           sum1_buf_for_6T <= {sum1_buf_for_6T[0], {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]}};
           sum2_buf_for_6T <= {sum2_buf_for_6T[0], {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]}};
