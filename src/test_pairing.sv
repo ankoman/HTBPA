@@ -28,132 +28,103 @@ import CURVE_PARAMS::*;
 `endif 
 
 module test_pairing;
-   localparam 
-       CYCLE = 10,
-       DELAY = 2,
-       N_DATA = 1000000;
-               
-   reg clk, rstn, run, swrst, extin_en;
-   reg [3:0] n_func;
-   reg [BRAM_DEPTH-1:0] extin_addr, extout_addr;
-   redundant_poly_L3 extin_data, extout_data;
-   wire busy;
+    localparam 
+        CYCLE = 10,
+        DELAY = 2,
+        N_LOOP = 2;
+                
+    reg clk, rstn, run, extin_en;
+    reg [3:0] n_func;
+    reg [23:0] cycle_cnt;
+    reg [BRAM_DEPTH-1:0] extin_addr, extout_addr;
+    redundant_poly_L3 extin_data, extout_data;
+    wire busy;
 
-   wire [bit_width-1:0] debug_memout0, debug_memout1, debug_preadd0, debug_preadd1, debug_red0, debug_red1, debug_qpmm, debug_cmul, debug_postadd;
-   assign debug_memout0 = MR(func_L3touint(DUT.memout0));
-   assign debug_memout1 = MR(func_L3touint(DUT.memout1));
-   assign debug_preadd0 = MR(func_L3touint(DUT.preadd_out0));
-   assign debug_preadd1 = MR(func_L3touint(DUT.preadd_out1));
-   assign debug_red0 = MR(DUT.red_out0);
-   assign debug_red1 = MR(DUT.red_out1);
-   assign debug_qpmm = MR(DUT.qpmm_out);
-   assign debug_cmul = MR(func_L1toint(DUT.cmul_out));
-   assign debug_postadd = MR(func_L3touint(DUT.postadd_out));
+    wire [bit_width-1:0] debug_memout0, debug_memout1, debug_preadd0, debug_preadd1, debug_red0, debug_red1, debug_qpmm, debug_cmul, debug_postadd;
+    assign debug_memout0 = MR(func_L3touint(DUT.memout0));
+    assign debug_memout1 = MR(func_L3touint(DUT.memout1));
+    assign debug_preadd0 = MR(func_L3touint(DUT.preadd_out0));
+    assign debug_preadd1 = MR(func_L3touint(DUT.preadd_out1));
+    assign debug_red0 = MR(DUT.red_out0);
+    assign debug_red1 = MR(DUT.red_out1);
+    assign debug_qpmm = MR(DUT.qpmm_out);
+    assign debug_cmul = MR(func_L1toint(DUT.cmul_out));
+    assign debug_postadd = MR(func_L3touint(DUT.postadd_out));
 
-   //// For preadd debug
-   wire [bit_width-1:0] debug_add_buf_0, debug_add_buf_1, debug_add_buf_2, debug_add_buf_3, debug_dly_x, debug_dly_y;
-   assign debug_add_buf_0 = MR(func_L3touint(DUT.preadder.add_buf_0));
-   assign debug_add_buf_1 = MR(func_L3touint(DUT.preadder.add_buf_1));
-   assign debug_add_buf_2 = MR(func_L3touint(DUT.preadder.add_buf_2));
-   assign debug_add_buf_3 = MR(func_L3touint(DUT.preadder.add_buf_3));
-   assign debug_dly_x = MR(func_L3touint(DUT.preadder.dly_x));
-   assign debug_dly_y = MR(func_L3touint(DUT.preadder.dly_y));
+    //// For preadd debug
+    wire [bit_width-1:0] debug_add_buf_0, debug_add_buf_1, debug_add_buf_2, debug_add_buf_3, debug_dly_x, debug_dly_y;
+    assign debug_add_buf_0 = MR(func_L3touint(DUT.preadder.add_buf_0));
+    assign debug_add_buf_1 = MR(func_L3touint(DUT.preadder.add_buf_1));
+    assign debug_add_buf_2 = MR(func_L3touint(DUT.preadder.add_buf_2));
+    assign debug_add_buf_3 = MR(func_L3touint(DUT.preadder.add_buf_3));
+    assign debug_dly_x = MR(func_L3touint(DUT.preadder.dly_x));
+    assign debug_dly_y = MR(func_L3touint(DUT.preadder.dly_y));
 
-   //// For postadd debug
-   wire [bit_width-1:0] debug_reg1_wire, debug_reg2_wire, debug_reg3_wire;
-   assign debug_reg1_wire = MR(func_L3touint(DUT.postadder.reg1_wire));
-   assign debug_reg2_wire = MR(func_L3touint(DUT.postadder.reg2_wire));
-   assign debug_reg3_wire = MR(func_L3touint(DUT.postadder.reg3_wire));
+    //// For postadd debug
+    wire [bit_width-1:0] debug_reg1_wire, debug_reg2_wire, debug_reg3_wire;
+    assign debug_reg1_wire = MR(func_L3touint(DUT.postadder.reg1_wire));
+    assign debug_reg2_wire = MR(func_L3touint(DUT.postadder.reg2_wire));
+    assign debug_reg3_wire = MR(func_L3touint(DUT.postadder.reg3_wire));
 
-   BN254_pairing DUT(.clk, .rstn, .swrst, .run, .n_func, .endflag(), .opstart(), .busy, 
-      .extin_data, .extin_en, .extin_addr, .extout_data, .extout_addr);
-    
-   always begin
-       #(CYCLE/2) clk <= ~clk;
-   end
-    
-   /*-------------------------------------------
-   Test
-   -------------------------------------------*/
-   initial begin
-       clk <= 1;
-       rstn <= 1;
-       run <= 0;
-       swrst <= 0;
-       extout_addr <= 0;
-       n_func <= 3;
-       extin_en <= 0;
-       #1000
-       rstn <= 0;
-       #100
-       rstn <= 1;
-       #1000;
-       swrst <= 1;
-       #100;
+    BN254_pairing DUT(.clk, .rstn, .run, .n_func, .endflag(), .opstart(), .busy, 
+        .extin_data, .extin_en, .extin_addr, .extout_data, .extout_addr);
+
+    always begin
+        #(CYCLE/2) clk <= ~clk;
+    end
+
+    always @(posedge clk)begin
+        if(run)
+            cycle_cnt <= '0;
+        else 
+            cycle_cnt <= cycle_cnt + 1'b1;
+    end
+    /*-------------------------------------------
+    Test
+    -------------------------------------------*/
+    initial begin
+        clk <= 1;
+        rstn <= 1;
+        run <= 0;
+        extout_addr <= 0;
+        n_func <= 3;
+        extin_en <= 0;
+        #1000
+        rstn <= 0;
+        #100
+        rstn <= 1;
+        #1000;
        
-        `ifdef BLS12_381
-            ram_init_BLS();
-        `else
-            ram_init_BN();
-        `endif 
- 
-       swrst <= 0;
-       run <= 1;
-       #(CYCLE);
-       run <= 0;
-       #1000;
-        wait(!busy);
-        for(integer j=0;j<N_THREADS;j=j+1) begin
-            $display("\n Pairing %d\n", j);
-            for(integer i=0;i<12;i=i+1) begin
-                extout_addr <= 'h10 + (j << 7)+ i;
-                #(CYCLE*5);
-                $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
+        for (integer k = 0; k < N_LOOP; k = k + 1) begin
+            `ifdef BLS12_381
+                ram_init_BLS();
+            `else
+                ram_init_BN();
+            `endif 
+            run <= 1;
+            #(CYCLE);
+            run <= 0;
+            #1000;
+            wait(!busy);
+            for(integer j=0;j<N_THREADS;j=j+1) begin
+                $display("\n Thread %d\n", j);
+                for(integer i=0;i<12;i=i+1) begin
+                    extout_addr <= 'h10 + (j << 7)+ i;
+                    #(CYCLE*5);
+                    $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
+                end
             end
+
+            $display( "\n###############################################\n",
+                        "%d pairings completed in %d [cycles]\n", N_THREADS, cycle_cnt + 1,
+                        "###############################################");
         end
 
-        `ifdef BLS12_381
-            ram_init_BLS();
-        `else
-            ram_init_BN();
-        `endif 
-
-       swrst <= 0;
-       run <= 1;
-       #(CYCLE);
-       run <= 0;
-       #1000;
-       wait(!busy);
-        
-       $display("\nFirst pairing \n");
-       for(integer i=0;i<12;i=i+1) begin
-           extout_addr <= 'h10 + i;
-           #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
-       end
-       $display("\nSecond pairing \n");
-       for(integer i=0;i<12;i=i+1) begin
-           extout_addr <= 'h90 + i;
-           #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
-       end
-       $display("\nThird pairing \n");
-       for(integer i=0;i<12;i=i+1) begin
-           extout_addr <= 'h110 + i;
-           #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
-       end
-       $display("\n4th pairing \n");
-       for(integer i=0;i<12;i=i+1) begin
-           extout_addr <= 'h190 + i;
-           #(CYCLE*5);
-           $display("i = %d: %h", i, func_L3tolazyuint(extout_data) % CURVE_PARAMS::Mod);
-       end
-   $finish;
-   end
+    $finish;
+    end
 
 
-   task ram_init_BN;
+    task ram_init_BN;
 
        //Init
        write_rams(9'h08, 0, 0);                                                                       // 0 (ordinary form)
@@ -226,9 +197,9 @@ module test_pairing;
        write_ram(10'h205, 0, 0);                                                                       // Qz_1
        write_ram(10'h206, 320'h1f533e7ecd21721d7d3812c4879037c8e3129182db6da9d451002c82c07c8684, 0);   // Px
        write_ram(10'h207, 320'h14b8841aa46f686c257272403eb2ddf5d29a7a9b2eed83f618e0286fa64a6372, 0);   // Py
-   endtask
+    endtask
 
-   task ram_init_BLS;
+    task ram_init_BLS;
 
        //Init
         write_rams('h08, 0, 0);                                                                       // 0 (ordinary form)
@@ -381,70 +352,70 @@ module test_pairing;
         write_ram('h2a3, 'h5af173ec99cdf92cf1df4e0122399bddff451c1221909b699ced210714461cc6fde8e7d39c50a2104b10a74ca443a53, 0);    // Ty_1
         write_ram('h2a4, 'h6266ea86a2d27c9ffae7bca245ef0aec53439f2badb6a0480fa012749c8bd9dde2ecd0389ebc8f9c4291d51d3fbb2cd, 0);    // Tz_0
         write_ram('h2a5, 0, 0);                                                                       // Tz_1
-   endtask
+    endtask
 
     
-   task write_ram(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val, input MR);
-       reg [999:0] tmp_val;
-       tmp_val = val*CURVE_PARAMS::RmodM;
-       extin_addr <= addr;
-       extin_data <= inttoL3((MR)? tmp_val % CURVE_PARAMS::Mod : val);
-       extin_en <= 1;
-       #(CYCLE);
-       extin_en <= 0;
+    task write_ram(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val, input MR);
+        reg [999:0] tmp_val;
+        tmp_val = val*CURVE_PARAMS::RmodM;
+        extin_addr <= addr;
+        extin_data <= inttoL3((MR)? tmp_val % CURVE_PARAMS::Mod : val);
+        extin_en <= 1;
+        #(CYCLE);
+        extin_en <= 0;
 
-   endtask
+    endtask
     
-   task write_rams(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val, input MR);
-       for(integer i = 0; i < N_THREADS; i = i + 1) begin
-           write_ram(addr + (i << 7), val, MR);
-       end
-   endtask
+    task write_rams(input [BRAM_DEPTH-1:0] addr, input M_tilde12_t val, input MR);
+        for(integer i = 0; i < N_THREADS; i = i + 1) begin
+             write_ram(addr + (i << 7), val, MR);
+         end
+    endtask
 
-   function redundant_poly_L3 inttoL3;
-       input M_tilde12_t in_int;
-       fp_div4_t[ADD_DIV-1:0] poly;
-       poly = in_int;
-       inttoL3 = 0;
-       for(integer i = 0; i < ADD_DIV; i = i + 1) begin
-           inttoL3[i].carry = '0;
-           inttoL3[i].val = poly[i];
-       end
-   endfunction
+     function redundant_poly_L3 inttoL3;
+         input M_tilde12_t in_int;
+         fp_div4_t[ADD_DIV-1:0] poly;
+         poly = in_int;
+         inttoL3 = 0;
+         for(integer i = 0; i < ADD_DIV; i = i + 1) begin
+            inttoL3[i].carry = '0;
+            inttoL3[i].val = poly[i];
+        end
+    endfunction
 
-   function uint_fpa_t func_L1toint;
-       input redundant_poly_L1 din;
+    function uint_fpa_t func_L1toint;
+        input redundant_poly_L1 din;
 
-       func_L1toint = 0;
-       for(integer i = 0; i < ADD_DIV; i = i + 1) begin
-           func_L1toint = func_L1toint + (din[i] << ($bits(fp_div4_t)*i));
-       end
-   endfunction
+        func_L1toint = 0;
+        for(integer i = 0; i < ADD_DIV; i = i + 1) begin
+            func_L1toint = func_L1toint + (din[i] << ($bits(fp_div4_t)*i));
+        end
+    endfunction
 
-   function uint_fpa_t func_L3tolazyuint;
-       input redundant_poly_L3 din;
+    function uint_fpa_t func_L3tolazyuint;
+        input redundant_poly_L3 din;
 
-       func_L3tolazyuint = 0;
-       for(integer i = 0; i < ADD_DIV; i = i + 1) begin
-           func_L3tolazyuint = func_L3tolazyuint + (din[i].val << ($bits(fp_div4_t)*i));
-       end
-   endfunction
+        func_L3tolazyuint = 0;
+        for(integer i = 0; i < ADD_DIV; i = i + 1) begin
+            func_L3tolazyuint = func_L3tolazyuint + (din[i].val << ($bits(fp_div4_t)*i));
+        end
+    endfunction
 
-   function uint_fpa_t func_L3touint;
-       input redundant_poly_L3 din;
+    function uint_fpa_t func_L3touint;
+        input redundant_poly_L3 din;
 
-       func_L3touint = 0;
-       for(integer i = 0; i < ADD_DIV; i = i + 1) begin
-           func_L3touint = func_L3touint + ({din[i].carry[L3_CARRY-1] ? 'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff : '0, din[i]} << ($bits(fp_div4_t)*i));
-       end
-       func_L3touint = func_L3touint + {CURVE_PARAMS::M_tilde, 9'h000};
-   endfunction
+        func_L3touint = 0;
+        for(integer i = 0; i < ADD_DIV; i = i + 1) begin
+            func_L3touint = func_L3touint + ({din[i].carry[L3_CARRY-1] ? 'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff : '0, din[i]} << ($bits(fp_div4_t)*i));
+        end
+        func_L3touint = func_L3touint + {CURVE_PARAMS::M_tilde, 9'h000};
+    endfunction
 
-   function uint_fpa_t MR;
-       input uint_fpa_t din;
-       logic [999:0] tmp;
-       tmp = din * CURVE_PARAMS::R_INV;
-       MR = tmp % CURVE_PARAMS::Mod;
-   endfunction
+    function uint_fpa_t MR;
+        input uint_fpa_t din;
+        logic [999:0] tmp;
+        tmp = din * CURVE_PARAMS::R_INV;
+        MR = tmp % CURVE_PARAMS::Mod;
+    endfunction
 endmodule
 

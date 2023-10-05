@@ -33,7 +33,7 @@ localparam PIPELINE_STAGES = LAT_READ + LAT_PREADD + LAT_UINT + LAT_QPMM + LAT_C
 // 1: 18, 2: 36, 3: 54, 4: 72, 5: 90, 6: 108, 7: 126, 8: 144
 
 module BN254_pairing(
-    input clk, rstn, swrst, run, extin_en,
+    input clk, rstn, run, extin_en,
     input [3:0] n_func,
     input redundant_poly_L3 extin_data,
     input [BRAM_DEPTH:0] extin_addr, extout_addr,
@@ -44,7 +44,6 @@ module BN254_pairing(
 
     // Decralation
     wire result_flag;
-    reg [23:0] cycle_cnt;
     micro_ops_t mops, ctrl_preadd, ctrl_cmul, ctrl_postadd, ctrl_postadd2, ctrl_write, ctrl_inv;
     micro_ops_t [PIPELINE_STAGES - 1:0] mops_buf;
     redundant_poly_L3 memin, memout0, memout1, preadd_out0, preadd_out1, postadd_out, inv_out;
@@ -137,12 +136,8 @@ module BN254_pairing(
     always @(posedge clk)begin
         if(!rstn)begin
             mops_buf <= '0;
-            if (!busy)
-                cycle_cnt <= 0;
             
         end else begin
-            if (busy)
-                cycle_cnt <= cycle_cnt + 1'b1;
             mops_buf <= {mops_buf[PIPELINE_STAGES - 2:0], mops};
         end
     end
