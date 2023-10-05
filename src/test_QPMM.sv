@@ -24,7 +24,7 @@ import CURVE_PARAMS::*;
 `ifdef BLS12_381
     localparam bit_width = 381;
 `else
-    localparam bit_width = 254 - 3; // Why -3?
+    localparam bit_width = 254;
 `endif 
 localparam N_PIPELINE_STAGES = LAT_QPMM;
 
@@ -36,7 +36,7 @@ module test_QPMM;
                
     reg clk, rstn;
     qpmm_fp_t A, B;
-    wire [bit_width+16:0] Z;
+    uint_Mtilde2_t Z;
     wire [999:0] tmp_ans = MR(A) * MR(B);
     wire [bit_width-1:0] ans = tmp_ans % CURVE_PARAMS::Mod;
     wire [bit_width-1:0] res = MR(Z);
