@@ -1,0 +1,155 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2020.1 (win64) Build 2902540 Wed May 27 19:54:49 MDT 2020
+| Date              : Tue Oct  3 00:40:54 2023
+| Host              : M-2022-06 running 64-bit major release  (build 9200)
+| Command           : report_timing -file C:/Users/M-2022-06/Desktop/QPMM_d0_BLS/QPMM_d0/rpt_timing.txt
+| Design            : TOP_pairing
+| Device            : xcvu9p-flga2104
+| Speed File        : -2L  PRODUCTION 1.27 02-28-2020
+| Temperature Grade : E
+--------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.186ns  (required time - arrival time)
+  Source:                 genblk1[1].DUT/eeinv/addr2_b_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by clk_out1_clk_wiz_600  {rise@0.000ns fall@0.833ns period=1.666ns})
+  Destination:            genblk1[1].DUT/eeinv/co2_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by clk_out1_clk_wiz_600  {rise@0.000ns fall@0.833ns period=1.666ns})
+  Path Group:             clk_out1_clk_wiz_600
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            1.666ns  (clk_out1_clk_wiz_600 rise@1.666ns - clk_out1_clk_wiz_600 rise@0.000ns)
+  Data Path Delay:        1.698ns  (logic 0.727ns (42.815%)  route 0.971ns (57.185%))
+  Logic Levels:           20  (CARRY8=18 LUT2=1 LUT4=1)
+  Clock Path Skew:        -0.129ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.754ns = ( 6.421 - 1.666 ) 
+    Source Clock Delay      (SCD):    4.485ns
+    Clock Pessimism Removal (CPR):    -0.398ns
+  Clock Uncertainty:      0.050ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.071ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      3.347ns (routing 1.786ns, distribution 1.561ns)
+  Clock Net Delay (Destination): 3.051ns (routing 1.619ns, distribution 1.432ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk_out1_clk_wiz_600 rise edge)
+                                                      0.000     0.000 r  
+    G31                                               0.000     0.000 r  default_sysclk1_300_clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_wiz/inst/clkin1_ibufds/I
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.559     0.559 r  clk_wiz/inst/clkin1_ibufds/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.050     0.609    clk_wiz/inst/clkin1_ibufds/OUT
+    G31                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     0.609 r  clk_wiz/inst/clkin1_ibufds/IBUFCTRL_INST/O
+                         net (fo=1, routed)           0.384     0.993    clk_wiz/inst/clk_in1_clk_wiz_600
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                     -0.127     0.866 r  clk_wiz/inst/mmcme4_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.244     1.110    clk_wiz/inst/clk_out1_clk_wiz_600
+    BUFGCE_X0Y194        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     1.138 r  clk_wiz/inst/clkout1_buf/O
+    X2Y2 (CLOCK_ROOT)    net (fo=138915, routed)      3.347     4.485    genblk1[1].DUT/eeinv/clk_out1
+    SLR Crossing[1->0]   
+    SLICE_X130Y163       FDRE                                         r  genblk1[1].DUT/eeinv/addr2_b_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X130Y163       FDRE (Prop_FFF2_SLICEL_C_Q)
+                                                      0.081     4.566 r  genblk1[1].DUT/eeinv/addr2_b_reg[2]/Q
+                         net (fo=2, routed)           0.230     4.796    genblk1[1].DUT/eeinv/addr2_b_reg_n_0_[2]
+    SLICE_X129Y163       LUT2 (Prop_C5LUT_SLICEM_I0_O)
+                                                      0.099     4.895 r  genblk1[1].DUT/eeinv/sum2_buf[7]_i_6__0/O
+                         net (fo=2, routed)           0.249     5.144    genblk1[1].DUT/eeinv/sum2_buf[7]_i_6__0_n_0
+    SLICE_X129Y163       LUT4 (Prop_D6LUT_SLICEM_I3_O)
+                                                      0.088     5.232 r  genblk1[1].DUT/eeinv/sum2_buf[7]_i_13__0/O
+                         net (fo=1, routed)           0.025     5.257    genblk1[1].DUT/eeinv/sum2_buf[7]_i_13__0_n_0
+    SLICE_X129Y163       CARRY8 (Prop_CARRY8_SLICEM_S[3]_CO[7])
+                                                      0.163     5.420 r  genblk1[1].DUT/eeinv/sum2_buf_reg[7]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.446    genblk1[1].DUT/eeinv/sum2_buf_reg[7]_i_1__0_n_0
+    SLICE_X129Y164       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.461 r  genblk1[1].DUT/eeinv/sum2_buf_reg[15]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.487    genblk1[1].DUT/eeinv/sum2_buf_reg[15]_i_1__0_n_0
+    SLICE_X129Y165       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.502 r  genblk1[1].DUT/eeinv/sum2_buf_reg[23]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.528    genblk1[1].DUT/eeinv/sum2_buf_reg[23]_i_1__0_n_0
+    SLICE_X129Y166       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.543 r  genblk1[1].DUT/eeinv/sum2_buf_reg[31]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.569    genblk1[1].DUT/eeinv/sum2_buf_reg[31]_i_1__0_n_0
+    SLICE_X129Y167       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.584 r  genblk1[1].DUT/eeinv/sum2_buf_reg[39]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.610    genblk1[1].DUT/eeinv/sum2_buf_reg[39]_i_1__0_n_0
+    SLICE_X129Y168       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.625 r  genblk1[1].DUT/eeinv/sum2_buf_reg[47]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.651    genblk1[1].DUT/eeinv/sum2_buf_reg[47]_i_1__0_n_0
+    SLICE_X129Y169       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.666 r  genblk1[1].DUT/eeinv/sum2_buf_reg[55]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.692    genblk1[1].DUT/eeinv/sum2_buf_reg[55]_i_1__0_n_0
+    SLICE_X129Y170       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.707 r  genblk1[1].DUT/eeinv/sum2_buf_reg[63]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.733    genblk1[1].DUT/eeinv/sum2_buf_reg[63]_i_1__0_n_0
+    SLICE_X129Y171       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.748 r  genblk1[1].DUT/eeinv/sum2_buf_reg[71]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.774    genblk1[1].DUT/eeinv/sum2_buf_reg[71]_i_1__0_n_0
+    SLICE_X129Y172       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.789 r  genblk1[1].DUT/eeinv/sum2_buf_reg[79]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.815    genblk1[1].DUT/eeinv/sum2_buf_reg[79]_i_1__0_n_0
+    SLICE_X129Y173       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.830 r  genblk1[1].DUT/eeinv/sum2_buf_reg[87]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.856    genblk1[1].DUT/eeinv/sum2_buf_reg[87]_i_1__0_n_0
+    SLICE_X129Y174       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.871 r  genblk1[1].DUT/eeinv/sum2_buf_reg[95]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.897    genblk1[1].DUT/eeinv/sum2_buf_reg[95]_i_1__0_n_0
+    SLICE_X129Y175       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.912 r  genblk1[1].DUT/eeinv/sum2_buf_reg[103]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.938    genblk1[1].DUT/eeinv/sum2_buf_reg[103]_i_1__0_n_0
+    SLICE_X129Y176       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.953 r  genblk1[1].DUT/eeinv/sum2_buf_reg[111]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     5.979    genblk1[1].DUT/eeinv/sum2_buf_reg[111]_i_1__0_n_0
+    SLICE_X129Y177       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     5.994 r  genblk1[1].DUT/eeinv/sum2_buf_reg[119]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     6.020    genblk1[1].DUT/eeinv/sum2_buf_reg[119]_i_1__0_n_0
+    SLICE_X129Y178       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     6.035 r  genblk1[1].DUT/eeinv/sum2_buf_reg[127]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     6.061    genblk1[1].DUT/eeinv/sum2_buf_reg[127]_i_1__0_n_0
+    SLICE_X129Y179       CARRY8 (Prop_CARRY8_SLICEM_CI_CO[7])
+                                                      0.015     6.076 r  genblk1[1].DUT/eeinv/sum2_buf_reg[135]_i_1__0/CO[7]
+                         net (fo=1, routed)           0.026     6.102    genblk1[1].DUT/eeinv/sum2_buf_reg[135]_i_1__0_n_0
+    SLICE_X129Y180       CARRY8 (Prop_CARRY8_SLICEM_CI_O[0])
+                                                      0.056     6.158 r  genblk1[1].DUT/eeinv/co2_reg[1]_i_1__0/O[0]
+                         net (fo=1, routed)           0.025     6.183    genblk1[1].DUT/eeinv/co20[136]
+    SLICE_X129Y180       FDRE                                         r  genblk1[1].DUT/eeinv/co2_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk_out1_clk_wiz_600 rise edge)
+                                                      1.666     1.666 r  
+    G31                                               0.000     1.666 r  default_sysclk1_300_clk_p (IN)
+                         net (fo=0)                   0.000     1.666    clk_wiz/inst/clkin1_ibufds/I
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.462     2.129 r  clk_wiz/inst/clkin1_ibufds/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.040     2.169    clk_wiz/inst/clkin1_ibufds/OUT
+    G31                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     2.169 r  clk_wiz/inst/clkin1_ibufds/IBUFCTRL_INST/O
+                         net (fo=1, routed)           0.333     2.502    clk_wiz/inst/clk_in1_clk_wiz_600
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                      0.630     3.132 r  clk_wiz/inst/mmcme4_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.214     3.346    clk_wiz/inst/clk_out1_clk_wiz_600
+    BUFGCE_X0Y194        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     3.370 r  clk_wiz/inst/clkout1_buf/O
+    X2Y2 (CLOCK_ROOT)    net (fo=138915, routed)      3.051     6.421    genblk1[1].DUT/eeinv/clk_out1
+    SLR Crossing[1->0]   
+    SLICE_X129Y180       FDRE                                         r  genblk1[1].DUT/eeinv/co2_reg[0]/C
+                         clock pessimism             -0.398     6.022    
+                         clock uncertainty           -0.050     5.972    
+    SLICE_X129Y180       FDRE (Setup_AFF_SLICEM_C_D)
+                                                      0.025     5.997    genblk1[1].DUT/eeinv/co2_reg[0]
+  -------------------------------------------------------------------
+                         required time                          5.997    
+                         arrival time                          -6.183    
+  -------------------------------------------------------------------
+                         slack                                 -0.186    
+
+
+
+

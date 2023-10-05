@@ -1,0 +1,120 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2020.1 (win64) Build 2902540 Wed May 27 19:54:49 MDT 2020
+| Date              : Fri Sep 29 00:04:41 2023
+| Host              : M-2022-06 running 64-bit major release  (build 9200)
+| Command           : report_timing -file C:/Users/M-2022-06/Desktop/QPMM_d0_BLS/QPMM_d0/rpt_timing.txt
+| Design            : TOP_pairing
+| Device            : xcvu9p-flga2104
+| Speed File        : -2L  PRODUCTION 1.27 02-28-2020
+| Temperature Grade : E
+--------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.703ns  (required time - arrival time)
+  Source:                 genblk1[0].DUT/mops_buf_reg[83][csig][cm][1]/C
+                            (rising edge-triggered cell FDRE clocked by clk_out1_clk_wiz_600  {rise@0.000ns fall@0.833ns period=1.666ns})
+  Destination:            genblk1[0].DUT/cmul/genblk2[3].dout_reg[3][val][63]/D
+                            (rising edge-triggered cell FDRE clocked by clk_out1_clk_wiz_600  {rise@0.000ns fall@0.833ns period=1.666ns})
+  Path Group:             clk_out1_clk_wiz_600
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            1.666ns  (clk_out1_clk_wiz_600 rise@1.666ns - clk_out1_clk_wiz_600 rise@0.000ns)
+  Data Path Delay:        2.149ns  (logic 0.835ns (38.855%)  route 1.314ns (61.145%))
+  Logic Levels:           9  (CARRY8=5 LUT2=2 LUT3=1 LUT6=1)
+  Clock Path Skew:        -0.195ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.844ns = ( 5.511 - 1.666 ) 
+    Source Clock Delay      (SCD):    3.539ns
+    Clock Pessimism Removal (CPR):    -0.500ns
+  Clock Uncertainty:      0.050ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.071ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      2.401ns (routing 0.711ns, distribution 1.690ns)
+  Clock Net Delay (Destination): 2.141ns (routing 0.646ns, distribution 1.495ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk_out1_clk_wiz_600 rise edge)
+                                                      0.000     0.000 r  
+    G31                                               0.000     0.000 r  default_sysclk1_300_clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_wiz/inst/clkin1_ibufds/I
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.559     0.559 r  clk_wiz/inst/clkin1_ibufds/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.050     0.609    clk_wiz/inst/clkin1_ibufds/OUT
+    G31                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     0.609 r  clk_wiz/inst/clkin1_ibufds/IBUFCTRL_INST/O
+                         net (fo=1, routed)           0.384     0.993    clk_wiz/inst/clk_in1_clk_wiz_600
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                     -0.127     0.866 r  clk_wiz/inst/mmcme4_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.244     1.110    clk_wiz/inst/clk_out1_clk_wiz_600
+    BUFGCE_X0Y194        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     1.138 r  clk_wiz/inst/clkout1_buf/O
+    X2Y7 (CLOCK_ROOT)    net (fo=464776, routed)      2.401     3.539    genblk1[0].DUT/clk_out1
+    SLICE_X84Y486        FDRE                                         r  genblk1[0].DUT/mops_buf_reg[83][csig][cm][1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X84Y486        FDRE (Prop_AFF2_SLICEM_C_Q)
+                                                      0.080     3.619 r  genblk1[0].DUT/mops_buf_reg[83][csig][cm][1]/Q
+                         net (fo=107, routed)         0.207     3.826    genblk1[0].DUT/cmul/p_1014_in[1]
+    SLICE_X85Y483        LUT2 (Prop_F6LUT_SLICEL_I0_O)
+                                                      0.035     3.861 r  genblk1[0].DUT/cmul/genblk2[3].dout[3][val][63]_i_18/O
+                         net (fo=107, routed)         0.080     3.941    genblk1[0].DUT/cmul/mops_buf_reg[83][csig][cm][1]_0
+    SLICE_X85Y483        LUT2 (Prop_B6LUT_SLICEL_I1_O)
+                                                      0.148     4.089 r  genblk1[0].DUT/cmul/genblk2[3].dout[3][val][31]_i_19/O
+                         net (fo=64, routed)          0.677     4.766    genblk1[0].DUT/qpmm_inst/genblk2[3].dout[3][val][31]_i_17
+    SLICE_X91Y463        LUT3 (Prop_C6LUT_SLICEL_I1_O)
+                                                      0.146     4.912 r  genblk1[0].DUT/qpmm_inst/genblk2[3].dout[3][val][31]_i_18/O
+                         net (fo=1, routed)           0.210     5.122    genblk1[0].DUT/cmul/genblk2[3].dout_reg[3][val][31]_7
+    SLICE_X91Y469        LUT6 (Prop_H6LUT_SLICEL_I1_O)
+                                                      0.150     5.272 r  genblk1[0].DUT/cmul/genblk2[3].dout[3][val][31]_i_10/O
+                         net (fo=1, routed)           0.010     5.282    genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][31][7]
+    SLICE_X91Y469        CARRY8 (Prop_CARRY8_SLICEL_S[7]_CO[7])
+                                                      0.115     5.397 r  genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][31]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     5.423    genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][31]_i_1_n_0
+    SLICE_X91Y470        CARRY8 (Prop_CARRY8_SLICEL_CI_CO[7])
+                                                      0.015     5.438 r  genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][39]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     5.464    genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][39]_i_1_n_0
+    SLICE_X91Y471        CARRY8 (Prop_CARRY8_SLICEL_CI_CO[7])
+                                                      0.015     5.479 r  genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][47]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     5.505    genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][47]_i_1_n_0
+    SLICE_X91Y472        CARRY8 (Prop_CARRY8_SLICEL_CI_CO[7])
+                                                      0.015     5.520 r  genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][55]_i_1/CO[7]
+                         net (fo=1, routed)           0.026     5.546    genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][55]_i_1_n_0
+    SLICE_X91Y473        CARRY8 (Prop_CARRY8_SLICEL_CI_O[7])
+                                                      0.116     5.662 r  genblk1[0].DUT/qpmm_inst/genblk2[3].dout_reg[3][val][63]_i_1/O[7]
+                         net (fo=1, routed)           0.026     5.688    genblk1[0].DUT/cmul/genblk2[3].dout_reg[3][val][66]_0[63]
+    SLICE_X91Y473        FDRE                                         r  genblk1[0].DUT/cmul/genblk2[3].dout_reg[3][val][63]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk_out1_clk_wiz_600 rise edge)
+                                                      1.666     1.666 r  
+    G31                                               0.000     1.666 r  default_sysclk1_300_clk_p (IN)
+                         net (fo=0)                   0.000     1.666    clk_wiz/inst/clkin1_ibufds/I
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.462     2.129 r  clk_wiz/inst/clkin1_ibufds/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.040     2.169    clk_wiz/inst/clkin1_ibufds/OUT
+    G31                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     2.169 r  clk_wiz/inst/clkin1_ibufds/IBUFCTRL_INST/O
+                         net (fo=1, routed)           0.333     2.502    clk_wiz/inst/clk_in1_clk_wiz_600
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                      0.630     3.132 r  clk_wiz/inst/mmcme4_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.214     3.346    clk_wiz/inst/clk_out1_clk_wiz_600
+    BUFGCE_X0Y194        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     3.370 r  clk_wiz/inst/clkout1_buf/O
+    X2Y7 (CLOCK_ROOT)    net (fo=464776, routed)      2.141     5.511    genblk1[0].DUT/cmul/clk_out1
+    SLICE_X91Y473        FDRE                                         r  genblk1[0].DUT/cmul/genblk2[3].dout_reg[3][val][63]/C
+                         clock pessimism             -0.500     5.010    
+                         clock uncertainty           -0.050     4.960    
+    SLICE_X91Y473        FDRE (Setup_HFF_SLICEL_C_D)
+                                                      0.025     4.985    genblk1[0].DUT/cmul/genblk2[3].dout_reg[3][val][63]
+  -------------------------------------------------------------------
+                         required time                          4.985    
+                         arrival time                          -5.688    
+  -------------------------------------------------------------------
+                         slack                                 -0.703    
+
+
+
+

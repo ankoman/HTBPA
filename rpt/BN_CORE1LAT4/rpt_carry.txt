@@ -1,0 +1,37 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2020.1 (win64) Build 2902540 Wed May 27 19:54:49 MDT 2020
+| Date         : Thu Sep 28 17:20:42 2023
+| Host         : M-2022-06 running 64-bit major release  (build 9200)
+| Command      : report_carry_chains -file C:/Users/M-2022-06/Desktop/QPMM_d0_BLS/QPMM_d0/rpt_carry.txt
+| Design       : TOP_pairing
+| Device       : xcvu9p
+--------------------------------------------------------------------------------------------------------
+
+Carry Chains Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Utilization
+
+1. Summary
+----------
+
++--------------------+----------------------------+-----------------+
+| Carry Chains Count | Average Carry Chain Height | CLB Utilization |
++--------------------+----------------------------+-----------------+
+|                 88 |                          9 |           0.56% |
++--------------------+----------------------------+-----------------+
+
+
+2. Utilization
+--------------
+
++----------------------------+---------------+--------------------------+
+| Starting Instance          | Height (CLBs) | Carry Height Utilization |
++----------------------------+---------------+--------------------------+
+| eeinv/sum1_buf_reg[31]_i_1 |            18 |                    2.00% |
++----------------------------+---------------+--------------------------+
+
+

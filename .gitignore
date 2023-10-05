@@ -2,7 +2,7 @@
 !/src/
 !/obj/
 !/misc/
-!/report/
+!/rpt/
 !.gitignore
 !.gitattributes
 !*.tcl
