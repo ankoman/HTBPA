@@ -18,7 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-import CURVE_PARAMS::*;
+
 import CONTROL::*;
 localparam FIRST_PC_ADDR = 10'h000;
 localparam ROM_DEPTH = 11;
@@ -113,6 +113,8 @@ module new_sequencer    #(
         assign func_decode_thread = func_decode_thread_5(cnt_Nclk);
     end else if (_N_THREADS == 6) begin
         assign func_decode_thread = func_decode_thread_6(cnt_Nclk);
+    end else if (_N_THREADS == 7) begin
+        assign func_decode_thread = func_decode_thread_7(cnt_Nclk);
     end
 
     assign dst = {func_decode_thread, 7'(rom_out.waddr0 + offset_dst)};
@@ -199,7 +201,21 @@ module new_sequencer    #(
             endcase
         end
     endfunction
-
+    
+    function [$clog2(N_THREADS)-1:0] func_decode_thread_7;
+        input[N_THREADS-1:0] cnt_Nclk;
+        begin
+            case(cnt_Nclk)
+                'b0000001 : func_decode_thread_7 = 'b100;
+                'b0000010 : func_decode_thread_7 = 'b101;
+                'b0000100 : func_decode_thread_7 = 'b110;
+                'b0001000 : func_decode_thread_7 = 'b000;
+                'b0010000 : func_decode_thread_7 = 'b001;
+                'b0100000 : func_decode_thread_7 = 'b010;
+                'b1000000 : func_decode_thread_7 = 'b011;
+            endcase
+        end
+    endfunction
 
 
 
