@@ -76,7 +76,7 @@ module test_pairing;
     always @(posedge clk)begin
         if(run)
             cycle_cnt <= '0;
-        else 
+        else if(busy)
             cycle_cnt <= cycle_cnt + 1'b1;
     end
     /*-------------------------------------------
@@ -116,7 +116,7 @@ module test_pairing;
             end
 
             $display( "\n###############################################\n",
-                        "%d pairings completed in %d [cycles]\n", N_THREADS, cycle_cnt + 1,
+                        "%d pairings completed in %d [cycles]\n", N_THREADS, cycle_cnt,
                         "###############################################");
         end
 
