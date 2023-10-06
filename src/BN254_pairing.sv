@@ -80,18 +80,26 @@ module BN254_pairing(
     new_sequencer #(._N_THREADS(N_THREADS))seq (.clk, .rstn, .run, .n_func, .busy, .mops, .inv_rdy);
 
     `ifdef BLS12_381
-        blk_mem_gen_436 RAM0
+        blk_mem_gen_436
     `else
-        blk_mem_gen_304 RAM0
+        `ifdef THREADS4
+            blk_mem_gen_304_512 
+        `elsif THREADS5
+            blk_mem_gen_304_640 
+        `endif
     `endif 
-    (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
+    RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
     
     `ifdef BLS12_381
-        blk_mem_gen_436 RAM1
+        blk_mem_gen_436
     `else
-        blk_mem_gen_304 RAM1
+        `ifdef THREADS4
+            blk_mem_gen_304_512 
+        `elsif THREADS5
+            blk_mem_gen_304_640 
+        `endif
     `endif 
-    (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
+    RAM1 (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
 
     preadder_Nthread preadder (
         .clk,

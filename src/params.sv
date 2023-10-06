@@ -19,7 +19,9 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-`define BLS12_381
+//`define BLS12_381
+
+`define THREADS5
 
 `ifndef CURVE_PARAMS
 `define CURVE_PARAMS
@@ -79,7 +81,7 @@ package CURVE_PARAMS;
         LEN_1024M_TILDE = 277, // Must be divided by ADD_DIV
         N_THREADS = 5,
         BRAM_DEPTH = 10,  // N_THREADS > 4, then 10
-        LAT_PE = 3,
+        LAT_PE = 4,
         LAT_QPMM = (N+1) * LAT_PE + 4;
 `endif 
 
