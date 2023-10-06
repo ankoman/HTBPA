@@ -19,9 +19,10 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+`define BN254
 //`define BLS12_381
 
-`define THREADS5
+`define LAT_PE 4
 
 `ifndef CURVE_PARAMS
 `define CURVE_PARAMS
@@ -51,11 +52,11 @@ package CURVE_PARAMS;
         L3_CARRY = 8,
         LEN_12M_TILDE = 404,
         LEN_1024M_TILDE = 407,  // Must be divided by ADD_DIV
-        N_THREADS = 6,
-        BRAM_DEPTH = 10,
-        LAT_PE = 3,
-        LAT_QPMM = (N+1) * LAT_PE + 4;  
-`else
+        LAT_PE = `LAT_PE,
+        LAT_QPMM = (N+1) * LAT_PE + 4,
+        N_THREADS = (LAT_PE == 1) ? 3 : (LAT_PE == 2) ? 4 : (LAT_PE == 3) ? 6 : (LAT_PE == 4) ? 7 : 0,
+        BRAM_DEPTH = (N_THREADS > 4) ? 10 : 9;
+`elsif BN254
     localparam
         Mod = 256'h2523648240000001ba344d80000000086121000000000013a700000000000013, //The BN254 prime
         M_tilde = 267'h7d18c77dfc340005d1864d4d3800001c39ab785000000042327630000000003ffff; // 267 bits
@@ -79,10 +80,10 @@ package CURVE_PARAMS;
         L3_CARRY = 8,
         LEN_12M_TILDE = 272,
         LEN_1024M_TILDE = 277, // Must be divided by ADD_DIV
-        N_THREADS = 5,
-        BRAM_DEPTH = 10,  // N_THREADS > 4, then 10
-        LAT_PE = 4,
-        LAT_QPMM = (N+1) * LAT_PE + 4;
+        LAT_PE = `LAT_PE,
+        LAT_QPMM = (N+1) * LAT_PE + 4,
+        N_THREADS = (LAT_PE == 1) ? 2 : (LAT_PE == 2) ? 3 : (LAT_PE == 3) ? 4 : (LAT_PE == 4) ? 5 : 0,
+        BRAM_DEPTH = (N_THREADS > 4) ? 10 : 9;
 `endif 
 
     typedef logic[$bits(M_tilde):0] uint_Mtilde2_t;

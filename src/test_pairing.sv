@@ -188,15 +188,17 @@ module test_pairing;
        write_ram(9'h186, 320'h207f399f16ce1a2c1375d67f31acf4eaabbf2ffc67b4018007db6384c3f0d40, 0);   // Px
        write_ram(9'h187, 320'hca7d2bc8e46f1a1c8e26d7d38ef6f2be7a8c7bcbd0e1832802ce49eb94c24d6, 0);   // Py
 
-       //5th pairing input 4P, Q
-       write_ram(10'h200, 320'h18385828e1e41b2a859c200caf5f9cc4d2b9011f41994717a18a22429704e210, 0);   // Qx_0
-       write_ram(10'h201, 320'h177e7c7d4889ee15a8b6ecb1d9a734286c7c1bc1442a3b83599a4251eab78ba8, 0);   // Qx_1
-       write_ram(10'h202, 320'h1e7f757bc9b6464bf6d4e58e226e9c99629939da2567751118aff08d67fb3dbb, 0);   // Qy_0
-       write_ram(10'h203, 320'h118f6ee1a22fecf493454224f604ebfb98337fce97b56c0ecad2f655c2525aa0, 0);    // Qy_1
-       write_ram(10'h204, 320'h1, 0);    // Qz_0
-       write_ram(10'h205, 0, 0);                                                                       // Qz_1
-       write_ram(10'h206, 320'h1f533e7ecd21721d7d3812c4879037c8e3129182db6da9d451002c82c07c8684, 0);   // Px
-       write_ram(10'h207, 320'h14b8841aa46f686c257272403eb2ddf5d29a7a9b2eed83f618e0286fa64a6372, 0);   // Py
+        if (N_THREADS > 4) begin
+           //5th pairing input 4P, Q
+           write_ram(10'h200, 320'h18385828e1e41b2a859c200caf5f9cc4d2b9011f41994717a18a22429704e210, 0);   // Qx_0
+           write_ram(10'h201, 320'h177e7c7d4889ee15a8b6ecb1d9a734286c7c1bc1442a3b83599a4251eab78ba8, 0);   // Qx_1
+           write_ram(10'h202, 320'h1e7f757bc9b6464bf6d4e58e226e9c99629939da2567751118aff08d67fb3dbb, 0);   // Qy_0
+           write_ram(10'h203, 320'h118f6ee1a22fecf493454224f604ebfb98337fce97b56c0ecad2f655c2525aa0, 0);    // Qy_1
+           write_ram(10'h204, 320'h1, 0);    // Qz_0
+           write_ram(10'h205, 0, 0);                                                                       // Qz_1
+           write_ram(10'h206, 320'h1f533e7ecd21721d7d3812c4879037c8e3129182db6da9d451002c82c07c8684, 0);   // Px
+           write_ram(10'h207, 320'h14b8841aa46f686c257272403eb2ddf5d29a7a9b2eed83f618e0286fa64a6372, 0);   // Py
+        end
     endtask
 
     task ram_init_BLS;
@@ -333,25 +335,27 @@ module test_pairing;
         write_ram('h224, 'h6266ea86a2d27c9ffae7bca245ef0aec53439f2badb6a0480fa012749c8bd9dde2ecd0389ebc8f9c4291d51d3fbb2cd, 0);    // Tz_0
         write_ram('h225, 0, 0);  
 
-        //input RAM5
-        //Q
-        write_ram('h280, 'hb7b1cc9e11446011fb76adf571133eb16098f225a8c2536900000073751cddd10befc6b2cd38765e31b42ecbfe5725f, 0);   // Qx_0
-        write_ram('h281, 'h193290ce73dc6c4aad0fb76c4891f6dfae7c95f4ef825e952ddf82ee4a0a21220932f017d57c9fe67f1a5d370a93f917, 0);   // Qx_1
-        write_ram('h282, 'h181c27943c4307efc584a0f76799344cf6a205bd1b3c632112aee64756092ba93d7ae97bc1e29d62ac79f63f150788b6, 0);   // Qy_0
-        write_ram('h283, 'h5af173ec99cdf92cf1df4e0122399bddff451c1221909b699ced210714461cc6fde8e7d39c50a2104b10a74ca443a53, 0);    // Qy_1
-        write_ram('h284, 'h6266ea86a2d27c9ffae7bca245ef0aec53439f2badb6a0480fa012749c8bd9dde2ecd0389ebc8f9c4291d51d3fbb2cd, 0);    // Qz_0
-        write_ram('h285, 0, 0);   // Qz_1
-        //P                                                                    
-        write_ram('h286, 'h1860eac3d6a95df6e3eeb0e1fc6b63665a43e04e717c672e6f948a8cbcb20fc0b91497f7148bc43b0c7957ae8a7ef407, 0);   // Px
-        write_ram('h287, 'hfc3609f47066f909d63f8e2381d5404bc703555b49eed2a45f1c15fbc47ab6dc898c1e07266b9306d3ee6b56b373a71, 0);   // Py
-        // Pz
-        //T
-        write_ram('h2a0, 'hb7b1cc9e11446011fb76adf571133eb16098f225a8c2536900000073751cddd10befc6b2cd38765e31b42ecbfe5725f, 0);   // Tx_0
-        write_ram('h2a1, 'h193290ce73dc6c4aad0fb76c4891f6dfae7c95f4ef825e952ddf82ee4a0a21220932f017d57c9fe67f1a5d370a93f917, 0);   // Tx_1
-        write_ram('h2a2, 'h181c27943c4307efc584a0f76799344cf6a205bd1b3c632112aee64756092ba93d7ae97bc1e29d62ac79f63f150788b6, 0);   // Ty_0
-        write_ram('h2a3, 'h5af173ec99cdf92cf1df4e0122399bddff451c1221909b699ced210714461cc6fde8e7d39c50a2104b10a74ca443a53, 0);    // Ty_1
-        write_ram('h2a4, 'h6266ea86a2d27c9ffae7bca245ef0aec53439f2badb6a0480fa012749c8bd9dde2ecd0389ebc8f9c4291d51d3fbb2cd, 0);    // Tz_0
-        write_ram('h2a5, 0, 0);                                                                       // Tz_1
+        if (N_THREADS > 5) begin
+            //input RAM5
+            //Q
+            write_ram('h280, 'hb7b1cc9e11446011fb76adf571133eb16098f225a8c2536900000073751cddd10befc6b2cd38765e31b42ecbfe5725f, 0);   // Qx_0
+            write_ram('h281, 'h193290ce73dc6c4aad0fb76c4891f6dfae7c95f4ef825e952ddf82ee4a0a21220932f017d57c9fe67f1a5d370a93f917, 0);   // Qx_1
+            write_ram('h282, 'h181c27943c4307efc584a0f76799344cf6a205bd1b3c632112aee64756092ba93d7ae97bc1e29d62ac79f63f150788b6, 0);   // Qy_0
+            write_ram('h283, 'h5af173ec99cdf92cf1df4e0122399bddff451c1221909b699ced210714461cc6fde8e7d39c50a2104b10a74ca443a53, 0);    // Qy_1
+            write_ram('h284, 'h6266ea86a2d27c9ffae7bca245ef0aec53439f2badb6a0480fa012749c8bd9dde2ecd0389ebc8f9c4291d51d3fbb2cd, 0);    // Qz_0
+            write_ram('h285, 0, 0);   // Qz_1
+            //P                                                                    
+            write_ram('h286, 'h1860eac3d6a95df6e3eeb0e1fc6b63665a43e04e717c672e6f948a8cbcb20fc0b91497f7148bc43b0c7957ae8a7ef407, 0);   // Px
+            write_ram('h287, 'hfc3609f47066f909d63f8e2381d5404bc703555b49eed2a45f1c15fbc47ab6dc898c1e07266b9306d3ee6b56b373a71, 0);   // Py
+            // Pz
+            //T
+            write_ram('h2a0, 'hb7b1cc9e11446011fb76adf571133eb16098f225a8c2536900000073751cddd10befc6b2cd38765e31b42ecbfe5725f, 0);   // Tx_0
+            write_ram('h2a1, 'h193290ce73dc6c4aad0fb76c4891f6dfae7c95f4ef825e952ddf82ee4a0a21220932f017d57c9fe67f1a5d370a93f917, 0);   // Tx_1
+            write_ram('h2a2, 'h181c27943c4307efc584a0f76799344cf6a205bd1b3c632112aee64756092ba93d7ae97bc1e29d62ac79f63f150788b6, 0);   // Ty_0
+            write_ram('h2a3, 'h5af173ec99cdf92cf1df4e0122399bddff451c1221909b699ced210714461cc6fde8e7d39c50a2104b10a74ca443a53, 0);    // Ty_1
+            write_ram('h2a4, 'h6266ea86a2d27c9ffae7bca245ef0aec53439f2badb6a0480fa012749c8bd9dde2ecd0389ebc8f9c4291d51d3fbb2cd, 0);    // Tz_0
+            write_ram('h2a5, 0, 0);                                                                       // Tz_1
+        end
     endtask
 
     

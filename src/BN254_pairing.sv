@@ -80,27 +80,19 @@ module BN254_pairing(
     new_sequencer #(._N_THREADS(N_THREADS))seq (.clk, .rstn, .run, .n_func, .busy, .mops, .inv_rdy);
 
     `ifdef BLS12_381
-        blk_mem_gen_436
-    `else
-        `ifdef THREADS4
-            blk_mem_gen_304_512 
-        `elsif THREADS5
-            blk_mem_gen_304_640 
-        `endif
+        blk_mem_gen_436 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
+        blk_mem_gen_436 RAM1 (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
+    `elsif BN254
+        if (LAT_PE == 3) begin
+            blk_mem_gen_304_512 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
+            blk_mem_gen_304_512 RAM1 (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
+        end 
+        else if (LAT_PE == 4) begin
+            blk_mem_gen_304_640 RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
+            blk_mem_gen_304_640 RAM1 (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
+        end
     `endif 
-    RAM0 (.wea(me0),.addra(waddr0),.dina(memin),.clka(clk),.addrb(mops.src0),.doutb(memout0),.clkb(clk));
     
-    `ifdef BLS12_381
-        blk_mem_gen_436
-    `else
-        `ifdef THREADS4
-            blk_mem_gen_304_512 
-        `elsif THREADS5
-            blk_mem_gen_304_640 
-        `endif
-    `endif 
-    RAM1 (.wea(me1),.addra(waddr0),.dina(memin),.clka(clk),.addrb(addrb1_sakamoto),.doutb(memout1),.clkb(clk));
-
     preadder_Nthread preadder (
         .clk,
         .rstn,
