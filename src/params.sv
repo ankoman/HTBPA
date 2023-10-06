@@ -19,10 +19,10 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-`define BN254
-//`define BLS12_381
+//`define BN254
+`define BLS12_381
 
-`define LAT_PE 4
+`define LAT_PE 3
 
 `ifndef CURVE_PARAMS
 `define CURVE_PARAMS

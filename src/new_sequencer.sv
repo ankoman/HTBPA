@@ -47,8 +47,12 @@ module new_sequencer    #(
     logic waitinv;
 
     assign busy = (pc != FIRST_PC_ADDR) ^ run;
-    csig_rom rom(clk, pc, rom_out);            
-
+    
+    `ifdef BLS12_381
+         csig_rom_bls rom(clk, pc, rom_out);  
+    `elsif BN254
+         csig_rom_bn rom(clk, pc, rom_out);  
+    `endif
 
     //////////////////////////////////////
     //// Counters
