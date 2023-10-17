@@ -184,7 +184,7 @@ module Mont_inv_multi(
     logic       addr2_ci_n, addr1_ci;
     // Two cycle adder
     M_tilde12_t sum1_buf, sum2_buf, sum1, sum2;
-    M_tilde12_t [1:0] sum1_buf_for_6T, sum2_buf_for_6T;
+    M_tilde12_t [2:0] sum1_buf_for_6T, sum2_buf_for_6T;
     logic         co1;
     logic [1:0]   co2;
     always @(posedge clk) begin
@@ -206,16 +206,22 @@ module Mont_inv_multi(
           sum2 <= {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]};
         end 
         else if (N_THREADS == 5) begin
-          sum1_buf_for_6T <= {sum1_buf_for_6T[0], {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]}};
-          sum2_buf_for_6T <= {sum2_buf_for_6T[0], {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]}};
+          sum1_buf_for_6T[0] <= {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]};
+          sum2_buf_for_6T[0] <= {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]};
           sum1 <= sum1_buf_for_6T[0];
           sum2 <= sum2_buf_for_6T[0];
         end
         else if (N_THREADS == 6) begin
-          sum1_buf_for_6T <= {sum1_buf_for_6T[0], {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]}};
-          sum2_buf_for_6T <= {sum2_buf_for_6T[0], {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]}};
+          sum1_buf_for_6T[1:0] <= {sum1_buf_for_6T[0], {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]}};
+          sum2_buf_for_6T[1:0] <= {sum2_buf_for_6T[0], {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]}};
           sum1 <= sum1_buf_for_6T[1];
           sum2 <= sum2_buf_for_6T[1];
+        end
+        else if (N_THREADS == 7) begin
+          sum1_buf_for_6T <= {sum1_buf_for_6T[1], sum1_buf_for_6T[0], {sum1_buf.poly[3:2] + co1, sum1_buf.poly[1:0]}};
+          sum2_buf_for_6T <= {sum2_buf_for_6T[1], sum2_buf_for_6T[0], {sum2_buf.poly[3:2] + co2, sum2_buf.poly[1:0]}};
+          sum1 <= sum1_buf_for_6T[2];
+          sum2 <= sum2_buf_for_6T[2];
         end
     end
 
@@ -590,8 +596,8 @@ module extendedEuclidean5(a,p,a_inv,result_flag,startflag,clk,rstn,invcnt);
     
     wire [bit_width + 1:0] x1_wire;
     wire [bit_width + 1:0] x2_wire;
-    wire [bit_width + 1:0] p2_wire; // p/2_wire: ãƒ¬ã‚¸ã‚¹ã‚¿ã‹åŒ–ã—ãŸã»ã?ãŒã„ã?ã‹ã‚‚?¼šé?ç·šé…å»¶å¢—å¤§é˜²æ­¢
-    wire [bit_width + 1:0] p4_wire; // p/4_wire: ãƒ¬ã‚¸ã‚¹ã‚¿ã‹åŒ–ã—ãŸã»ã?ãŒã„ã?ã‹ã‚‚?¼šé?ç·šé…å»¶å¢—å¤§é˜²æ­¢
+    wire [bit_width + 1:0] p2_wire; // p/2_wire: ãƒ¬ã‚¸ã‚¹ã‚¿ã�?�åŒ�?�ã�?�ã�?Ÿã�?»ã�??ã�?Œã�?�ã�??ã�?�ã‚�???¼šé?ç·šé�?�å»¶å¢—å¤§é˜²æ­¢
+    wire [bit_width + 1:0] p4_wire; // p/4_wire: ãƒ¬ã‚¸ã‚¹ã‚¿ã�?�åŒ�?�ã�?�ã�?Ÿã�?»ã�??ã�?Œã�?�ã�??ã�?�ã‚�???¼šé?ç·šé�?�å»¶å¢—å¤§é˜²æ­¢
     wire [bit_width + 1:0] x1_2_wire;
     wire [bit_width + 1:0] x1_4_wire;
     wire [bit_width + 1:0] x2_2_wire;
@@ -625,7 +631,7 @@ module extendedEuclidean5(a,p,a_inv,result_flag,startflag,clk,rstn,invcnt);
 	assign p2_wire = {3'b0, p[bit_width-1: 1]};
 	assign p4_wire = {4'b0, p[bit_width-1: 2]};
 	
-	//è²?å€¤ã«å¯¾å¿œã™ã‚‹ãŸã‚?¼Ÿï¼Ÿï¼Ÿï¼?
+	//è²?å€¤ã�?«å¯¾å¿œã™ã‚�?�ã�?Ÿã�??¼Ÿï¼Ÿï¼Ÿï¼?
 	assign x1_2_wire = {x1[bit_width+1], x1[bit_width+1: 1]};
 	assign x1_4_wire = {x1[bit_width+1],x1[bit_width+1], x1[bit_width+1: 2]};
     
