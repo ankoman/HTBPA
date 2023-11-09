@@ -1,0 +1,99 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------
+| Tool Version      : Vivado v.2020.1 (win64) Build 2902540 Wed May 27 19:54:49 MDT 2020
+| Date              : Thu Nov  9 14:01:48 2023
+| Host              : DESKTOP-PALFBUB running 64-bit major release  (build 9200)
+| Command           : report_timing -file C:/Users/sakamoto/Desktop/FPGA_PAIRING/prj/QPMM_d0/HTBPA/rpt_timing.txt
+| Design            : TOP_pairing
+| Device            : xcvu9p-flga2104
+| Speed File        : -2L  PRODUCTION 1.27 02-28-2020
+| Temperature Grade : E
+------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (VIOLATED) :        -0.399ns  (required time - arrival time)
+  Source:                 genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/DSP_M_DATA_INST/CLK
+                            (rising edge-triggered cell DSP_M_DATA clocked by clk_out1_clk_wiz_600  {rise@0.000ns fall@0.833ns period=1.666ns})
+  Destination:            genblk1[0].DUT/qpmm_inst/QPMM[1].for_1[3].pe/mul_qm/U0/i_synth/i_synth_option.i_synth_model/i_c4/opt_has_pipe.first_q_reg[42]_psdsp_10/D
+                            (rising edge-triggered cell FDRE clocked by clk_out1_clk_wiz_600  {rise@0.000ns fall@0.833ns period=1.666ns})
+  Path Group:             clk_out1_clk_wiz_600
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            1.666ns  (clk_out1_clk_wiz_600 rise@1.666ns - clk_out1_clk_wiz_600 rise@0.000ns)
+  Data Path Delay:        1.796ns  (logic 0.957ns (53.285%)  route 0.839ns (46.715%))
+  Logic Levels:           2  (DSP_ALU=1 DSP_OUTPUT=1)
+  Clock Path Skew:        -0.244ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    3.629ns = ( 5.296 - 1.666 ) 
+    Source Clock Delay      (SCD):    3.442ns
+    Clock Pessimism Removal (CPR):    -0.431ns
+  Clock Uncertainty:      0.050ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.071ns
+    Phase Error              (PE):    0.000ns
+  Clock Net Delay (Source):      2.304ns (routing 0.584ns, distribution 1.720ns)
+  Clock Net Delay (Destination): 1.926ns (routing 0.534ns, distribution 1.392ns)
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock clk_out1_clk_wiz_600 rise edge)
+                                                      0.000     0.000 r  
+    G31                                               0.000     0.000 r  default_sysclk1_300_clk_p (IN)
+                         net (fo=0)                   0.000     0.000    clk_wiz/inst/clkin1_ibufds/I
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.559     0.559 r  clk_wiz/inst/clkin1_ibufds/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.050     0.609    clk_wiz/inst/clkin1_ibufds/OUT
+    G31                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     0.609 r  clk_wiz/inst/clkin1_ibufds/IBUFCTRL_INST/O
+                         net (fo=1, routed)           0.384     0.993    clk_wiz/inst/clk_in1_clk_wiz_600
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                     -0.127     0.866 r  clk_wiz/inst/mmcme4_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.244     1.110    clk_wiz/inst/clk_out1_clk_wiz_600
+    BUFGCE_X0Y194        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.028     1.138 r  clk_wiz/inst/clkout1_buf/O
+    X3Y8 (CLOCK_ROOT)    net (fo=43033, routed)       2.304     3.442    genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/CLK
+    DSP48E2_X7Y201       DSP_M_DATA                                   r  genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/DSP_M_DATA_INST/CLK
+  -------------------------------------------------------------------    -------------------
+    DSP48E2_X7Y201       DSP_M_DATA (Prop_DSP_M_DATA_DSP48E2_CLK_V_DATA[37])
+                                                      0.277     3.719 r  genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/DSP_M_DATA_INST/V_DATA[37]
+                         net (fo=1, routed)           0.000     3.719    genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/DSP_M_DATA.V_DATA<37>
+    DSP48E2_X7Y201       DSP_ALU (Prop_DSP_ALU_DSP48E2_V_DATA[37]_ALU_OUT[37])
+                                                      0.571     4.290 f  genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/DSP_ALU_INST/ALU_OUT[37]
+                         net (fo=1, routed)           0.000     4.290    genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/DSP_ALU.ALU_OUT<37>
+    DSP48E2_X7Y201       DSP_OUTPUT (Prop_DSP_OUTPUT_DSP48E2_ALU_OUT[37]_P[37])
+                                                      0.109     4.399 r  genblk1[0].DUT/qpmm_inst/QPMM[0].for_1[4].mul_ab/mul_ab/U0/i_synth/i_synth_option.i_synth_model/opt_8series.i_uniwrap/i_primitive/DSP_OUTPUT_INST/P[37]
+                         net (fo=1, routed)           0.839     5.238    genblk1[0].DUT/qpmm_inst/QPMM[1].for_1[3].pe/mul_qm/U0/i_synth/i_synth_option.i_synth_model/i_c4/opt_has_pipe.first_q_reg[42]_psdsp_psdsp_n_9
+    SLICE_X63Y505        FDRE                                         r  genblk1[0].DUT/qpmm_inst/QPMM[1].for_1[3].pe/mul_qm/U0/i_synth/i_synth_option.i_synth_model/i_c4/opt_has_pipe.first_q_reg[42]_psdsp_10/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock clk_out1_clk_wiz_600 rise edge)
+                                                      1.666     1.666 r  
+    G31                                               0.000     1.666 r  default_sysclk1_300_clk_p (IN)
+                         net (fo=0)                   0.000     1.666    clk_wiz/inst/clkin1_ibufds/I
+    HPIOBDIFFINBUF_X0Y204
+                         DIFFINBUF (Prop_DIFFINBUF_HPIOBDIFFINBUF_DIFF_IN_P_O)
+                                                      0.462     2.129 r  clk_wiz/inst/clkin1_ibufds/DIFFINBUF_INST/O
+                         net (fo=1, routed)           0.040     2.169    clk_wiz/inst/clkin1_ibufds/OUT
+    G31                  IBUFCTRL (Prop_IBUFCTRL_HPIOB_M_I_O)
+                                                      0.000     2.169 r  clk_wiz/inst/clkin1_ibufds/IBUFCTRL_INST/O
+                         net (fo=1, routed)           0.333     2.502    clk_wiz/inst/clk_in1_clk_wiz_600
+    MMCM_X0Y8            MMCME4_ADV (Prop_MMCM_CLKIN1_CLKOUT0)
+                                                      0.630     3.132 r  clk_wiz/inst/mmcme4_adv_inst/CLKOUT0
+                         net (fo=1, routed)           0.214     3.346    clk_wiz/inst/clk_out1_clk_wiz_600
+    BUFGCE_X0Y194        BUFGCE (Prop_BUFCE_BUFGCE_I_O)
+                                                      0.024     3.370 r  clk_wiz/inst/clkout1_buf/O
+    X3Y8 (CLOCK_ROOT)    net (fo=43033, routed)       1.926     5.296    genblk1[0].DUT/qpmm_inst/QPMM[1].for_1[3].pe/mul_qm/U0/i_synth/i_synth_option.i_synth_model/i_c4/CLK
+    SLICE_X63Y505        FDRE                                         r  genblk1[0].DUT/qpmm_inst/QPMM[1].for_1[3].pe/mul_qm/U0/i_synth/i_synth_option.i_synth_model/i_c4/opt_has_pipe.first_q_reg[42]_psdsp_10/C
+                         clock pessimism             -0.431     4.864    
+                         clock uncertainty           -0.050     4.814    
+    SLICE_X63Y505        FDRE (Setup_HFF2_SLICEL_C_D)
+                                                      0.025     4.839    genblk1[0].DUT/qpmm_inst/QPMM[1].for_1[3].pe/mul_qm/U0/i_synth/i_synth_option.i_synth_model/i_c4/opt_has_pipe.first_q_reg[42]_psdsp_10
+  -------------------------------------------------------------------
+                         required time                          4.839    
+                         arrival time                          -5.238    
+  -------------------------------------------------------------------
+                         slack                                 -0.399    
+
+
+
+

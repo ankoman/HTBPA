@@ -1,0 +1,375 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------------------
+| Tool Version     : Vivado v.2020.1 (win64) Build 2902540 Wed May 27 19:54:49 MDT 2020
+| Date             : Thu Nov  9 14:02:11 2023
+| Host             : DESKTOP-PALFBUB running 64-bit major release  (build 9200)
+| Command          : report_power -file C:/Users/sakamoto/Desktop/FPGA_PAIRING/prj/QPMM_d0/HTBPA/rpt_power.txt
+| Design           : TOP_pairing
+| Device           : xcvu9p-flga2104-2L-e
+| Design State     : routed
+| Grade            : extended
+| Process          : typical
+| Characterization : Production
+-----------------------------------------------------------------------------------------------------------------------
+
+Power Report
+
+Table of Contents
+-----------------
+1. Summary
+1.1 On-Chip Components
+1.2 Power Supply Summary
+1.3 Confidence Level
+2. Settings
+2.1 Environment
+2.2 Clock Constraints
+3. Detailed Reports
+3.1 By Hierarchy
+
+1. Summary
+----------
+
++--------------------------+--------------+
+| Total On-Chip Power (W)  | 10.064       |
+| Design Power Budget (W)  | Unspecified* |
+| Power Budget Margin (W)  | NA           |
+| Dynamic (W)              | 7.480        |
+| Device Static (W)        | 2.584        |
+| Effective TJA (C/W)      | 0.5          |
+| Max Ambient (C)          | 94.5         |
+| Junction Temperature (C) | 30.5         |
+| Confidence Level         | Medium       |
+| Setting File             | ---          |
+| Simulation Activity File | ---          |
+| Design Nets Matched      | NA           |
++--------------------------+--------------+
+* Specify Design Power Budget using, set_operating_conditions -design_power_budget <value in Watts>
+
+
+1.1 On-Chip Components
+----------------------
+
++-------------------------+-----------+----------+-----------+-----------------+
+| On-Chip                 | Power (W) | Used     | Available | Utilization (%) |
++-------------------------+-----------+----------+-----------+-----------------+
+| Clocks                  |     0.701 |        4 |       --- |             --- |
+| CLB Logic               |     1.676 |    54977 |       --- |             --- |
+|   LUT as Shift Register |     0.878 |     6513 |    591840 |            1.10 |
+|   LUT as Logic          |     0.530 |    11194 |   1182240 |            0.95 |
+|   Register              |     0.240 |    34290 |   2364480 |            1.45 |
+|   CARRY8                |     0.028 |      815 |    147780 |            0.55 |
+|   Others                |     0.000 |     2095 |       --- |             --- |
+| Signals                 |     2.823 |    53938 |       --- |             --- |
+| Block RAM               |     0.204 |     12.5 |      2160 |            0.58 |
+| MMCM                    |     0.099 |        0 |       --- |             --- |
+| DSPs                    |     1.975 |      367 |      6840 |            5.37 |
+| I/O                     |     0.003 |        2 |       832 |            0.24 |
+| Static Power            |     2.584 |          |           |                 |
+| Total                   |    10.064 |          |           |                 |
++-------------------------+-----------+----------+-----------+-----------------+
+
+
+1.2 Power Supply Summary
+------------------------
+
++------------+-------------+-----------+-------------+------------+-------------+-------------+------------+
+| Source     | Voltage (V) | Total (A) | Dynamic (A) | Static (A) | Powerup (A) | Budget (A)  | Margin (A) |
++------------+-------------+-----------+-------------+------------+-------------+-------------+------------+
+| Vccint     |       0.850 |     9.618 |       8.662 |      0.956 |       NA    | Unspecified | NA         |
+| Vccint_io  |       0.850 |     0.268 |       0.001 |      0.267 |       NA    | Unspecified | NA         |
+| Vccbram    |       0.850 |     0.037 |       0.019 |      0.018 |       NA    | Unspecified | NA         |
+| Vccaux     |       1.800 |     0.695 |       0.054 |      0.641 |       NA    | Unspecified | NA         |
+| Vccaux_io  |       1.800 |     0.186 |       0.001 |      0.185 |       NA    | Unspecified | NA         |
+| Vcco33     |       3.300 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco25     |       2.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco18     |       1.800 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco15     |       1.500 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco135    |       1.350 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco12     |       1.200 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vcco10     |       1.000 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| Vccadc     |       1.800 |     0.024 |       0.000 |      0.024 |       NA    | Unspecified | NA         |
+| MGTYAVcc   |       0.900 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| MGTYAVtt   |       1.200 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
+| MGTYVccaux |       1.800 |     0.000 |       0.000 |      0.000 |       NA    | Unspecified | NA         |
++------------+-------------+-----------+-------------+------------+-------------+-------------+------------+
+
+
+1.3 Confidence Level
+--------------------
+
++-----------------------------+------------+------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+| User Input Data             | Confidence | Details                                        | Action                                                                                                     |
++-----------------------------+------------+------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+| Design implementation state | High       | Design is routed                               |                                                                                                            |
+| Clock nodes activity        | High       | User specified more than 95% of clocks         |                                                                                                            |
+| I/O nodes activity          | High       | User specified more than 95% of inputs         |                                                                                                            |
+| Internal nodes activity     | Medium     | User specified less than 25% of internal nodes | Provide missing internal nodes activity with simulation results or by editing the "By Resource Type" views |
+| Device models               | High       | Device models are Production                   |                                                                                                            |
+|                             |            |                                                |                                                                                                            |
+| Overall confidence level    | Medium     |                                                |                                                                                                            |
++-----------------------------+------------+------------------------------------------------+------------------------------------------------------------------------------------------------------------+
+
+
+2. Settings
+-----------
+
+2.1 Environment
+---------------
+
++-----------------------+--------------------------+
+| Ambient Temp (C)      | 25.0                     |
+| ThetaJA (C/W)         | 0.5                      |
+| Airflow (LFM)         | 250                      |
+| Heat Sink             | medium (Medium Profile)  |
+| ThetaSA (C/W)         | 0.7                      |
+| Board Selection       | medium (10"x10")         |
+| # of Board Layers     | 12to15 (12 to 15 Layers) |
+| Board Temperature (C) | 25.0                     |
++-----------------------+--------------------------+
+
+
+2.2 Clock Constraints
+---------------------
+
++---------------------------+-----------------------------------+-----------------+
+| Clock                     | Domain                            | Constraint (ns) |
++---------------------------+-----------------------------------+-----------------+
+| clk_out1_clk_wiz_600      | clk_wiz/inst/clk_out1_clk_wiz_600 |             1.7 |
+| default_sysclk1_300_clk_p | default_sysclk1_300_clk_p         |             3.3 |
++---------------------------+-----------------------------------+-----------------+
+
+
+3. Detailed Reports
+-------------------
+
+3.1 By Hierarchy
+----------------
+
++---------------------------------+-----------+
+| Name                            | Power (W) |
++---------------------------------+-----------+
+| TOP_pairing                     |     7.480 |
+|   clk_wiz                       |     0.102 |
+|     inst                        |     0.102 |
+|       clkin1_ibufds             |     0.003 |
+|   genblk1[0].DUT                |     7.359 |
+|     RAM0                        |     0.195 |
+|       U0                        |     0.195 |
+|     RAM1                        |     0.178 |
+|       U0                        |     0.178 |
+|     cmul                        |     0.131 |
+|     eeinv                       |     0.572 |
+|     postadder                   |     0.441 |
+|       acc1                      |     0.062 |
+|       acc2                      |     0.060 |
+|       acc3                      |     0.063 |
+|     preadder                    |     0.608 |
+|       adder0                    |     0.016 |
+|       adder1                    |     0.014 |
+|       adder2                    |     0.015 |
+|       subtractor0               |     0.013 |
+|     qpmm_inst                   |     4.885 |
+|       QPMM[0].for_1[0].mul_ab   |     0.014 |
+|       QPMM[0].for_1[10].mul_ab  |     0.007 |
+|       QPMM[0].for_1[1].mul_ab   |     0.006 |
+|       QPMM[0].for_1[2].mul_ab   |     0.006 |
+|       QPMM[0].for_1[3].mul_ab   |     0.010 |
+|       QPMM[0].for_1[4].mul_ab   |     0.006 |
+|       QPMM[0].for_1[5].mul_ab   |     0.007 |
+|       QPMM[0].for_1[6].mul_ab   |     0.007 |
+|       QPMM[0].for_1[7].mul_ab   |     0.011 |
+|       QPMM[0].for_1[8].mul_ab   |     0.007 |
+|       QPMM[0].for_1[9].mul_ab   |     0.006 |
+|       QPMM[10].for_1[0].pe      |     0.023 |
+|       QPMM[10].for_1[10].mul_ab |     0.006 |
+|       QPMM[10].for_1[1].pe      |     0.019 |
+|       QPMM[10].for_1[2].pe      |     0.018 |
+|       QPMM[10].for_1[3].pe      |     0.020 |
+|       QPMM[10].for_1[4].pe      |     0.017 |
+|       QPMM[10].for_1[5].pe      |     0.017 |
+|       QPMM[10].for_1[6].pe      |     0.017 |
+|       QPMM[10].for_1[7].pe      |     0.016 |
+|       QPMM[10].for_1[8].pe      |     0.016 |
+|       QPMM[10].for_1[9].pe      |     0.018 |
+|       QPMM[11].for_1[0].pe      |     0.025 |
+|       QPMM[11].for_1[10].mul_ab |     0.006 |
+|       QPMM[11].for_1[1].pe      |     0.015 |
+|       QPMM[11].for_1[2].pe      |     0.017 |
+|       QPMM[11].for_1[3].pe      |     0.017 |
+|       QPMM[11].for_1[4].pe      |     0.018 |
+|       QPMM[11].for_1[5].pe      |     0.015 |
+|       QPMM[11].for_1[6].pe      |     0.017 |
+|       QPMM[11].for_1[7].pe      |     0.015 |
+|       QPMM[11].for_1[8].pe      |     0.017 |
+|       QPMM[11].for_1[9].pe      |     0.017 |
+|       QPMM[12].for_1[0].pe      |     0.025 |
+|       QPMM[12].for_1[10].mul_ab |     0.006 |
+|       QPMM[12].for_1[1].pe      |     0.016 |
+|       QPMM[12].for_1[2].pe      |     0.015 |
+|       QPMM[12].for_1[3].pe      |     0.015 |
+|       QPMM[12].for_1[4].pe      |     0.017 |
+|       QPMM[12].for_1[5].pe      |     0.016 |
+|       QPMM[12].for_1[6].pe      |     0.015 |
+|       QPMM[12].for_1[7].pe      |     0.015 |
+|       QPMM[12].for_1[8].pe      |     0.015 |
+|       QPMM[12].for_1[9].pe      |     0.015 |
+|       QPMM[13].for_1[0].pe      |     0.027 |
+|       QPMM[13].for_1[10].mul_ab |     0.006 |
+|       QPMM[13].for_1[1].pe      |     0.017 |
+|       QPMM[13].for_1[2].pe      |     0.016 |
+|       QPMM[13].for_1[3].pe      |     0.016 |
+|       QPMM[13].for_1[4].pe      |     0.016 |
+|       QPMM[13].for_1[5].pe      |     0.014 |
+|       QPMM[13].for_1[6].pe      |     0.017 |
+|       QPMM[13].for_1[7].pe      |     0.015 |
+|       QPMM[13].for_1[8].pe      |     0.017 |
+|       QPMM[13].for_1[9].pe      |     0.016 |
+|       QPMM[14].for_1[0].pe      |     0.023 |
+|       QPMM[14].for_1[10].mul_ab |     0.007 |
+|       QPMM[14].for_1[1].pe      |     0.015 |
+|       QPMM[14].for_1[2].pe      |     0.017 |
+|       QPMM[14].for_1[3].pe      |     0.015 |
+|       QPMM[14].for_1[4].pe      |     0.016 |
+|       QPMM[14].for_1[5].pe      |     0.014 |
+|       QPMM[14].for_1[6].pe      |     0.017 |
+|       QPMM[14].for_1[7].pe      |     0.017 |
+|       QPMM[14].for_1[8].pe      |     0.017 |
+|       QPMM[14].for_1[9].pe      |     0.018 |
+|       QPMM[15].for_1[0].pe      |     0.024 |
+|       QPMM[15].for_1[10].mul_ab |     0.006 |
+|       QPMM[15].for_1[1].pe      |     0.017 |
+|       QPMM[15].for_1[2].pe      |     0.017 |
+|       QPMM[15].for_1[3].pe      |     0.015 |
+|       QPMM[15].for_1[4].pe      |     0.015 |
+|       QPMM[15].for_1[5].pe      |     0.016 |
+|       QPMM[15].for_1[6].pe      |     0.018 |
+|       QPMM[15].for_1[7].pe      |     0.015 |
+|       QPMM[15].for_1[8].pe      |     0.015 |
+|       QPMM[15].for_1[9].pe      |     0.020 |
+|       QPMM[16].for_1[0].pe      |     0.025 |
+|       QPMM[16].for_1[10].mul_ab |     0.006 |
+|       QPMM[16].for_1[1].pe      |     0.017 |
+|       QPMM[16].for_1[2].pe      |     0.017 |
+|       QPMM[16].for_1[3].pe      |     0.018 |
+|       QPMM[16].for_1[4].pe      |     0.018 |
+|       QPMM[16].for_1[5].pe      |     0.021 |
+|       QPMM[16].for_1[6].pe      |     0.018 |
+|       QPMM[16].for_1[7].pe      |     0.019 |
+|       QPMM[16].for_1[8].pe      |     0.019 |
+|       QPMM[16].for_1[9].pe      |     0.016 |
+|       QPMM[17].for_1[0].pe      |     0.011 |
+|       QPMM[17].for_1[1].pe      |     0.015 |
+|       QPMM[17].for_1[2].pe      |     0.013 |
+|       QPMM[17].for_1[3].pe      |     0.013 |
+|       QPMM[17].for_1[4].pe      |     0.012 |
+|       QPMM[17].for_1[5].pe      |     0.013 |
+|       QPMM[17].for_1[6].pe      |     0.019 |
+|       QPMM[17].for_1[7].pe      |     0.011 |
+|       QPMM[17].for_1[8].pe      |     0.016 |
+|       QPMM[17].for_1[9].pe      |     0.010 |
+|       QPMM[1].for_1[0].pe       |     0.022 |
+|       QPMM[1].for_1[10].mul_ab  |     0.006 |
+|       QPMM[1].for_1[1].pe       |     0.016 |
+|       QPMM[1].for_1[2].pe       |     0.016 |
+|       QPMM[1].for_1[3].pe       |     0.023 |
+|       QPMM[1].for_1[4].pe       |     0.016 |
+|       QPMM[1].for_1[5].pe       |     0.015 |
+|       QPMM[1].for_1[6].pe       |     0.016 |
+|       QPMM[1].for_1[7].pe       |     0.023 |
+|       QPMM[1].for_1[8].pe       |     0.015 |
+|       QPMM[1].for_1[9].pe       |     0.021 |
+|       QPMM[2].for_1[0].pe       |     0.020 |
+|       QPMM[2].for_1[10].mul_ab  |     0.006 |
+|       QPMM[2].for_1[1].pe       |     0.017 |
+|       QPMM[2].for_1[2].pe       |     0.018 |
+|       QPMM[2].for_1[3].pe       |     0.015 |
+|       QPMM[2].for_1[4].pe       |     0.015 |
+|       QPMM[2].for_1[5].pe       |     0.017 |
+|       QPMM[2].for_1[6].pe       |     0.016 |
+|       QPMM[2].for_1[7].pe       |     0.015 |
+|       QPMM[2].for_1[8].pe       |     0.017 |
+|       QPMM[2].for_1[9].pe       |     0.016 |
+|       QPMM[3].for_1[0].pe       |     0.029 |
+|       QPMM[3].for_1[10].mul_ab  |     0.008 |
+|       QPMM[3].for_1[1].pe       |     0.016 |
+|       QPMM[3].for_1[2].pe       |     0.019 |
+|       QPMM[3].for_1[3].pe       |     0.019 |
+|       QPMM[3].for_1[4].pe       |     0.015 |
+|       QPMM[3].for_1[5].pe       |     0.018 |
+|       QPMM[3].for_1[6].pe       |     0.018 |
+|       QPMM[3].for_1[7].pe       |     0.020 |
+|       QPMM[3].for_1[8].pe       |     0.016 |
+|       QPMM[3].for_1[9].pe       |     0.017 |
+|       QPMM[4].for_1[0].pe       |     0.025 |
+|       QPMM[4].for_1[10].mul_ab  |     0.007 |
+|       QPMM[4].for_1[1].pe       |     0.021 |
+|       QPMM[4].for_1[2].pe       |     0.020 |
+|       QPMM[4].for_1[3].pe       |     0.022 |
+|       QPMM[4].for_1[4].pe       |     0.019 |
+|       QPMM[4].for_1[5].pe       |     0.020 |
+|       QPMM[4].for_1[6].pe       |     0.021 |
+|       QPMM[4].for_1[7].pe       |     0.023 |
+|       QPMM[4].for_1[8].pe       |     0.020 |
+|       QPMM[4].for_1[9].pe       |     0.016 |
+|       QPMM[5].for_1[0].pe       |     0.025 |
+|       QPMM[5].for_1[10].mul_ab  |     0.006 |
+|       QPMM[5].for_1[1].pe       |     0.021 |
+|       QPMM[5].for_1[2].pe       |     0.016 |
+|       QPMM[5].for_1[3].pe       |     0.023 |
+|       QPMM[5].for_1[4].pe       |     0.016 |
+|       QPMM[5].for_1[5].pe       |     0.021 |
+|       QPMM[5].for_1[6].pe       |     0.019 |
+|       QPMM[5].for_1[7].pe       |     0.018 |
+|       QPMM[5].for_1[8].pe       |     0.017 |
+|       QPMM[5].for_1[9].pe       |     0.022 |
+|       QPMM[6].for_1[0].pe       |     0.028 |
+|       QPMM[6].for_1[10].mul_ab  |     0.008 |
+|       QPMM[6].for_1[1].pe       |     0.016 |
+|       QPMM[6].for_1[2].pe       |     0.017 |
+|       QPMM[6].for_1[3].pe       |     0.024 |
+|       QPMM[6].for_1[4].pe       |     0.017 |
+|       QPMM[6].for_1[5].pe       |     0.017 |
+|       QPMM[6].for_1[6].pe       |     0.016 |
+|       QPMM[6].for_1[7].pe       |     0.017 |
+|       QPMM[6].for_1[8].pe       |     0.018 |
+|       QPMM[6].for_1[9].pe       |     0.015 |
+|       QPMM[7].for_1[0].pe       |     0.027 |
+|       QPMM[7].for_1[10].mul_ab  |     0.006 |
+|       QPMM[7].for_1[1].pe       |     0.017 |
+|       QPMM[7].for_1[2].pe       |     0.015 |
+|       QPMM[7].for_1[3].pe       |     0.022 |
+|       QPMM[7].for_1[4].pe       |     0.020 |
+|       QPMM[7].for_1[5].pe       |     0.016 |
+|       QPMM[7].for_1[6].pe       |     0.019 |
+|       QPMM[7].for_1[7].pe       |     0.019 |
+|       QPMM[7].for_1[8].pe       |     0.019 |
+|       QPMM[7].for_1[9].pe       |     0.017 |
+|       QPMM[8].for_1[0].pe       |     0.023 |
+|       QPMM[8].for_1[10].mul_ab  |     0.006 |
+|       QPMM[8].for_1[1].pe       |     0.015 |
+|       QPMM[8].for_1[2].pe       |     0.016 |
+|       QPMM[8].for_1[3].pe       |     0.017 |
+|       QPMM[8].for_1[4].pe       |     0.016 |
+|       QPMM[8].for_1[5].pe       |     0.016 |
+|       QPMM[8].for_1[6].pe       |     0.016 |
+|       QPMM[8].for_1[7].pe       |     0.016 |
+|       QPMM[8].for_1[8].pe       |     0.015 |
+|       QPMM[8].for_1[9].pe       |     0.015 |
+|       QPMM[9].for_1[0].pe       |     0.028 |
+|       QPMM[9].for_1[10].mul_ab  |     0.009 |
+|       QPMM[9].for_1[1].pe       |     0.015 |
+|       QPMM[9].for_1[2].pe       |     0.015 |
+|       QPMM[9].for_1[3].pe       |     0.015 |
+|       QPMM[9].for_1[4].pe       |     0.016 |
+|       QPMM[9].for_1[5].pe       |     0.015 |
+|       QPMM[9].for_1[6].pe       |     0.017 |
+|       QPMM[9].for_1[7].pe       |     0.018 |
+|       QPMM[9].for_1[8].pe       |     0.016 |
+|       QPMM[9].for_1[9].pe       |     0.017 |
+|     reduction1                  |     0.099 |
+|     reduction2                  |     0.097 |
+|     seq                         |     0.042 |
+|       rom                       |     0.030 |
++---------------------------------+-----------+
+
+
