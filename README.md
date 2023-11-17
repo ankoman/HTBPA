@@ -103,4 +103,11 @@ i =          11: 000000001cbced54baa5f06c7a35faf9487b9fade3173fbc48d78acdda7bf2a
 
 ## Implemantation
 
+On the Vivado GUI, click `Run Implementation`. It takes tens of minutes or a day depending on the implementation parameters, `N_CORES` particulaly.
+The implementation result will show that some routes go failed. This is due to the `-mode out_of_context` option in the synthesis phase.
+  
+The clock constraint is set to 600 MHz. To get the maximum operating frequency, using slack value,
+$$
+
+
 # License
