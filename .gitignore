@@ -4,6 +4,7 @@
 !/misc/
 !/rpt/
 !/dat/
+!/paper/
 !.gitignore
 !.gitattributes
 !*.tcl
